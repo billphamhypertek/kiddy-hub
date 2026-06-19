@@ -36,8 +36,8 @@ export function StarGarden({ onBack }: Props) {
       <h2>🌳 Vườn sao của cả nhà</h2>
       <p>Tổng cộng: ⭐ {garden?.totalStars ?? 0}</p>
       <div className="garden-field" aria-label="Khu vườn">
-        {items.map((item, i) => (
-          <span key={i} className="garden-item">
+        {items.map((item) => (
+          <span key={item} className="garden-item">
             {ITEM_EMOJI[item] ?? '✨'}
           </span>
         ))}

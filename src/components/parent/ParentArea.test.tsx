@@ -22,7 +22,7 @@ beforeEach(async () => {
 describe('ParentArea', () => {
   it('adds a child profile', async () => {
     render(<ParentArea audio={fakeAudio} onExit={() => {}} />);
-    await userEvent.type(screen.getByLabelText('Tên bé'), 'Na');
+    await userEvent.type(await screen.findByLabelText('Tên bé'), 'Na');
     await userEvent.click(screen.getByText('Thêm bé'));
     expect(await screen.findByText(/Na/)).toBeInTheDocument();
     expect(await listProfiles()).toHaveLength(1);
