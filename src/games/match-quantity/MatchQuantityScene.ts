@@ -124,7 +124,7 @@ export class MatchQuantityScene extends Phaser.Scene {
       tile.disableInteractive();
       this.host.playSfx('correct');
       this.placed++;
-      this.placedFirstTry++; // counts because this tile had no prior wrong drop
+      if (!tile.getData('missed')) this.placedFirstTry++; // counts only if this tile had no prior wrong drop
       if (this.placed === this.round.pairs.length) this.finish();
     } else {
       // Wrong drop: bounce home; this tile no longer earns a first-try point.
