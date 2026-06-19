@@ -9,6 +9,7 @@ import { moreLess } from './more-less';
 import { firstLetter } from './first-letter';
 import { oddOneOut } from './odd-one-out';
 import { abcEnglish } from './abc-english';
+import { numbersEnglish } from './numbers-english';
 
 /** Registers every game module. Call once at app startup. */
 export function registerAllGames(): void {
@@ -22,4 +23,5 @@ export function registerAllGames(): void {
   registerGame(firstLetter);
   registerGame(oddOneOut);
   registerGame(abcEnglish);
+  registerGame(numbersEnglish);
 }

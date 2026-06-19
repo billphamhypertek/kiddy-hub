@@ -14,6 +14,7 @@ export const AUDIO_MANIFEST: AudioManifest = {
     'firstletter.prompt': '',
     'oddoneout.prompt': '',
     'abc.prompt': '',
+    'numbersen.prompt': '',
     'feedback.correct': '',
     'feedback.tryagain': '',
     'reward.cheer': '',
