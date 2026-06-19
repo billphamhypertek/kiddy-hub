@@ -9,3 +9,8 @@ dist/
 # Logs & OS
 *.log
 .DS_Store
+
+# TypeScript build info / emitted config
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
