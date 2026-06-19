@@ -1,0 +1,11 @@
+# Visual brainstorm companion (mockups, server state)
+.superpowers/
+
+# Dependencies / build (cho giai đoạn code sau)
+node_modules/
+dist/
+.vite/
+
+# Logs & OS
+*.log
+.DS_Store
