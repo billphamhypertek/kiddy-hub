@@ -6,6 +6,7 @@ import { firstWords } from './first-words';
 import { memoryMatch } from './memory-match';
 import { jigsaw } from './jigsaw';
 import { moreLess } from './more-less';
+import { firstLetter } from './first-letter';
 
 /** Registers every game module. Call once at app startup. */
 export function registerAllGames(): void {
@@ -16,4 +17,5 @@ export function registerAllGames(): void {
   registerGame(memoryMatch);
   registerGame(jigsaw);
   registerGame(moreLess);
+  registerGame(firstLetter);
 }
