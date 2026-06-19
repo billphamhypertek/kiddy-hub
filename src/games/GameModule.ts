@@ -10,6 +10,8 @@ export interface GameResult {
 
 export interface GameHost {
   speak(key: string): Promise<void>;
+  /** Speak dynamic content (e.g. an English word) in the given language. */
+  speakText(text: string, lang?: string): Promise<void>;
   playSfx(key: string): void;
   awardStars(n: number): void;
   complete(result: GameResult): void;

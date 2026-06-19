@@ -99,7 +99,9 @@ export class FirstLetterScene extends Phaser.Scene {
     if (letter === this.current.entry.letter) {
       this.roundResolved = true;
       this.host.playSfx('correct');
-      void this.host.speak('feedback.correct');
+      // Cheer, then reinforce by reading the first letter aloud (Vietnamese).
+      const target = this.current.entry.letter;
+      void this.host.speak('feedback.correct').then(() => this.host.speakText(target, 'vi-VN'));
       btn.setFillStyle(0x9be08a);
       if (!this.answeredThisRound) this.correctCount++;
       this.answeredThisRound = true;

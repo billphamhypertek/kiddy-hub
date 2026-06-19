@@ -33,7 +33,14 @@ export class LetterSpottingScene extends Phaser.Scene {
     this.add
       .text(width - 64, 18, '🔊', { fontSize: '40px' })
       .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => void this.host.speak('letter.prompt'));
+      .on('pointerdown', () => this.sayTarget());
+  }
+
+  /** Re-read the prompt then the target Vietnamese letter aloud. */
+  private sayTarget(): void {
+    void this.host
+      .speak('letter.prompt')
+      .then(() => this.host.speakText(this.current.target, 'vi-VN'));
   }
 
   private nextRound(): void {
@@ -56,7 +63,7 @@ export class LetterSpottingScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
     this.layer.add(prompt);
-    void this.host.speak('letter.prompt');
+    this.sayTarget();
 
     const opts = this.current.options;
     const optStartX = width / 2 - ((opts.length - 1) * 150) / 2;

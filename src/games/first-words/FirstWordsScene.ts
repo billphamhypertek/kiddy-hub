@@ -33,7 +33,14 @@ export class FirstWordsScene extends Phaser.Scene {
     this.add
       .text(width - 64, 18, '🔊', { fontSize: '40px' })
       .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => void this.host.speak('firstwords.prompt'));
+      .on('pointerdown', () => this.sayTarget());
+  }
+
+  /** Re-read the prompt then the English target word in its native voice. */
+  private sayTarget(): void {
+    void this.host
+      .speak('firstwords.prompt')
+      .then(() => this.host.speakText(this.current.target.word, 'en-US'));
   }
 
   private nextRound(): void {
@@ -57,7 +64,7 @@ export class FirstWordsScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
     this.layer.add(prompt);
-    void this.host.speak('firstwords.prompt');
+    this.sayTarget();
 
     const opts = this.current.options;
     const optStartX = width / 2 - ((opts.length - 1) * 160) / 2;

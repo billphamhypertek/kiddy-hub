@@ -1,16 +1,23 @@
 import { getGamesByCategory } from '../games/registry';
 import { CATEGORIES } from '../content/categories';
 import type { CategoryId } from '../data/types';
+import type { MenuAudio } from './menuAudio';
 
 interface Props {
   categoryId: CategoryId;
   onPlay: (gameId: string) => void;
   onBack: () => void;
+  audio?: MenuAudio;
 }
 
-export function CategoryScreen({ categoryId, onPlay, onBack }: Props) {
+export function CategoryScreen({ categoryId, onPlay, onBack, audio }: Props) {
   const category = CATEGORIES.find((c) => c.id === categoryId);
   const games = getGamesByCategory(categoryId);
+
+  const handlePlay = (id: string, title: string): void => {
+    void audio?.speakText(title);
+    onPlay(id);
+  };
 
   return (
     <div className="screen category">
@@ -25,7 +32,7 @@ export function CategoryScreen({ categoryId, onPlay, onBack }: Props) {
       ) : (
         <div className="game-list">
           {games.map((g) => (
-            <button key={g.id} className="game-card" onClick={() => onPlay(g.id)}>
+            <button key={g.id} className="game-card" onClick={() => handlePlay(g.id, g.title)}>
               <span className="game-icon">{g.iconKey}</span>
               <span className="game-title">{g.title}</span>
             </button>

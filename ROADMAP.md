@@ -10,7 +10,10 @@
 
 **Giai đoạn 3 đã xong: 15/16 trò chơi được** (#10 Tìm Điểm Khác dời sang Giai đoạn 4 vì cần ảnh thật để tạo khác biệt tinh tế).
 
-**Bước kế — Giai đoạn 4 — Đánh bóng:** thay toàn bộ đồ hoạ AI bản cuối + giọng đọc Việt/Anh thật, thêm trò #10 Tìm Điểm Khác, hoạt ảnh/hiệu ứng, kiểm thử với trẻ thật (xem mục "Giai đoạn 4" bên dưới).
+**Giai đoạn 4 đang chạy — chia thành các phần độc lập A→F, mỗi phần có spec + sub-agent riêng:**
+- ✅ **Phần A — Giọng đọc + âm thanh** (Web Speech API live, local; trả 2 nợ kỹ thuật audio) — xong 2026-06-20.
+- 👉 **Phần B — Đồ hoạ bản cuối** (linh vật Cáo + style bible + art từng trò) — kế tiếp; **#10 Tìm Điểm Khác phụ thuộc phần này**.
+- ☐ Phần C #10 Tìm Điểm Khác · ☐ Phần D hoạt ảnh/hiệu ứng · ☐ Phần E tách bundle Phaser · ☐ Phần F (tuỳ chọn) PWA offline · ☐ kiểm thử với trẻ thật.
 
 ### Cách bắt đầu Giai đoạn 3 (dành cho phiên/agent mới)
 
@@ -68,7 +71,7 @@ Thêm 1 trò mỗi nhóm còn lại để mỗi đảo có nội dung.
 
 - ☐ #10 Tìm Điểm Khác (dời từ GĐ3 — cần ảnh thật để có khác biệt tinh tế)
 - ☐ Thay toàn bộ đồ hoạ AI bản cuối (theo style bible + linh vật Cáo)
-- ☐ Thay giọng đọc Việt/Anh bản cuối (TTS cao cấp hoặc thu thật)
+- ✅ **(Phần A)** Thay giọng đọc Việt/Anh bản cuối — **Web Speech API live, 100% local** (vi-VN + en-US, đọc cả nội dung động số/chữ/từ); SFX bằng Web Audio API (không cần file). Spec: `docs/superpowers/specs/2026-06-20-kiddyhub-phase-4a-audio-voice.md`
 - ☐ Hoạt ảnh, hiệu ứng, chuyển cảnh mượt
 - ☐ Kiểm thử trải nghiệm với trẻ thật
 - ☐ (Tuỳ chọn) Bật PWA offline
@@ -78,7 +81,7 @@ Thêm 1 trò mỗi nhóm còn lại để mỗi đảo có nội dung.
 ## 🧰 Nợ kỹ thuật & việc để dành (từ review Giai đoạn 1)
 
 - ✅ **Đã trả ở GĐ2:** tách `GameContainer.onComplete` thành hàm thuần `src/games/applyCompletion.ts` (chuỗi ghi tiến độ + tự nâng mức, không đếm đôi sao) + test tích hợp `applyCompletion.test.ts`. Quyết định nâng mức vẫn ở hàm thuần có test `src/games/progression.ts` (`nextLevel`).
-- **GĐ4 (khi gắn âm thanh thật):** `src/audio/howlerPlayer.ts` hiện chỉ nghe sự kiện `end` → một clip bị `stop()` (khi giọng mới chen vào) sẽ không resolve promise của `speak()`; cần resolve thêm khi `stop()`/lỗi. Đồng thời **gắn `speak()` cho các màn menu** (hiện chỉ trong trò chơi mới có giọng đọc) — wiring chưa có, không chỉ thiếu file âm thanh.
+- ✅ **Đã trả ở GĐ4 Phần A:** `speak()` nay **resolve ở mọi nhánh** (đọc xong / bị chen giọng / lỗi / voice-off / thiếu key) — hết treo promise; engine đổi từ Howler sang Web Speech (`src/audio/speechEngine.ts`, đã xoá `howlerPlayer.ts`). Đã **gắn `speak()` cho các màn menu** (Ai đang chơi / bản đồ đảo / màn nhóm).
 - **GĐ4:** tách bundle Phaser (~1.7MB) để giảm tải lần đầu; cân nhắc bật PWA offline.
 - **Nhỏ, chưa chặn:** `getWeeklyTally` gồm cả bé 0 sao & lọc tuần bằng JS sau index `profileId` (ổn ở quy mô gia đình); vài màn dùng `listProfiles().then(setState)` trong `useEffect` chưa có cleanup khi unmount.
 
@@ -89,3 +92,4 @@ Thêm 1 trò mỗi nhóm còn lại để mỗi đảo có nội dung.
 - **2026-06-19** — Merge vào `main` + đẩy lên GitHub (https://github.com/billphamhypertek/kiddy-hub). Thêm README. Thêm Docker (multi-stage Vite→nginx) + docker-compose, deploy local chạy ở http://localhost:8088. Sẵn sàng cho Giai đoạn 2.
 - **2026-06-19** — Giai đoạn 2 hoàn thành: thêm 5 trò (Bé Nhận Mặt Chữ, Tìm Quy Luật, Lật Hình Tìm Cặp, Ghép Hình, First Words) — mỗi đảo nay có nội dung; tách + test `applyCompletion`. 51→85 test pass; build thành công. Kế tiếp: Giai đoạn 3 (10 trò còn lại).
 - **2026-06-20** — Giai đoạn 3 hoàn thành: thêm 9 trò (Nhiều hơn – Ít hơn, Ghép Số với Lượng, Chữ Cái Đầu Tiên, Vật Lạ Trong Nhóm, Phân Loại, Nhận Diện Màu & Hình, ABC, Numbers 1–10, Colors) — 15/16 trò; #10 Tìm Điểm Khác dời sang GĐ4 (cần ảnh thật). 85→138 test pass; build thành công. Kế tiếp: Giai đoạn 4.
+- **2026-06-20** — **Giai đoạn 4 Phần A (Giọng đọc + âm thanh) hoàn thành.** Thay engine câm → **Web Speech API** (live TTS, 100% local, không file): câu mời/feedback/cheer tiếng Việt, nhóm trò tiếng Anh đọc `en-US`, đọc nội dung động (số/chữ/từ); SFX qua **Web Audio API** (oscillator). Trả 2 nợ kỹ thuật âm thanh: `speak()` resolve mọi nhánh + gắn `speak()` cho menu. Xoá `howlerPlayer.ts`. 138→144 test pass; build + lint sạch. Quy trình: brainstorm → spec → sub-agent implement → sub-agent review (0 lỗi MUST-FIX). Kế tiếp: **Phần B — Đồ hoạ bản cuối** (linh vật Cáo + style bible; #10 phụ thuộc phần này).

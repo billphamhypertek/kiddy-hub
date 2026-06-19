@@ -2,8 +2,12 @@ import { describe, it, expect, vi } from 'vitest';
 import { createGameHost } from './GameHost';
 
 describe('createGameHost', () => {
-  it('routes speak/playSfx to the audio manager', () => {
-    const audio = { speak: vi.fn().mockResolvedValue(undefined), playSfx: vi.fn() };
+  it('routes speak/speakText/playSfx to the audio manager', () => {
+    const audio = {
+      speak: vi.fn().mockResolvedValue(undefined),
+      speakText: vi.fn().mockResolvedValue(undefined),
+      playSfx: vi.fn(),
+    };
     const host = createGameHost({
       audio: audio as never,
       onAward: vi.fn(),
@@ -11,8 +15,10 @@ describe('createGameHost', () => {
       onHome: vi.fn(),
     });
     host.speak('counting.prompt');
+    host.speakText('seven', 'en-US');
     host.playSfx('tap');
     expect(audio.speak).toHaveBeenCalledWith('counting.prompt');
+    expect(audio.speakText).toHaveBeenCalledWith('seven', 'en-US');
     expect(audio.playSfx).toHaveBeenCalledWith('tap');
   });
 

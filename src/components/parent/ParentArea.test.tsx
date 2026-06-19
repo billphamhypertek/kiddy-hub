@@ -8,6 +8,7 @@ import { ParentArea } from './ParentArea';
 const fakeAudio = {
   playSfx: vi.fn(),
   speak: vi.fn().mockResolvedValue(undefined),
+  speakText: vi.fn().mockResolvedValue(undefined),
   stopVoice: vi.fn(),
   setSoundOn: vi.fn(),
   setVoiceOn: vi.fn(),

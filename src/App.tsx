@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { SessionProvider, useSession } from './state/SessionContext';
 import type { Screen } from './state/screens';
 import { createAudioManager, type AudioManager } from './audio/AudioManager';
-import { createHowlerPlayer } from './audio/howlerPlayer';
+import { createWebSpeechEngine } from './audio/speechEngine';
+import { createWebAudioSfxEngine } from './audio/sfxEngine';
 import { AUDIO_MANIFEST } from './audio/audioManifest';
 import { registerAllGames } from './games';
 import { getSettings } from './data/settings';
@@ -69,7 +70,11 @@ function Root({ audio }: { audio: AudioManager }) {
 
   if (screen.name === 'who') {
     return (
-      <WhoIsPlaying onSelect={selectProfile} onParent={() => setScreen({ name: 'parentGate' })} />
+      <WhoIsPlaying
+        audio={audio}
+        onSelect={selectProfile}
+        onParent={() => setScreen({ name: 'parentGate' })}
+      />
     );
   }
   if (screen.name === 'parentGate') {
@@ -88,7 +93,11 @@ function Root({ audio }: { audio: AudioManager }) {
   }
   if (!profile) {
     return (
-      <WhoIsPlaying onSelect={selectProfile} onParent={() => setScreen({ name: 'parentGate' })} />
+      <WhoIsPlaying
+        audio={audio}
+        onSelect={selectProfile}
+        onParent={() => setScreen({ name: 'parentGate' })}
+      />
     );
   }
   if (screen.name === 'map') {
@@ -98,6 +107,7 @@ function Root({ audio }: { audio: AudioManager }) {
         totalStars={totalStars}
         onCategory={onCategory}
         onGarden={() => setScreen({ name: 'garden' })}
+        audio={audio}
       />
     );
   }
@@ -107,6 +117,7 @@ function Root({ audio }: { audio: AudioManager }) {
         categoryId={screen.categoryId}
         onPlay={onPlay}
         onBack={() => setScreen({ name: 'map' })}
+        audio={audio}
       />
     );
   }
@@ -128,7 +139,10 @@ function Root({ audio }: { audio: AudioManager }) {
 }
 
 export default function App() {
-  const audio = useMemo(() => createAudioManager(createHowlerPlayer(), AUDIO_MANIFEST), []);
+  const audio = useMemo(
+    () => createAudioManager(createWebSpeechEngine(), createWebAudioSfxEngine(), AUDIO_MANIFEST),
+    [],
+  );
   return (
     <SessionProvider>
       <Root audio={audio} />

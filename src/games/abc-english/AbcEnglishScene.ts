@@ -33,7 +33,14 @@ export class AbcEnglishScene extends Phaser.Scene {
     this.add
       .text(width - 64, 18, '🔊', { fontSize: '40px' })
       .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => void this.host.speak('abc.prompt'));
+      .on('pointerdown', () => this.sayTarget());
+  }
+
+  /** Re-read the prompt then the English target letter in its native voice. */
+  private sayTarget(): void {
+    void this.host
+      .speak('abc.prompt')
+      .then(() => this.host.speakText(this.current.target, 'en-US'));
   }
 
   private nextRound(): void {
@@ -63,7 +70,7 @@ export class AbcEnglishScene extends Phaser.Scene {
         .text(width / 2, height / 2 - 70, this.current.target, { fontSize: '110px', color: '#ff7043', fontStyle: 'bold' })
         .setOrigin(0.5),
     );
-    void this.host.speak('abc.prompt');
+    this.sayTarget();
 
     const opts = this.current.options;
     const optStartX = width / 2 - ((opts.length - 1) * 140) / 2;

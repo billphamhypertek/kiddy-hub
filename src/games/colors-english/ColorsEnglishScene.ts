@@ -33,7 +33,14 @@ export class ColorsEnglishScene extends Phaser.Scene {
     this.add
       .text(width - 64, 18, '🔊', { fontSize: '40px' })
       .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => void this.host.speak('colorsen.prompt'));
+      .on('pointerdown', () => this.sayTarget());
+  }
+
+  /** Re-read the prompt then the English colour name in its native voice. */
+  private sayTarget(): void {
+    void this.host
+      .speak('colorsen.prompt')
+      .then(() => this.host.speakText(this.current.target.name, 'en-US'));
   }
 
   private nextRound(): void {
@@ -62,7 +69,7 @@ export class ColorsEnglishScene extends Phaser.Scene {
         .text(width / 2, height / 2 - 90, this.current.target.name, { fontSize: '64px', color: '#ff7043', fontStyle: 'bold' })
         .setOrigin(0.5),
     );
-    void this.host.speak('colorsen.prompt');
+    this.sayTarget();
 
     const opts = this.current.options;
     const startX = width / 2 - ((opts.length - 1) * 170) / 2;

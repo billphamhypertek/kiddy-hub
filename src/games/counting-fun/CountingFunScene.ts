@@ -94,7 +94,9 @@ export class CountingFunScene extends Phaser.Scene {
     if (this.roundResolved) return;
     if (opt === this.current.count) {
       this.host.playSfx('correct');
-      void this.host.speak('feedback.correct');
+      // Cheer, then reinforce the number-word link by reading the count aloud.
+      const count = this.current.count;
+      void this.host.speak('feedback.correct').then(() => this.host.speakText(String(count), 'vi-VN'));
       btn.setFillStyle(0x9be08a);
       if (!this.answeredThisRound) this.correctCount++;
       this.answeredThisRound = true;
