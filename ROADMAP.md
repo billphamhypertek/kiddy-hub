@@ -6,9 +6,11 @@
 
 ## 👉 Tiếp theo cần làm gì
 
-**Giai đoạn 1 ✅ & Giai đoạn 2 ✅ hoàn thành (2026-06-19).** Đã có Docker chạy local: `docker compose up -d --build` → http://localhost:8088.
+**Giai đoạn 1 ✅, Giai đoạn 2 ✅ & Giai đoạn 3 ✅ hoàn thành.** Đã có Docker chạy local: `docker compose up -d --build` → http://localhost:8088.
 
-**Bước kế — Giai đoạn 3 — Đủ 16 trò:** thêm 10 trò còn lại (xem checklist ở mục "Giai đoạn 3" bên dưới). Mỗi đảo trong 6 đảo nay đã có ≥1 trò chơi được.
+**Giai đoạn 3 đã xong: 15/16 trò chơi được** (#10 Tìm Điểm Khác dời sang Giai đoạn 4 vì cần ảnh thật để tạo khác biệt tinh tế).
+
+**Bước kế — Giai đoạn 4 — Đánh bóng:** thay toàn bộ đồ hoạ AI bản cuối + giọng đọc Việt/Anh thật, thêm trò #10 Tìm Điểm Khác, hoạt ảnh/hiệu ứng, kiểm thử với trẻ thật (xem mục "Giai đoạn 4" bên dưới).
 
 ### Cách bắt đầu Giai đoạn 3 (dành cho phiên/agent mới)
 
@@ -50,21 +52,21 @@ Thêm 1 trò mỗi nhóm còn lại để mỗi đảo có nội dung.
 - ✅ #11 Ghép Hình (Hình khối)
 - ✅ #13 First Words (Tiếng Anh)
 
-## Giai đoạn 3 — Đủ 16 trò  ☐
+## Giai đoạn 3 — Đủ 16 trò  ✅
 
-- ☐ #2 Nhiều hơn – Ít hơn
-- ☐ #3 Ghép Số với Lượng
-- ☐ #5 Chữ Cái Đầu Tiên
-- ☐ #7 Vật Lạ Trong Nhóm
-- ☐ #8 Phân Loại
-- ☐ #10 Tìm Điểm Khác
-- ☐ #12 Nhận Diện Màu & Hình
-- ☐ #14 ABC
-- ☐ #15 Numbers 1–10
-- ☐ #16 Colors
+- ✅ #2 Nhiều hơn – Ít hơn
+- ✅ #3 Ghép Số với Lượng
+- ✅ #5 Chữ Cái Đầu Tiên
+- ✅ #7 Vật Lạ Trong Nhóm
+- ✅ #8 Phân Loại
+- ✅ #12 Nhận Diện Màu & Hình
+- ✅ #14 ABC
+- ✅ #15 Numbers 1–10
+- ✅ #16 Colors
 
 ## Giai đoạn 4 — Đánh bóng  ☐
 
+- ☐ #10 Tìm Điểm Khác (dời từ GĐ3 — cần ảnh thật để có khác biệt tinh tế)
 - ☐ Thay toàn bộ đồ hoạ AI bản cuối (theo style bible + linh vật Cáo)
 - ☐ Thay giọng đọc Việt/Anh bản cuối (TTS cao cấp hoặc thu thật)
 - ☐ Hoạt ảnh, hiệu ứng, chuyển cảnh mượt
@@ -86,3 +88,4 @@ Thêm 1 trò mỗi nhóm còn lại để mỗi đảo có nội dung.
 - **2026-06-19** — Giai đoạn 1 hoàn thành: scaffold, lớp dữ liệu (Dexie), hệ âm thanh (Howler), game registry, màn "Ai đang chơi?", khu phụ huynh (cổng toán + CRUD + sao), bản đồ 6 đảo, vườn sao, trò "Đếm Vui" (Phaser, 3 mức độ, tự nâng cấp), toàn bộ App shell kết nối đầu-cuối. 48→51 test pass; build thành công.
 - **2026-06-19** — Merge vào `main` + đẩy lên GitHub (https://github.com/billphamhypertek/kiddy-hub). Thêm README. Thêm Docker (multi-stage Vite→nginx) + docker-compose, deploy local chạy ở http://localhost:8088. Sẵn sàng cho Giai đoạn 2.
 - **2026-06-19** — Giai đoạn 2 hoàn thành: thêm 5 trò (Bé Nhận Mặt Chữ, Tìm Quy Luật, Lật Hình Tìm Cặp, Ghép Hình, First Words) — mỗi đảo nay có nội dung; tách + test `applyCompletion`. 51→85 test pass; build thành công. Kế tiếp: Giai đoạn 3 (10 trò còn lại).
+- **2026-06-20** — Giai đoạn 3 hoàn thành: thêm 9 trò (Nhiều hơn – Ít hơn, Ghép Số với Lượng, Chữ Cái Đầu Tiên, Vật Lạ Trong Nhóm, Phân Loại, Nhận Diện Màu & Hình, ABC, Numbers 1–10, Colors) — 15/16 trò; #10 Tìm Điểm Khác dời sang GĐ4 (cần ảnh thật). 85→138 test pass; build thành công. Kế tiếp: Giai đoạn 4.

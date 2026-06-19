@@ -116,7 +116,7 @@ kiddy-hub/
   - `class MoreLessScene extends Phaser.Scene`
   - `moreLess: GameModule`
 
-- [ ] **Step 1: Write the failing logic test**
+- [x] **Step 1: Write the failing logic test**
 
 `src/games/more-less/moreLessLogic.test.ts`:
 ```ts
@@ -167,12 +167,12 @@ describe('starsFor', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run src/games/more-less/moreLessLogic.test.ts`
 Expected: FAIL — cannot find module `./moreLessLogic`.
 
-- [ ] **Step 3: Implement the logic**
+- [x] **Step 3: Implement the logic**
 
 `src/games/more-less/moreLessLogic.ts`:
 ```ts
@@ -228,12 +228,12 @@ export function starsFor(correct: number, total: number): number {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run src/games/more-less/moreLessLogic.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Implement the Phaser scene**
+- [x] **Step 5: Implement the Phaser scene**
 
 `src/games/more-less/MoreLessScene.ts`:
 ```ts
@@ -372,7 +372,7 @@ export class MoreLessScene extends Phaser.Scene {
 }
 ```
 
-- [ ] **Step 6: Implement the game module + register + manifest**
+- [x] **Step 6: Implement the game module + register + manifest**
 
 `src/games/more-less/index.ts`:
 ```ts
@@ -394,7 +394,7 @@ In `src/games/index.ts`: add `import { moreLess } from './more-less';` and, insi
 
 In `src/audio/audioManifest.ts`, add to the `voices` map: `'moreless.prompt': '',`.
 
-- [ ] **Step 7: Write the module metadata test**
+- [x] **Step 7: Write the module metadata test**
 
 `src/games/more-less/index.test.ts`:
 ```ts
@@ -411,7 +411,7 @@ describe('more-less module', () => {
 });
 ```
 
-- [ ] **Step 8: Run tests + type-check**
+- [x] **Step 8: Run tests + type-check**
 
 Run: `npx vitest run src/games/more-less/`
 Expected: PASS.
@@ -421,7 +421,7 @@ Expected: no type errors.
 
 > Scene rendering is verified manually in Task 10 (jsdom has no WebGL).
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/games/more-less/ src/games/index.ts src/audio/audioManifest.ts
@@ -452,7 +452,7 @@ git commit -m "feat(more-less): add 'Nhiều hơn – Ít hơn' numbers game (#2
   - `class FirstLetterScene extends Phaser.Scene`
   - `firstLetter: GameModule`
 
-- [ ] **Step 1: Write the failing logic test**
+- [x] **Step 1: Write the failing logic test**
 
 `src/games/first-letter/firstLetterLogic.test.ts`:
 ```ts
@@ -514,12 +514,12 @@ describe('starsFor', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run src/games/first-letter/firstLetterLogic.test.ts`
 Expected: FAIL — cannot find module `./firstLetterLogic`.
 
-- [ ] **Step 3: Implement the logic**
+- [x] **Step 3: Implement the logic**
 
 `src/games/first-letter/firstLetterLogic.ts`:
 ```ts
@@ -592,12 +592,12 @@ export function starsFor(correct: number, total: number): number {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run src/games/first-letter/firstLetterLogic.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Implement the Phaser scene**
+- [x] **Step 5: Implement the Phaser scene**
 
 `src/games/first-letter/FirstLetterScene.ts`:
 ```ts
@@ -728,7 +728,7 @@ export class FirstLetterScene extends Phaser.Scene {
 }
 ```
 
-- [ ] **Step 6: Implement the game module + register + manifest**
+- [x] **Step 6: Implement the game module + register + manifest**
 
 `src/games/first-letter/index.ts`:
 ```ts
@@ -750,7 +750,7 @@ In `src/games/index.ts`: add `import { firstLetter } from './first-letter';` and
 
 In `src/audio/audioManifest.ts`, add to `voices`: `'firstletter.prompt': '',`.
 
-- [ ] **Step 7: Write the module metadata test**
+- [x] **Step 7: Write the module metadata test**
 
 `src/games/first-letter/index.test.ts`:
 ```ts
@@ -767,7 +767,7 @@ describe('first-letter module', () => {
 });
 ```
 
-- [ ] **Step 8: Run tests + type-check**
+- [x] **Step 8: Run tests + type-check**
 
 Run: `npx vitest run src/games/first-letter/`
 Expected: PASS.
@@ -775,7 +775,7 @@ Expected: PASS.
 Run: `npx tsc -b`
 Expected: no type errors.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/games/first-letter/ src/games/index.ts src/audio/audioManifest.ts
@@ -804,7 +804,7 @@ git commit -m "feat(first-letter): add 'Chữ Cái Đầu Tiên' letters game (#
   - `class OddOneOutScene extends Phaser.Scene`
   - `oddOneOut: GameModule`
 
-- [ ] **Step 1: Write the failing logic test**
+- [x] **Step 1: Write the failing logic test**
 
 `src/games/odd-one-out/oddOneOutLogic.test.ts`:
 ```ts
@@ -860,12 +860,12 @@ describe('starsFor', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run src/games/odd-one-out/oddOneOutLogic.test.ts`
 Expected: FAIL — cannot find module `./oddOneOutLogic`.
 
-- [ ] **Step 3: Implement the logic**
+- [x] **Step 3: Implement the logic**
 
 `src/games/odd-one-out/oddOneOutLogic.ts`:
 ```ts
@@ -938,12 +938,12 @@ export function starsFor(correct: number, total: number): number {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run src/games/odd-one-out/oddOneOutLogic.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Implement the Phaser scene**
+- [x] **Step 5: Implement the Phaser scene**
 
 `src/games/odd-one-out/OddOneOutScene.ts`:
 ```ts
@@ -1054,7 +1054,7 @@ export class OddOneOutScene extends Phaser.Scene {
 }
 ```
 
-- [ ] **Step 6: Implement the game module + register + manifest**
+- [x] **Step 6: Implement the game module + register + manifest**
 
 `src/games/odd-one-out/index.ts`:
 ```ts
@@ -1076,7 +1076,7 @@ In `src/games/index.ts`: add `import { oddOneOut } from './odd-one-out';` and `r
 
 In `src/audio/audioManifest.ts`, add to `voices`: `'oddoneout.prompt': '',`.
 
-- [ ] **Step 7: Write the module metadata test**
+- [x] **Step 7: Write the module metadata test**
 
 `src/games/odd-one-out/index.test.ts`:
 ```ts
@@ -1093,7 +1093,7 @@ describe('odd-one-out module', () => {
 });
 ```
 
-- [ ] **Step 8: Run tests + type-check**
+- [x] **Step 8: Run tests + type-check**
 
 Run: `npx vitest run src/games/odd-one-out/`
 Expected: PASS.
@@ -1101,7 +1101,7 @@ Expected: PASS.
 Run: `npx tsc -b`
 Expected: no type errors.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/games/odd-one-out/ src/games/index.ts src/audio/audioManifest.ts
@@ -1131,7 +1131,7 @@ git commit -m "feat(odd-one-out): add 'Vật Lạ Trong Nhóm' logic game (#7)"
   - `class AbcEnglishScene extends Phaser.Scene`
   - `abcEnglish: GameModule`
 
-- [ ] **Step 1: Write the failing logic test**
+- [x] **Step 1: Write the failing logic test**
 
 `src/games/abc-english/abcLogic.test.ts`:
 ```ts
@@ -1199,12 +1199,12 @@ describe('starsFor', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run src/games/abc-english/abcLogic.test.ts`
 Expected: FAIL — cannot find module `./abcLogic`.
 
-- [ ] **Step 3: Implement the logic**
+- [x] **Step 3: Implement the logic**
 
 `src/games/abc-english/abcLogic.ts`:
 ```ts
@@ -1255,12 +1255,12 @@ export function starsFor(correct: number, total: number): number {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run src/games/abc-english/abcLogic.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Implement the Phaser scene**
+- [x] **Step 5: Implement the Phaser scene**
 
 `src/games/abc-english/AbcEnglishScene.ts`:
 ```ts
@@ -1380,7 +1380,7 @@ export class AbcEnglishScene extends Phaser.Scene {
 }
 ```
 
-- [ ] **Step 6: Implement the game module + register + manifest**
+- [x] **Step 6: Implement the game module + register + manifest**
 
 `src/games/abc-english/index.ts`:
 ```ts
@@ -1402,7 +1402,7 @@ In `src/games/index.ts`: add `import { abcEnglish } from './abc-english';` and `
 
 In `src/audio/audioManifest.ts`, add to `voices`: `'abc.prompt': '',`.
 
-- [ ] **Step 7: Write the module metadata test**
+- [x] **Step 7: Write the module metadata test**
 
 `src/games/abc-english/index.test.ts`:
 ```ts
@@ -1419,7 +1419,7 @@ describe('abc-english module', () => {
 });
 ```
 
-- [ ] **Step 8: Run tests + type-check**
+- [x] **Step 8: Run tests + type-check**
 
 Run: `npx vitest run src/games/abc-english/`
 Expected: PASS.
@@ -1427,7 +1427,7 @@ Expected: PASS.
 Run: `npx tsc -b`
 Expected: no type errors.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/games/abc-english/ src/games/index.ts src/audio/audioManifest.ts
@@ -1457,7 +1457,7 @@ git commit -m "feat(abc-english): add 'ABC' English game (#14)"
   - `class NumbersEnglishScene extends Phaser.Scene`
   - `numbersEnglish: GameModule`
 
-- [ ] **Step 1: Write the failing logic test**
+- [x] **Step 1: Write the failing logic test**
 
 `src/games/numbers-english/numbersEnLogic.test.ts`:
 ```ts
@@ -1521,12 +1521,12 @@ describe('starsFor', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run src/games/numbers-english/numbersEnLogic.test.ts`
 Expected: FAIL — cannot find module `./numbersEnLogic`.
 
-- [ ] **Step 3: Implement the logic**
+- [x] **Step 3: Implement the logic**
 
 `src/games/numbers-english/numbersEnLogic.ts`:
 ```ts
@@ -1583,12 +1583,12 @@ export function starsFor(correct: number, total: number): number {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run src/games/numbers-english/numbersEnLogic.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Implement the Phaser scene**
+- [x] **Step 5: Implement the Phaser scene**
 
 `src/games/numbers-english/NumbersEnglishScene.ts`:
 ```ts
@@ -1707,7 +1707,7 @@ export class NumbersEnglishScene extends Phaser.Scene {
 }
 ```
 
-- [ ] **Step 6: Implement the game module + register + manifest**
+- [x] **Step 6: Implement the game module + register + manifest**
 
 `src/games/numbers-english/index.ts`:
 ```ts
@@ -1729,7 +1729,7 @@ In `src/games/index.ts`: add `import { numbersEnglish } from './numbers-english'
 
 In `src/audio/audioManifest.ts`, add to `voices`: `'numbersen.prompt': '',`.
 
-- [ ] **Step 7: Write the module metadata test**
+- [x] **Step 7: Write the module metadata test**
 
 `src/games/numbers-english/index.test.ts`:
 ```ts
@@ -1746,7 +1746,7 @@ describe('numbers-english module', () => {
 });
 ```
 
-- [ ] **Step 8: Run tests + type-check**
+- [x] **Step 8: Run tests + type-check**
 
 Run: `npx vitest run src/games/numbers-english/`
 Expected: PASS.
@@ -1754,7 +1754,7 @@ Expected: PASS.
 Run: `npx tsc -b`
 Expected: no type errors.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/games/numbers-english/ src/games/index.ts src/audio/audioManifest.ts
@@ -1788,7 +1788,7 @@ git commit -m "feat(numbers-english): add 'Numbers 1–10' English game (#15)"
   - `class ShapesColorsScene extends Phaser.Scene`
   - `shapesColors: GameModule`
 
-- [ ] **Step 1: Write the failing logic test**
+- [x] **Step 1: Write the failing logic test**
 
 `src/games/shapes-colors/shapeColorLogic.test.ts`:
 ```ts
@@ -1859,12 +1859,12 @@ describe('starsFor', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run src/games/shapes-colors/shapeColorLogic.test.ts`
 Expected: FAIL — cannot find module `./shapeColorLogic`.
 
-- [ ] **Step 3: Implement the logic**
+- [x] **Step 3: Implement the logic**
 
 `src/games/shapes-colors/shapeColorLogic.ts`:
 ```ts
@@ -1971,12 +1971,12 @@ export function starsFor(correct: number, total: number): number {
 > it guarantees `size` distinct, non-matching options without relying on rng quality
 > (degenerate-rng safe). The `start*` offsets only vary *which* distractors appear.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run src/games/shapes-colors/shapeColorLogic.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Implement the Phaser scene**
+- [x] **Step 5: Implement the Phaser scene**
 
 `src/games/shapes-colors/ShapesColorsScene.ts`:
 ```ts
@@ -2146,7 +2146,7 @@ export class ShapesColorsScene extends Phaser.Scene {
 > point math cannot be unit-tested without WebGL). If a shape looks off, adjust
 > only the scene drawing; keep `shapeColorLogic` (the tested pure logic) unchanged.
 
-- [ ] **Step 6: Implement the game module + register + manifest**
+- [x] **Step 6: Implement the game module + register + manifest**
 
 `src/games/shapes-colors/index.ts`:
 ```ts
@@ -2168,7 +2168,7 @@ In `src/games/index.ts`: add `import { shapesColors } from './shapes-colors';` a
 
 In `src/audio/audioManifest.ts`, add to `voices`: `'shapecolor.prompt': '',`.
 
-- [ ] **Step 7: Write the module metadata test**
+- [x] **Step 7: Write the module metadata test**
 
 `src/games/shapes-colors/index.test.ts`:
 ```ts
@@ -2185,7 +2185,7 @@ describe('shapes-colors module', () => {
 });
 ```
 
-- [ ] **Step 8: Run tests + type-check**
+- [x] **Step 8: Run tests + type-check**
 
 Run: `npx vitest run src/games/shapes-colors/`
 Expected: PASS.
@@ -2193,7 +2193,7 @@ Expected: PASS.
 Run: `npx tsc -b`
 Expected: no type errors.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/games/shapes-colors/ src/games/index.ts src/audio/audioManifest.ts
@@ -2224,7 +2224,7 @@ git commit -m "feat(shapes-colors): add 'Nhận Diện Màu & Hình' shapes game
   - `class ColorsEnglishScene extends Phaser.Scene`
   - `colorsEnglish: GameModule`
 
-- [ ] **Step 1: Write the failing logic test**
+- [x] **Step 1: Write the failing logic test**
 
 `src/games/colors-english/colorsEnLogic.test.ts`:
 ```ts
@@ -2283,12 +2283,12 @@ describe('starsFor', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run src/games/colors-english/colorsEnLogic.test.ts`
 Expected: FAIL — cannot find module `./colorsEnLogic`.
 
-- [ ] **Step 3: Implement the logic**
+- [x] **Step 3: Implement the logic**
 
 `src/games/colors-english/colorsEnLogic.ts`:
 ```ts
@@ -2354,12 +2354,12 @@ export function starsFor(correct: number, total: number): number {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run src/games/colors-english/colorsEnLogic.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Implement the Phaser scene**
+- [x] **Step 5: Implement the Phaser scene**
 
 `src/games/colors-english/ColorsEnglishScene.ts`:
 ```ts
@@ -2474,7 +2474,7 @@ export class ColorsEnglishScene extends Phaser.Scene {
 }
 ```
 
-- [ ] **Step 6: Implement the game module + register + manifest**
+- [x] **Step 6: Implement the game module + register + manifest**
 
 `src/games/colors-english/index.ts`:
 ```ts
@@ -2496,7 +2496,7 @@ In `src/games/index.ts`: add `import { colorsEnglish } from './colors-english';`
 
 In `src/audio/audioManifest.ts`, add to `voices`: `'colorsen.prompt': '',`.
 
-- [ ] **Step 7: Write the module metadata test**
+- [x] **Step 7: Write the module metadata test**
 
 `src/games/colors-english/index.test.ts`:
 ```ts
@@ -2513,7 +2513,7 @@ describe('colors-english module', () => {
 });
 ```
 
-- [ ] **Step 8: Run tests + type-check**
+- [x] **Step 8: Run tests + type-check**
 
 Run: `npx vitest run src/games/colors-english/`
 Expected: PASS.
@@ -2521,7 +2521,7 @@ Expected: PASS.
 Run: `npx tsc -b`
 Expected: no type errors.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/games/colors-english/ src/games/index.ts src/audio/audioManifest.ts
@@ -2551,7 +2551,7 @@ git commit -m "feat(colors-english): add 'Colors' English game (#16)"
   - `class MatchQuantityScene extends Phaser.Scene`
   - `matchQuantity: GameModule`
 
-- [ ] **Step 1: Write the failing logic test**
+- [x] **Step 1: Write the failing logic test**
 
 `src/games/match-quantity/matchQuantityLogic.test.ts`:
 ```ts
@@ -2611,12 +2611,12 @@ describe('starsFor', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run src/games/match-quantity/matchQuantityLogic.test.ts`
 Expected: FAIL — cannot find module `./matchQuantityLogic`.
 
-- [ ] **Step 3: Implement the logic**
+- [x] **Step 3: Implement the logic**
 
 `src/games/match-quantity/matchQuantityLogic.ts`:
 ```ts
@@ -2680,12 +2680,12 @@ export function starsFor(correct: number, total: number): number {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run src/games/match-quantity/matchQuantityLogic.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Implement the Phaser scene (drag-drop, clone of JigsawScene)**
+- [x] **Step 5: Implement the Phaser scene (drag-drop, clone of JigsawScene)**
 
 `src/games/match-quantity/MatchQuantityScene.ts`:
 ```ts
@@ -2855,7 +2855,7 @@ export class MatchQuantityScene extends Phaser.Scene {
 > consult `tile.getData('missed')` before incrementing. Keep `matchQuantityLogic`
 > (the tested pure logic) unchanged when tuning the scene.
 
-- [ ] **Step 6: Implement the game module + register + manifest**
+- [x] **Step 6: Implement the game module + register + manifest**
 
 `src/games/match-quantity/index.ts`:
 ```ts
@@ -2877,7 +2877,7 @@ In `src/games/index.ts`: add `import { matchQuantity } from './match-quantity';`
 
 In `src/audio/audioManifest.ts`, add to `voices`: `'matchquantity.prompt': '',`.
 
-- [ ] **Step 7: Write the module metadata test**
+- [x] **Step 7: Write the module metadata test**
 
 `src/games/match-quantity/index.test.ts`:
 ```ts
@@ -2894,7 +2894,7 @@ describe('match-quantity module', () => {
 });
 ```
 
-- [ ] **Step 8: Run tests + type-check**
+- [x] **Step 8: Run tests + type-check**
 
 Run: `npx vitest run src/games/match-quantity/`
 Expected: PASS.
@@ -2902,7 +2902,7 @@ Expected: PASS.
 Run: `npx tsc -b`
 Expected: no type errors.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/games/match-quantity/ src/games/index.ts src/audio/audioManifest.ts
@@ -2934,7 +2934,7 @@ git commit -m "feat(match-quantity): add 'Ghép Số với Lượng' numbers gam
   - `class SortingScene extends Phaser.Scene`
   - `sorting: GameModule`
 
-- [ ] **Step 1: Write the failing logic test**
+- [x] **Step 1: Write the failing logic test**
 
 `src/games/sorting/sortingLogic.test.ts`:
 ```ts
@@ -3005,12 +3005,12 @@ describe('starsFor', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run src/games/sorting/sortingLogic.test.ts`
 Expected: FAIL — cannot find module `./sortingLogic`.
 
-- [ ] **Step 3: Implement the logic**
+- [x] **Step 3: Implement the logic**
 
 `src/games/sorting/sortingLogic.ts`:
 ```ts
@@ -3088,12 +3088,12 @@ export function starsFor(correct: number, total: number): number {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run src/games/sorting/sortingLogic.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Implement the Phaser scene (drag-drop)**
+- [x] **Step 5: Implement the Phaser scene (drag-drop)**
 
 `src/games/sorting/SortingScene.ts`:
 ```ts
@@ -3244,7 +3244,7 @@ export class SortingScene extends Phaser.Scene {
 > basket bounces the item back to the tray. `SNAP = 110` and the basket/tray layout
 > are visual and CANNOT be unit-tested. Keep `sortingLogic` unchanged when tuning.
 
-- [ ] **Step 6: Implement the game module + register + manifest**
+- [x] **Step 6: Implement the game module + register + manifest**
 
 `src/games/sorting/index.ts`:
 ```ts
@@ -3266,7 +3266,7 @@ In `src/games/index.ts`: add `import { sorting } from './sorting';` and `registe
 
 In `src/audio/audioManifest.ts`, add to `voices`: `'sorting.prompt': '',`.
 
-- [ ] **Step 7: Write the module metadata test**
+- [x] **Step 7: Write the module metadata test**
 
 `src/games/sorting/index.test.ts`:
 ```ts
@@ -3283,7 +3283,7 @@ describe('sorting module', () => {
 });
 ```
 
-- [ ] **Step 8: Run tests + type-check**
+- [x] **Step 8: Run tests + type-check**
 
 Run: `npx vitest run src/games/sorting/`
 Expected: PASS.
@@ -3291,7 +3291,7 @@ Expected: PASS.
 Run: `npx tsc -b`
 Expected: no type errors.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/games/sorting/ src/games/index.ts src/audio/audioManifest.ts
@@ -3310,7 +3310,7 @@ git commit -m "feat(sorting): add 'Phân Loại' logic game (#8)"
 - Consumes: every game registered in Tasks 1–9; the running app.
 - Produces: a verified Phase 3 deliverable, an up-to-date roadmap, and a Phase 3 SDD ledger.
 
-- [ ] **Step 1: Confirm all 9 games are registered**
+- [x] **Step 1: Confirm all 9 games are registered**
 
 Open `src/games/index.ts` and confirm it now imports and registers all 15 games (6 from Phases 1–2 + 9 new). The 9 new `registerGame(...)` calls must be present: `moreLess`, `firstLetter`, `oddOneOut`, `abcEnglish`, `numbersEnglish`, `shapesColors`, `colorsEnglish`, `matchQuantity`, `sorting`.
 
@@ -3318,7 +3318,7 @@ Open `src/audio/audioManifest.ts` and confirm the `voices` map now contains all 
 
 > If any task was implemented out of order or by a parallel agent and a register/manifest line is missing, add it now (the additive single-line inserts from each task's Step 6).
 
-- [ ] **Step 2: Full test suite + build**
+- [x] **Step 2: Full test suite + build**
 
 Run: `npm run test`
 Expected: ALL tests pass and output is pristine (Phases 1–2 suite + the 9 new games' logic & metadata tests). Roughly 85 → ~110+ tests.
@@ -3326,7 +3326,7 @@ Expected: ALL tests pass and output is pristine (Phases 1–2 suite + the 9 new 
 Run: `npm run build`
 Expected: `tsc -b` + `vite build` succeed; `dist/` produced; no type errors.
 
-- [ ] **Step 3: End-to-end manual verification (Phase 3 Definition of Done)**
+- [x] **Step 3: End-to-end manual verification (Phase 3 Definition of Done)**
 
 Run: `npm run dev`, open the URL, ensure ≥1 child profile exists (create via Bố mẹ if needed), pick a child, then verify EACH island lists its new game(s) and each is playable across its levels:
 1. **Toán & Con số** → now also lists "Nhiều hơn – Ít hơn" (tap the more/less group; wrong tap shakes + retries) and "Ghép Số với Lượng" (drag each number tile into the group with that many items; correct drops snap & lock).
@@ -3341,7 +3341,7 @@ Run: `npm run dev`, open the URL, ensure ≥1 child profile exists (create via B
 > Record any drag-drop offset/snap quirks in the manual-test TODO alongside the
 > Phase-2 jigsaw note; tune the scene drawing/snap only (pure logic stays frozen).
 
-- [ ] **Step 4: Update the roadmap**
+- [x] **Step 4: Update the roadmap**
 
 In `ROADMAP.md`:
 - Under "## Giai đoạn 3 — Đủ 16 trò", change the heading marker `☐` → `✅`. Tick the 9 shipped lines (`☐` → `✅`): #2 Nhiều hơn – Ít hơn, #3 Ghép Số với Lượng, #5 Chữ Cái Đầu Tiên, #7 Vật Lạ Trong Nhóm, #8 Phân Loại, #12 Nhận Diện Màu & Hình, #14 ABC, #15 Numbers 1–10, #16 Colors.
@@ -3350,11 +3350,11 @@ In `ROADMAP.md`:
 - Append a dated line to "## Nhật ký tiến độ", e.g.:
   `- **2026-06-20** — Giai đoạn 3 hoàn thành: thêm 9 trò (Nhiều hơn – Ít hơn, Ghép Số với Lượng, Chữ Cái Đầu Tiên, Vật Lạ Trong Nhóm, Phân Loại, Nhận Diện Màu & Hình, ABC, Numbers 1–10, Colors) — 15/16 trò; #10 Tìm Điểm Khác dời sang GĐ4 (cần ảnh thật). 85→~110+ test pass; build thành công. Kế tiếp: Giai đoạn 4.`
 
-- [ ] **Step 5: Update the SDD ledger**
+- [x] **Step 5: Update the SDD ledger**
 
 In `.superpowers/sdd/progress.md`, append a Phase 3 section (a new block under the existing Phase 1 ledger), listing Tasks 1–10 as `[x]` complete with their commit subjects and a one-line note that all 9 games shipped, `npm run test` is pristine, and `npm run build` is green. Keep the existing Phase 1 content intact.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add ROADMAP.md .superpowers/sdd/progress.md
