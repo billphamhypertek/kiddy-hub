@@ -1934,10 +1934,6 @@ export function generateRound(level: number, rng: Rng): ShapeColorRound {
     return o.shape === targetShape && o.color.name === targetColor.name;
   };
 
-  let guard = 0;
-  while (options.size?.valueOf?.() ?? options.length < size) {
-    break; // placeholder; replaced below — see note
-  }
   // Fill distractors deterministically: iterate shape×color combinations until
   // we have `size` options, skipping any that match the target or duplicate
   // an existing option. This is degenerate-rng safe (full deterministic walk).
@@ -1971,10 +1967,9 @@ export function starsFor(correct: number, total: number): number {
 }
 ```
 
-> **Implementer note:** delete the dead `while (...) { break; }` placeholder block
-> above — it is shown only to mark where the distractor fill begins. The real fill
-> is the deterministic `for` double-loop right after it. Keep the double-loop; it
-> guarantees `size` distinct, non-matching options without relying on rng quality.
+> **Implementer note:** the distractor fill is the deterministic `for` double-loop —
+> it guarantees `size` distinct, non-matching options without relying on rng quality
+> (degenerate-rng safe). The `start*` offsets only vary *which* distractors appear.
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -3394,6 +3389,6 @@ git commit -m "docs(phase-3): mark Giai đoạn 3 complete (9 games, #10 deferre
 
 No Phase 3 requirement is left without a task.
 
-**Placeholder scan:** No "TBD/TODO/implement later". Empty audio sources (`''`) are an intentional, documented design (silent no-op). The drag-drop snap math and the `shapes-colors` `fillStar` rendering are flagged as manual-tune (with the tested pure logic frozen), not plan gaps. The dead `while (...) { break; }` line in Task 6's logic is explicitly called out as a marker to delete; the real distractor fill is the deterministic double-loop directly after it.
+**Placeholder scan:** No "TBD/TODO/implement later". Empty audio sources (`''`) are an intentional, documented design (silent no-op). The drag-drop snap math and the `shapes-colors` `fillStar` rendering are flagged as manual-tune (with the tested pure logic frozen), not plan gaps. Task 6's distractor fill is a deterministic double-loop (degenerate-rng safe).
 
 **Type consistency:** Each game defines `Rng`, its own round type, `generateRound`, and a local `starsFor(correct, total)` once and consumes them with matching signatures in its scene + tests. `optionCountForLevel` returns are consistent within each task (first-letter 3/4/4; odd-one-out uses `itemCountForLevel` 3/4/5; abc 3/4/4; shapes-colors 3/4/4). Touch-select scenes use `QUESTIONS_PER_GAME = 5` and `correctCount`; drag-drop scenes use `placed`/`correct`/`placedFirstTry` with `total = tiles`. Module exports (`moreLess`, `firstLetter`, `oddOneOut`, `abcEnglish`, `numbersEnglish`, `shapesColors`, `colorsEnglish`, `matchQuantity`, `sorting`) match the imports added to `src/games/index.ts` and the assertions in each `index.test.ts`. `categoryId` values are all from the valid set (`numbers`/`letters`/`logic`/`shapes`/`english`). Voice keys in each scene's `host.speak(...)` match the keys added to `audioManifest.ts` (`moreless.prompt`, `firstletter.prompt`, `oddoneout.prompt`, `abc.prompt`, `numbersen.prompt`, `shapecolor.prompt`, `colorsen.prompt`, `matchquantity.prompt`, `sorting.prompt`).
