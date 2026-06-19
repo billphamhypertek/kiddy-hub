@@ -13,6 +13,7 @@ export const AUDIO_MANIFEST: AudioManifest = {
     'moreless.prompt': '',
     'firstletter.prompt': '',
     'oddoneout.prompt': '',
+    'abc.prompt': '',
     'feedback.correct': '',
     'feedback.tryagain': '',
     'reward.cheer': '',
