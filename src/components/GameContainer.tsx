@@ -6,7 +6,7 @@ import type { AudioManager } from '../audio/AudioManager';
 import type { GameResult } from '../games/GameModule';
 import { recordPlay } from '../data/progress';
 import { addStars } from '../data/stars';
-import { nextLevel } from '../games/progression';
+import { applyCompletion } from '../games/applyCompletion';
 
 interface GameContainerProps {
   gameId: string;
@@ -30,10 +30,7 @@ export function GameContainer({ gameId, level, profileId, audio, onExit }: GameC
         void addStars(profileId, n); // awardStars persists immediately
       },
       onComplete: async (result: GameResult) => {
-        // Auto-advance difficulty: a perfect session bumps the saved level
-        // (capped at the game's max). recordPlay stores max(existing, level).
-        const newLevel = nextLevel(result.stars, result.level, moduleDef.levels);
-        await recordPlay(profileId, result.gameId, newLevel, result.score);
+        await applyCompletion({ profileId, maxLevels: moduleDef.levels, recordPlay }, result);
         onExit(result); // stars already persisted via onAward
       },
       onHome: () => onExit(),
