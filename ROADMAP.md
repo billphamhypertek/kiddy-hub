@@ -6,7 +6,21 @@
 
 ## 👉 Tiếp theo cần làm gì
 
-**Giai đoạn 1 ✅ hoàn thành (2026-06-19).** Bước kế: **Giai đoạn 2** — thêm 1 trò mỗi nhóm còn lại để mỗi đảo có nội dung (Bé Nhận Mặt Chữ, Tìm Quy Luật, Lật Hình Tìm Cặp, Ghép Hình, First Words).
+**Giai đoạn 1 ✅ hoàn thành & đã đẩy lên GitHub (2026-06-19).** Đã có Docker chạy local: `docker compose up -d --build` → http://localhost:8088.
+
+**Bước kế — Giai đoạn 2:** thêm 1 trò mỗi nhóm còn lại (5 trò) để mỗi đảo có nội dung — xem checklist ở mục "Giai đoạn 2" bên dưới.
+
+### Cách bắt đầu Giai đoạn 2 (dành cho phiên/agent mới)
+
+1. Đọc bản thiết kế tổng (`docs/superpowers/specs/2026-06-19-kiddyhub-design.md`): §9 danh sách trò + kỹ năng, §10 đồ hoạ (vẫn dùng **emoji tạm + chưa giọng đọc** cho tới Giai đoạn 4).
+2. **Khuôn mẫu để nhân bản:** trò "Đếm Vui" ở `src/games/counting-fun/` là chuẩn cho MỘT trò:
+   - `countingLogic.ts` — logic thuần (random inject qua `Rng`), có test riêng;
+   - `CountingFunScene.ts` — `Phaser.Scene` dựng từ `(host, level)`, dùng `host.speak/playSfx/awardStars/complete/goHome`, có guard `roundResolved` chống double-advance;
+   - `index.ts` — khai báo `GameModule`; rồi đăng ký trong `src/games/index.ts` (`registerAllGames`).
+3. Mỗi trò mới = lặp lại khuôn đó + test cho phần logic thuần. **Không phải sửa** app shell, bản đồ, vườn sao, hay độ-khó-tự-tăng (`src/games/progression.ts`) — đã xong.
+4. Quy trình đề xuất (giống GĐ1): **brainstorming** (chốt cơ chế từng trò nếu cần) → **writing-plans** → **subagent-driven-development**. Tham khảo plan GĐ1: `docs/superpowers/plans/2026-06-19-kiddyhub-phase-1.md`.
+5. Test infra: Phaser được alias sang stub khi chạy test (`vite.config.ts` → `src/test/phaser-stub.ts`) → **KHÔNG** cần `vi.mock('phaser')` per-file; test tập trung vào logic thuần, cảnh Phaser kiểm thử thủ công (`npm run dev`).
+6. Cập nhật checklist + Nhật ký trong file này sau mỗi trò.
 
 ---
 
@@ -59,7 +73,15 @@ Thêm 1 trò mỗi nhóm còn lại để mỗi đảo có nội dung.
 
 ---
 
+## 🧰 Nợ kỹ thuật & việc để dành (từ review Giai đoạn 1)
+
+- **Nên làm ở GĐ2:** thêm test tích hợp cho `GameContainer.onComplete` (đường ghi sao/tiến độ + tự nâng cấp mức) — đây là chỗ dễ vỡ nhất khi thêm trò mới. Quyết định nâng mức đã tách thành hàm thuần có test: `src/games/progression.ts` (`nextLevel`).
+- **GĐ4 (khi gắn âm thanh thật):** `src/audio/howlerPlayer.ts` hiện chỉ nghe sự kiện `end` → một clip bị `stop()` (khi giọng mới chen vào) sẽ không resolve promise của `speak()`; cần resolve thêm khi `stop()`/lỗi. Đồng thời **gắn `speak()` cho các màn menu** (hiện chỉ trong trò chơi mới có giọng đọc) — wiring chưa có, không chỉ thiếu file âm thanh.
+- **GĐ4:** tách bundle Phaser (~1.7MB) để giảm tải lần đầu; cân nhắc bật PWA offline.
+- **Nhỏ, chưa chặn:** `getWeeklyTally` gồm cả bé 0 sao & lọc tuần bằng JS sau index `profileId` (ổn ở quy mô gia đình); vài màn dùng `listProfiles().then(setState)` trong `useEffect` chưa có cleanup khi unmount.
+
 ## Nhật ký tiến độ
 
 - **2026-06-19** — Brainstorm xong; chốt thiết kế tổng & lộ trình 4 giai đoạn. Viết bản thiết kế + ROADMAP. Kế tiếp: implementation plan GĐ 1.
-- **2026-06-19** — Giai đoạn 1 hoàn thành: scaffold, lớp dữ liệu (Dexie), hệ âm thanh (Howler), game registry, màn "Ai đang chơi?", khu phụ huynh (cổng toán + CRUD + sao), bản đồ 6 đảo, vườn sao, trò "Đếm Vui" (Phaser, 3 mức độ, tự nâng cấp), toàn bộ App shell kết nối đầu-cuối. 48 test pass; build thành công.
+- **2026-06-19** — Giai đoạn 1 hoàn thành: scaffold, lớp dữ liệu (Dexie), hệ âm thanh (Howler), game registry, màn "Ai đang chơi?", khu phụ huynh (cổng toán + CRUD + sao), bản đồ 6 đảo, vườn sao, trò "Đếm Vui" (Phaser, 3 mức độ, tự nâng cấp), toàn bộ App shell kết nối đầu-cuối. 48→51 test pass; build thành công.
+- **2026-06-19** — Merge vào `main` + đẩy lên GitHub (https://github.com/billphamhypertek/kiddy-hub). Thêm README. Thêm Docker (multi-stage Vite→nginx) + docker-compose, deploy local chạy ở http://localhost:8088. Sẵn sàng cho Giai đoạn 2.
