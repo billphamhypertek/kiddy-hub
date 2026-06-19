@@ -17,6 +17,7 @@ export const AUDIO_MANIFEST: AudioManifest = {
     'numbersen.prompt': '',
     'shapecolor.prompt': '',
     'colorsen.prompt': '',
+    'matchquantity.prompt': '',
     'feedback.correct': '',
     'feedback.tryagain': '',
     'reward.cheer': '',

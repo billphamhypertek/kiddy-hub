@@ -1,0 +1,154 @@
+import Phaser from 'phaser';
+import type { GameHost } from '../GameModule';
+import { generateRound, starsFor, type MatchQuantityRound } from './matchQuantityLogic';
+
+interface SlotInfo {
+  pairIndex: number; // which pair this group represents
+  x: number;
+  y: number;
+  filled: boolean;
+}
+
+export class MatchQuantityScene extends Phaser.Scene {
+  private host: GameHost;
+  private level: number;
+  private round!: MatchQuantityRound;
+  private slots: SlotInfo[] = [];
+  private placedFirstTry = 0;
+  private placed = 0;
+  private finished = false;
+
+  constructor(host: GameHost, level: number) {
+    super({ key: 'match-quantity' });
+    this.host = host;
+    this.level = level;
+  }
+
+  create(): void {
+    this.cameras.main.setBackgroundColor('#fff0f3');
+    const { width } = this.scale;
+    this.add
+      .text(24, 18, '🏠', { fontSize: '40px' })
+      .setInteractive({ useHandCursor: true })
+      .on('pointerdown', () => this.host.goHome());
+    this.add
+      .text(width - 64, 18, '🔊', { fontSize: '40px' })
+      .setInteractive({ useHandCursor: true })
+      .on('pointerdown', () => void this.host.speak('matchquantity.prompt'));
+    this.add
+      .text(width / 2, 80, 'Kéo số vào nhóm đúng', { fontSize: '34px', color: '#a01a3a', fontStyle: 'bold' })
+      .setOrigin(0.5);
+    void this.host.speak('matchquantity.prompt');
+
+    this.round = generateRound(this.level, Math.random);
+    this.buildGroupsAndTiles();
+  }
+
+  private buildGroupsAndTiles(): void {
+    const { width, height } = this.scale;
+    const rowGapY = 150;
+    const topY = 170;
+
+    // Each pair = a row: emoji group on the left, an empty drop slot on the right.
+    this.round.pairs.forEach((pair, i) => {
+      const y = topY + i * rowGapY;
+      // Emoji group.
+      const groupX = width * 0.32;
+      const startX = groupX - ((Math.min(5, pair.value) - 1) * 46) / 2;
+      for (let k = 0; k < pair.value; k++) {
+        const col = k % 5;
+        const row = Math.floor(k / 5);
+        this.add.text(startX + col * 46, y - 20 + row * 40, pair.emoji, { fontSize: '36px' }).setOrigin(0.5);
+      }
+      // Drop slot (target).
+      const slotX = width * 0.7;
+      this.add
+        .rectangle(slotX, y, 110, 110, 0xffffff, 0.5)
+        .setStrokeStyle(5, 0xff8fab);
+      this.slots.push({ pairIndex: i, x: slotX, y, filled: false });
+    });
+
+    // Number tiles along the bottom, in shuffled tileOrder.
+    const trayY = height - 90;
+    const n2 = this.round.tileOrder.length;
+    this.round.tileOrder.forEach((pairIndex, k) => {
+      const value = this.round.pairs[pairIndex].value;
+      const trayX = width / 2 - ((n2 - 1) * 130) / 2 + k * 130;
+      const tile = this.add
+        .rectangle(trayX, trayY, 100, 100, 0xffd166)
+        .setStrokeStyle(5, 0xe0a800)
+        .setInteractive({ useHandCursor: true, draggable: true });
+      const label = this.add
+        .text(trayX, trayY, String(value), { fontSize: '52px', color: '#5a3d00', fontStyle: 'bold' })
+        .setOrigin(0.5);
+      tile.setData('value', value);
+      tile.setData('label', label);
+      tile.setData('homeX', trayX);
+      tile.setData('homeY', trayY);
+      this.input.setDraggable(tile);
+    });
+
+    this.input.on('drag', (_p: Phaser.Input.Pointer, obj: Phaser.GameObjects.Rectangle, dx: number, dy: number) => {
+      obj.x = dx;
+      obj.y = dy;
+      (obj.getData('label') as Phaser.GameObjects.Text).setPosition(dx, dy);
+    });
+    this.input.on('dragend', (_p: Phaser.Input.Pointer, obj: Phaser.GameObjects.Rectangle) => this.onDrop(obj));
+  }
+
+  private onDrop(tile: Phaser.GameObjects.Rectangle): void {
+    if (this.finished) return;
+    const value = tile.getData('value') as number;
+    const label = tile.getData('label') as Phaser.GameObjects.Text;
+
+    // Find the nearest unfilled slot within snapping distance.
+    let best: SlotInfo | undefined;
+    let bestDist = Infinity;
+    for (const s of this.slots) {
+      if (s.filled) continue;
+      const d = Phaser.Math.Distance.Between(tile.x, tile.y, s.x, s.y);
+      if (d < bestDist) {
+        bestDist = d;
+        best = s;
+      }
+    }
+
+    const SNAP = 80;
+    if (best && bestDist <= SNAP && this.round.pairs[best.pairIndex].value === value) {
+      // Correct placement: snap + lock.
+      tile.x = best.x;
+      tile.y = best.y;
+      label.setPosition(best.x, best.y);
+      best.filled = true;
+      this.input.setDraggable(tile, false);
+      tile.disableInteractive();
+      this.host.playSfx('correct');
+      this.placed++;
+      this.placedFirstTry++; // counts because this tile had no prior wrong drop
+      if (this.placed === this.round.pairs.length) this.finish();
+    } else {
+      // Wrong drop: bounce home; this tile no longer earns a first-try point.
+      this.host.playSfx('wrong');
+      tile.setData('missed', true);
+      const homeX = tile.getData('homeX') as number;
+      const homeY = tile.getData('homeY') as number;
+      tile.x = homeX;
+      tile.y = homeY;
+      label.setPosition(homeX, homeY);
+      this.tweens.add({ targets: [tile, label], x: homeX + 8, duration: 60, yoyo: true, repeat: 2 });
+    }
+  }
+
+  private finish(): void {
+    if (this.finished) return;
+    this.finished = true;
+    const total = this.round.pairs.length;
+    // First-try correct = tiles placed without a prior wrong drop. We approximate
+    // by counting placements where the tile was never marked 'missed'.
+    const stars = starsFor(this.placedFirstTry, total);
+    this.host.playSfx('star');
+    void this.host.speak('reward.cheer');
+    this.host.awardStars(stars);
+    this.host.complete({ gameId: 'match-quantity', level: this.level, score: total, stars });
+  }
+}
