@@ -19,6 +19,9 @@ describe('CategoryScreen', () => {
   });
 
   it('shows a friendly message for an empty category', () => {
+    // After Phase 2 every category has a game, so exercise the empty-state
+    // branch against an empty registry instead of a (now populated) category.
+    _clearRegistry();
     render(<CategoryScreen categoryId="memory" onPlay={() => {}} onBack={() => {}} />);
     expect(screen.getByText(/Sắp có/)).toBeInTheDocument();
   });

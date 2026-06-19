@@ -5,6 +5,11 @@ import type { AudioManifest } from './AudioManager';
 export const AUDIO_MANIFEST: AudioManifest = {
   voices: {
     'counting.prompt': '',
+    'letter.prompt': '',
+    'pattern.prompt': '',
+    'firstwords.prompt': '',
+    'memory.prompt': '',
+    'jigsaw.prompt': '',
     'feedback.correct': '',
     'feedback.tryagain': '',
     'reward.cheer': '',
