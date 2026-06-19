@@ -13,6 +13,7 @@ export class CountingFunScene extends Phaser.Scene {
   private roundIndex = 0;
   private correctCount = 0;
   private answeredThisRound = false;
+  private roundResolved = false;
   private current!: CountingRound;
   private layer?: Phaser.GameObjects.Container;
 
@@ -47,6 +48,7 @@ export class CountingFunScene extends Phaser.Scene {
       return;
     }
     this.answeredThisRound = false;
+    this.roundResolved = false;
     this.current = generateRound(this.level, Math.random);
     this.layer?.destroy();
     this.layer = this.add.container(0, 0);
@@ -89,12 +91,14 @@ export class CountingFunScene extends Phaser.Scene {
   }
 
   private choose(opt: number, btn: Phaser.GameObjects.Rectangle): void {
+    if (this.roundResolved) return;
     if (opt === this.current.count) {
       this.host.playSfx('correct');
       void this.host.speak('feedback.correct');
       btn.setFillStyle(0x9be08a);
       if (!this.answeredThisRound) this.correctCount++;
       this.answeredThisRound = true;
+      this.roundResolved = true;
       this.time.delayedCall(700, () => {
         this.roundIndex++;
         this.nextRound();
