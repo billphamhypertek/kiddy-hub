@@ -13,6 +13,7 @@ import { numbersEnglish } from './numbers-english';
 import { shapesColors } from './shapes-colors';
 import { colorsEnglish } from './colors-english';
 import { matchQuantity } from './match-quantity';
+import { sorting } from './sorting';
 
 /** Registers every game module. Call once at app startup. */
 export function registerAllGames(): void {
@@ -30,4 +31,5 @@ export function registerAllGames(): void {
   registerGame(shapesColors);
   registerGame(colorsEnglish);
   registerGame(matchQuantity);
+  registerGame(sorting);
 }
