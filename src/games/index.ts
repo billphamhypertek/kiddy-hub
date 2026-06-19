@@ -10,6 +10,7 @@ import { firstLetter } from './first-letter';
 import { oddOneOut } from './odd-one-out';
 import { abcEnglish } from './abc-english';
 import { numbersEnglish } from './numbers-english';
+import { shapesColors } from './shapes-colors';
 
 /** Registers every game module. Call once at app startup. */
 export function registerAllGames(): void {
@@ -24,4 +25,5 @@ export function registerAllGames(): void {
   registerGame(oddOneOut);
   registerGame(abcEnglish);
   registerGame(numbersEnglish);
+  registerGame(shapesColors);
 }
