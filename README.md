@@ -66,6 +66,18 @@ npm test
 
 Mở URL mà `npm run dev` in ra. Lần đầu: chạm nút **"Bố mẹ"** → giải phép tính đơn giản → tạo hồ sơ cho bé → chọn avatar để vào chơi.
 
+## 🐳 Chạy bằng Docker
+
+Image multi-stage: build Vite rồi serve tĩnh bằng nginx.
+
+```bash
+docker compose up -d --build   # build + chạy nền
+# mở http://localhost:8088
+docker compose down            # dừng & xoá container
+```
+
+Cổng host mặc định là **8088** (đổi trong [`docker-compose.yml`](docker-compose.yml) nếu bị trùng).
+
 ## 📁 Cấu trúc thư mục
 
 ```

@@ -1,0 +1,8 @@
+services:
+  kiddyhub:
+    build: .
+    image: kiddy-hub:local
+    container_name: kiddy-hub
+    ports:
+      - "8088:80"
+    restart: unless-stopped
