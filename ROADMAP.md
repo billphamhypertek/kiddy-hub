@@ -6,25 +6,25 @@
 
 ## 👉 Tiếp theo cần làm gì
 
-**Hiện tại:** Đã chốt thiết kế tổng (2026-06-19). Bước kế: viết **implementation plan cho Giai đoạn 1** (qua skill writing-plans), rồi bắt đầu code.
+**Giai đoạn 1 ✅ hoàn thành (2026-06-19).** Bước kế: **Giai đoạn 2** — thêm 1 trò mỗi nhóm còn lại để mỗi đảo có nội dung (Bé Nhận Mặt Chữ, Tìm Quy Luật, Lật Hình Tìm Cặp, Ghép Hình, First Words).
 
 ---
 
-## Giai đoạn 1 — Nền tảng + trò "Đếm Vui"  🔨
+## Giai đoạn 1 — Nền tảng + trò "Đếm Vui"  ✅
 
 Mục tiêu: khung chạy đầu-cuối + 1 trò hoàn chỉnh. DoD chi tiết ở §12 của bản thiết kế.
 
-- ☐ Scaffold dự án (Vite + React + TS + Phaser + Dexie + Howler + Vitest)
-- ☐ Lớp dữ liệu (Dexie schema + repository + test)
-- ☐ Hệ âm thanh (Howler wrapper + VoiceManager, giọng tạm)
-- ☐ GameHost + registry + interface GameModule
-- ☐ Màn "Ai đang chơi?" (chọn avatar)
-- ☐ Khu phụ huynh (cổng chặn + CRUD hồ sơ + xem sao + cài đặt)
-- ☐ Bản đồ phiêu lưu (6 đảo, hình tạm) + màn nhóm
-- ☐ Vườn sao + bảng sao tuần (bản cơ bản)
-- ☐ Trò "Đếm Vui" (cảnh Phaser, 3 mức, giọng đọc, thưởng sao)
-- ☐ Lưu & khôi phục qua reload
-- ☐ Test (data layer, logic sao/độ khó, luồng chọn avatar) + kịch bản test thủ công
+- [x] Scaffold dự án (Vite + React + TS + Phaser + Dexie + Howler + Vitest)
+- [x] Lớp dữ liệu (Dexie schema + repository + test)
+- [x] Hệ âm thanh (Howler wrapper + VoiceManager, giọng tạm)
+- [x] GameHost + registry + interface GameModule
+- [x] Màn "Ai đang chơi?" (chọn avatar)
+- [x] Khu phụ huynh (cổng chặn + CRUD hồ sơ + xem sao + cài đặt)
+- [x] Bản đồ phiêu lưu (6 đảo, hình tạm) + màn nhóm
+- [x] Vườn sao + bảng sao tuần (bản cơ bản)
+- [x] Trò "Đếm Vui" (cảnh Phaser, 3 mức, giọng đọc, thưởng sao)
+- [x] Lưu & khôi phục qua reload
+- [x] Test (data layer, logic sao/độ khó, luồng chọn avatar) + kịch bản test thủ công
 
 ## Giai đoạn 2 — Phủ kín 6 đảo  ☐
 
@@ -62,3 +62,4 @@ Thêm 1 trò mỗi nhóm còn lại để mỗi đảo có nội dung.
 ## Nhật ký tiến độ
 
 - **2026-06-19** — Brainstorm xong; chốt thiết kế tổng & lộ trình 4 giai đoạn. Viết bản thiết kế + ROADMAP. Kế tiếp: implementation plan GĐ 1.
+- **2026-06-19** — Giai đoạn 1 hoàn thành: scaffold, lớp dữ liệu (Dexie), hệ âm thanh (Howler), game registry, màn "Ai đang chơi?", khu phụ huynh (cổng toán + CRUD + sao), bản đồ 6 đảo, vườn sao, trò "Đếm Vui" (Phaser, 3 mức độ, tự nâng cấp), toàn bộ App shell kết nối đầu-cuối. 48 test pass; build thành công.

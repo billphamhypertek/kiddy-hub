@@ -1,0 +1,174 @@
+:root {
+  font-family: system-ui, 'Segoe UI', sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+.screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  gap: 16px;
+  background: linear-gradient(#cdeeff, #e9fbe2);
+}
+h1 {
+  font-size: 40px;
+}
+.hint {
+  font-size: 22px;
+  color: #555;
+}
+
+/* Large touch targets everywhere */
+button {
+  font-size: 22px;
+  min-height: 72px;
+  border: none;
+  border-radius: 16px;
+  padding: 12px 20px;
+  cursor: pointer;
+  background: #ffffff;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
+}
+
+/* Avatar entry */
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 140px);
+  gap: 20px;
+  justify-content: center;
+}
+.avatar-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 140px;
+  height: 140px;
+}
+.avatar-emoji {
+  font-size: 56px;
+}
+.avatar-name {
+  font-size: 22px;
+  font-weight: 700;
+}
+.parent-link {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  background: #fff3c4;
+}
+
+/* Adventure map */
+.map {
+  padding: 0;
+}
+.map-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+}
+.garden-btn {
+  background: #fff3c4;
+}
+.island-field {
+  position: relative;
+  flex: 1;
+  width: 100%;
+}
+.island {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+.island-icon {
+  font-size: 44px;
+}
+.island-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+.mascot {
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  font-size: 64px;
+}
+
+/* Category + games */
+.back {
+  align-self: flex-start;
+}
+.game-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 160px);
+  gap: 20px;
+  justify-content: center;
+}
+.game-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 160px;
+  height: 160px;
+}
+.game-icon {
+  font-size: 56px;
+}
+.game-title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* Garden */
+.garden-field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 48px;
+  min-height: 80px;
+}
+
+/* Parent area */
+.child-list {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+  max-width: 480px;
+}
+.child-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 22px;
+  padding: 6px 0;
+}
+.avatar-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.avatar-pick button[aria-pressed='true'] {
+  outline: 4px solid #ffb703;
+}
+
+/* Game screen fills the viewport */
+.game-screen {
+  width: 100vw;
+  height: 100vh;
+}
