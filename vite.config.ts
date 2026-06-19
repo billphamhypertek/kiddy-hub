@@ -8,5 +8,8 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
+    alias: {
+      phaser: new URL('./src/test/phaser-stub.ts', import.meta.url).pathname,
+    },
   },
 });

@@ -1,15 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
-
-// Phaser runs canvas-detection at module load time which fails under jsdom (no real WebGL/canvas).
-// We stub the default export with a minimal Scene base-class so CountingFunScene can extend it
-// without touching the DOM.  The test still imports the real countingFun module and asserts its
-// metadata — the stub only prevents the Phaser bootstrap from crashing.
-vi.mock('phaser', () => {
-  class Scene {
-    constructor(_config: unknown) {}
-  }
-  return { default: { Scene } };
-});
+import { describe, it, expect } from 'vitest';
 
 import { countingFun } from './index';
 
