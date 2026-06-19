@@ -10,6 +10,7 @@ export const AUDIO_MANIFEST: AudioManifest = {
     'firstwords.prompt': '',
     'memory.prompt': '',
     'jigsaw.prompt': '',
+    'moreless.prompt': '',
     'feedback.correct': '',
     'feedback.tryagain': '',
     'reward.cheer': '',
