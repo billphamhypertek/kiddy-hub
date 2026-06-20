@@ -223,6 +223,144 @@ button {
   outline: 4px solid #ffb703;
 }
 
+/* ── Parent dashboard 2.0 (Giai đoạn 5 · Phần C) ──────────────────────────────
+ * "Tiến bộ của bé" + thẻ mỗi bé + ghi chú privacy/healthy-use. Mọi badge dùng
+ * icon + chữ + HÌNH-DẠNG (bo góc/viền khác nhau) để KHÔNG mã hoá nghĩa bằng màu;
+ * không dùng đỏ-cảnh-báo (triết lý dịu).
+ */
+.child-progress {
+  width: 100%;
+  max-width: 480px;
+}
+.mastery-card {
+  border: 2px solid #f0e3d4;
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin: 10px 0;
+  background: #fffdf9;
+  text-align: left;
+}
+.mastery-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mastery-name {
+  font-size: 20px;
+  font-weight: 700;
+}
+.mastery-subhead {
+  margin: 10px 0 4px;
+}
+.mastery-empty,
+.recap-empty {
+  color: #6b5b4d;
+  font-style: italic;
+}
+.mastery-rows {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.mastery-row {
+  padding: 8px 0;
+  border-bottom: 1px solid #f3ece2;
+}
+.mastery-row:last-child {
+  border-bottom: none;
+}
+.mastery-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.skill-label {
+  font-size: 18px;
+  font-weight: 600;
+}
+/* Badge: hình-dạng + viền riêng cho mỗi trạng thái (không chỉ màu). */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+.status-mastered {
+  background: #e3f6e8;
+  color: #1f6b3a;
+  border: 2px solid #1f6b3a;
+  border-radius: 999px; /* viên thuốc tròn */
+}
+.status-emerging {
+  background: #fff4d6;
+  color: #8a6d1c;
+  border: 2px dashed #8a6d1c; /* viền đứt nét */
+  border-radius: 8px;
+}
+.status-practice-next {
+  background: #fde9f1;
+  color: #9b3b66;
+  border: 2px dotted #9b3b66; /* viền chấm */
+  border-radius: 4px; /* góc vuông hơn */
+}
+.practice-game {
+  margin: 4px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #9b3b66;
+}
+.mastery-tip {
+  margin: 4px 0 0;
+  font-size: 15px;
+  color: #5b4636;
+}
+.weekly-recap {
+  margin-top: 6px;
+  padding: 8px 10px;
+  background: #eef6ff;
+  border-radius: 12px;
+}
+.recap-heading {
+  margin: 0 0 2px;
+  font-size: 16px;
+}
+.recap-line,
+.recap-empty {
+  margin: 0;
+  font-size: 16px;
+}
+.recap-top {
+  color: #2b6cb0;
+}
+.parent-note {
+  width: 100%;
+  max-width: 480px;
+  text-align: left;
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin: 10px 0;
+}
+.privacy-note {
+  background: #eef6ff;
+  border: 2px solid #cfe4fb;
+}
+.privacy-note ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+.healthy-note {
+  background: #eef7ec;
+  border: 2px solid #cfe7c8;
+}
+.healthy-note p {
+  margin: 4px 0 0;
+}
+
 /* Game screen fills the viewport */
 .game-screen {
   width: 100vw;

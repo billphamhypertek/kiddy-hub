@@ -6,6 +6,9 @@ import { AVATARS, avatarLabel } from '../../content/avatars';
 import { SvgArt } from '../../art/Art';
 import { avatarArt } from '../../art/avatars';
 import { starArt } from '../../art/stars';
+import { ChildProgressList } from './ChildProgressList';
+import { PrivacyNote } from './PrivacyNote';
+import { HealthyUseNote } from './HealthyUseNote';
 import type { Profile, Settings } from '../../data/types';
 import type { AudioManager } from '../../audio/AudioManager';
 
@@ -137,6 +140,11 @@ export function ParentArea({ audio, onExit }: Props) {
           </>
         )}
       </section>
+
+      <ChildProgressList profiles={profiles} />
+
+      <PrivacyNote />
+      <HealthyUseNote />
 
       <button className="done" onClick={onExit}>
         Xong
