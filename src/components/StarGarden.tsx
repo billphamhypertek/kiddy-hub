@@ -41,7 +41,7 @@ export function StarGarden({ onBack }: Props) {
         <SvgArt svg={foxIdle()} alt="" size={40} className="title-fox" /> Vườn sao của cả nhà
       </h2>
       <p className="garden-total">
-        Tổng cộng: <SvgArt svg={starArt()} alt="ngôi sao" size={28} className="inline-star" />{' '}
+        Tổng cộng: <SvgArt svg={starArt()} alt="" size={28} className="inline-star" />{' '}
         {garden?.totalStars ?? 0}
       </p>
       <div className="garden-field" aria-label="Khu vườn">
@@ -61,7 +61,7 @@ export function StarGarden({ onBack }: Props) {
       <ol className="tally">
         {tally.map((t) => (
           <li key={t.profileId}>
-            {t.name}: <SvgArt svg={starArt()} alt="ngôi sao" size={20} className="inline-star" />{' '}
+            {t.name}: <SvgArt svg={starArt()} alt="" size={20} className="inline-star" />{' '}
             {t.stars}
           </li>
         ))}

@@ -11,7 +11,7 @@ import {
   starsForRounds,
   type DifferenceSpot,
 } from './spotDifferenceLogic';
-import { buildScene } from './gardenScene';
+import { buildScene } from './gardenArt';
 
 /** Rendered size (px, square) of each garden image. */
 const PIC = 360;
@@ -124,21 +124,25 @@ export class SpotDifferenceScene extends Phaser.Scene {
     // objects, so the load-bearing creation order of the hit areas is untouched.
     animateIn(this, [prompt, leftImg, rightImg, leftFrame, rightFrame, this.progressText]);
 
-    // Invisible tap hotspots over each chosen difference on the RIGHT image.
-    // IMPORTANT: hotspots are created BEFORE the catch-all miss-rect below. Both are
-    // children of `this.layer` (a Container); for container children Phaser's input
-    // hit-test ties on render index, and `input.topOnly` keeps the earlier-created
-    // object. So CREATION ORDER — not setDepth (inert for container children) — is
-    // what makes a hotspot win over the overlapping miss-rect. Do not reorder.
+    // For overlapping interactive children of a Container, Phaser's hit-test sorts
+    // by camera renderList index (render/insertion order) and `input.topOnly` keeps
+    // the LAST-added (highest-index) object. So the catch-all miss-rect is added
+    // BEFORE the hotspots; the hotspots, added last, win the hit-test on overlap,
+    // while a tap that hits only the miss-rect still fires onMiss. setDepth does not
+    // reorder container children — add-order is the lever. Do not reorder.
     this.input.topOnly = true;
-    this.chosen.forEach((spot) => this.addHotspot(spot));
 
     // Catch-all over the right image → "try again" on a tap that misses every diff.
+    // Added FIRST so the per-difference hotspots below win on overlap (see above).
     const miss = this.add
       .rectangle(this.rightX + PIC / 2, this.rightY + PIC / 2, PIC, PIC, 0xffffff, 0.001)
       .setInteractive({ useHandCursor: true });
     miss.on('pointerdown', () => this.onMiss());
     this.layer.add(miss);
+
+    // Invisible tap hotspots over each chosen difference on the RIGHT image. Added
+    // AFTER the miss-rect so each wins the topOnly hit-test where it overlaps it.
+    this.chosen.forEach((spot) => this.addHotspot(spot));
   }
 
   /** Map a catalog (0..100) coordinate onto the rendered right image. */

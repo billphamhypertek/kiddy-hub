@@ -78,9 +78,9 @@ function addArt(
  * `scaleY` SEPARATELY (never the unified `scale`) so objects sized with a
  * non-square `setDisplaySize(w, h)` — e.g. the more-less tap frames or sorting
  * baskets — keep their aspect ratio through the entrance and at its final state.
- * The `scale` getter is kept only as a uniform fallback for `popCorrect`'s
- * bounce (which scales square objects). Fields are optional because some objects
- * (e.g. Graphics) are positioned by `x`/`y` only.
+ * `popCorrect` likewise bounces `scaleX`/`scaleY` independently so non-square
+ * objects aren't distorted. Fields are optional because some objects (e.g.
+ * Graphics) are positioned by `x`/`y` only.
  */
 interface Animatable {
   x: number;
@@ -198,19 +198,27 @@ export function animateIn(
  * scene has already resolved the answer before (or independently of) calling
  * this. Under reduced motion it does nothing (the scene's own colour-flip and
  * SFX already signal success).
+ *
+ * It bounces `scaleX` and `scaleY` INDEPENDENTLY (each captured separately) so a
+ * non-square target — e.g. a jigsaw piece sized via `setDisplaySize(w, h)` with
+ * w≠h — keeps its aspect ratio. Tweening the unified `scale` would force the two
+ * axes equal and permanently squish a non-square object to its average scale at
+ * settle. For a square object this is identical to a single uniform bounce.
  */
 export function popCorrect(scene: Phaser.Scene, target?: MotionObject): void {
   if (!target) return;
   if (prefersReducedMotion()) return;
   const obj = asAnimatable(target);
 
-  const baseScale = typeof obj.scale === 'number' && obj.scale > 0 ? obj.scale : 1;
+  const baseScaleX = typeof obj.scaleX === 'number' && obj.scaleX > 0 ? obj.scaleX : 1;
+  const baseScaleY = typeof obj.scaleY === 'number' && obj.scaleY > 0 ? obj.scaleY : 1;
 
-  // Quick bounce, always returning to the captured base scale (yoyo guarantees
-  // the end value equals the start value, so it cannot strand a wrong scale).
+  // Quick bounce, always returning to the captured base scales (yoyo guarantees
+  // each end value equals its start value, so it cannot strand a wrong scale).
   scene.tweens.add({
     targets: obj,
-    scale: baseScale * 1.18,
+    scaleX: baseScaleX * 1.18,
+    scaleY: baseScaleY * 1.18,
     duration: durations.fast,
     ease: PHASER_EASE.pop,
     yoyo: true,

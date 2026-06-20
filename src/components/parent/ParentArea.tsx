@@ -105,7 +105,7 @@ export function ParentArea({ audio, onExit }: Props) {
         <ol className="tally">
           {tally.map((t) => (
             <li key={t.profileId}>
-              {t.name}: <SvgArt svg={starArt()} alt="ngôi sao" size={18} className="inline-star" />{' '}
+              {t.name}: <SvgArt svg={starArt()} alt="" size={18} className="inline-star" />{' '}
               {t.stars}
             </li>
           ))}

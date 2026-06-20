@@ -214,8 +214,8 @@ const builders: Record<string, (title: string) => string> = {
 
 /**
  * Return a complete `<svg>` string for the given avatar key. Falls back to the
- * cat if the key is unknown (mirrors `avatarEmoji`'s default). `title` becomes
- * the SVG's accessible `<title>`; pass the Vietnamese label.
+ * cat if the key is unknown. `title` becomes the SVG's accessible `<title>`;
+ * pass the Vietnamese label.
  */
 export function avatarArt(key: string, title = ''): string {
   return (builders[key] ?? avatarCat)(title);

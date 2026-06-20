@@ -15,10 +15,6 @@ export const AVATARS: AvatarOption[] = [
   { key: 'frog', emoji: '🐸', label: 'Ếch' },
 ];
 
-export function avatarEmoji(key: string): string {
-  return AVATARS.find((a) => a.key === key)?.emoji ?? '🐱';
-}
-
 /** Vietnamese label for an avatar key — used as `alt`/accessible name for art. */
 export function avatarLabel(key: string): string {
   return AVATARS.find((a) => a.key === key)?.label ?? 'Mèo';

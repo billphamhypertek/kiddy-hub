@@ -36,12 +36,12 @@ export const ROUNDS_PER_GAME = 3;
  */
 export const DIFFERENCE_CATALOG: DifferenceSpot[] = [
   { id: 'sun', kind: 'resized', x: 80, y: 18, radius: 14 }, // sun is bigger on the right
-  { id: 'cloud', kind: 'moved', x: 30, y: 16, radius: 14 }, // cloud drifts sideways
+  { id: 'cloud', kind: 'moved', x: 36, y: 16, radius: 14 }, // cloud drifts sideways (x straddles both positions)
   { id: 'butterfly', kind: 'removed', x: 64, y: 40, radius: 12 }, // butterfly gone
   { id: 'apple', kind: 'recolored', x: 26, y: 40, radius: 11 }, // apple red → gold
   { id: 'flowerLeft', kind: 'removed', x: 16, y: 80, radius: 12 }, // a flower removed
   { id: 'flowerRight', kind: 'recolored', x: 84, y: 80, radius: 12 }, // flower recoloured
-  { id: 'bird', kind: 'moved', x: 50, y: 26, radius: 12 }, // bird moved along the sky
+  { id: 'bird', kind: 'moved', x: 54, y: 26, radius: 12 }, // bird moved along the sky (x straddles both positions)
   { id: 'bush', kind: 'resized', x: 70, y: 70, radius: 14 }, // bush smaller on the right
 ];
 

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
-import { addSceneBackground, addChrome, addOptionTile, celebrate } from '../../art/sceneArt';
+import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars } from '../../art/sceneMotion';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, type MoreLessRound } from './moreLessLogic';
 
@@ -96,8 +96,8 @@ export class MoreLessScene extends Phaser.Scene {
     this.drawGroup(leftX, this.current.leftCount, this.current.emoji);
     this.drawGroup(rightX, this.current.rightCount, this.current.emoji);
 
-    leftFrame.on('pointerdown', () => this.choose('left', leftFrame));
-    rightFrame.on('pointerdown', () => this.choose('right', rightFrame));
+    leftFrame.on('pointerdown', () => this.choose('left', leftFrame, leftTile));
+    rightFrame.on('pointerdown', () => this.choose('right', rightFrame, rightTile));
   }
 
   private isCorrect(side: 'left' | 'right'): boolean {
@@ -106,7 +106,11 @@ export class MoreLessScene extends Phaser.Scene {
     return side === (leftWins ? 'left' : 'right');
   }
 
-  private choose(side: 'left' | 'right', frame: Phaser.GameObjects.Rectangle): void {
+  private choose(
+    side: 'left' | 'right',
+    frame: Phaser.GameObjects.Rectangle,
+    tile: Phaser.GameObjects.Image,
+  ): void {
     if (this.roundResolved) return;
     if (this.isCorrect(side)) {
       this.roundResolved = true;
@@ -124,7 +128,9 @@ export class MoreLessScene extends Phaser.Scene {
       this.answeredThisRound = true;
       this.host.playSfx('wrong');
       void this.host.speak('feedback.tryagain');
-      this.tweens.add({ targets: frame, x: frame.x + 8, duration: 60, yoyo: true, repeat: 3 });
+      // Shake the VISIBLE tile + frame together (the frame itself is a transparent
+      // hit rect, so shaking it alone would be invisible).
+      shakeOption(this, tile, frame);
     }
   }
 

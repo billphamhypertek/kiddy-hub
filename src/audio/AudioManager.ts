@@ -87,6 +87,9 @@ export function createAudioManager(
     },
     setVoiceOn(on) {
       voiceOn = on;
+      // Turning voice off mid-utterance should cut the current line immediately,
+      // not just suppress the next one.
+      if (!on) stopVoice();
     },
   };
 }

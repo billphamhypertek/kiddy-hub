@@ -58,17 +58,19 @@ export class AbcEnglishScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
     this.layer.add(prompt);
-    this.layer.add(
-      this.add
-        .text(width / 2, height / 2 - 70, this.current.target, { fontSize: '110px', color: '#ff7043', fontStyle: 'bold' })
-        .setOrigin(0.5),
-    );
+    const targetText = this.add
+      .text(width / 2, height / 2 - 70, this.current.target, { fontSize: '110px', color: '#ff7043', fontStyle: 'bold' })
+      .setOrigin(0.5);
+    this.layer.add(targetText);
     this.sayTarget();
 
     const opts = this.current.options;
     const optStartX = width / 2 - ((opts.length - 1) * 140) / 2;
     const y = height - 120;
-    const entrance: MotionObject[] = [prompt];
+    // The big target letter joins the staggered entrance (it has a safe final
+    // state, so an interrupted tween never strands it) — prompt, then target,
+    // then the option tiles/labels.
+    const entrance: MotionObject[] = [prompt, targetText];
     opts.forEach((letter, i) => {
       const x = optStartX + i * 140;
       const tile = addOptionTile(this, x, y, 122);

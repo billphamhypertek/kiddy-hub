@@ -6,6 +6,7 @@
  * Phaser (which also consumes the data URI), and so each asset gets a clean,
  * cacheable, decoded image with proper alt semantics.
  */
+import { useMemo } from 'react';
 import { svgToDataUri } from './svg';
 
 export interface SvgArtProps {
@@ -22,15 +23,15 @@ export interface SvgArtProps {
 /**
  * Drop-in `<img>` that displays an SVG art string.
  * - With `alt`: announced to screen readers.
- * - Without `alt`: marked `aria-hidden` + empty alt (decorative).
+ * - Without `alt` (or `alt=""`): rendered decorative — an empty-`alt` img is
+ *   already out of the accessibility tree, so no `aria-hidden` is needed.
  */
 export function SvgArt({ svg, alt, size = 64, className, style }: SvgArtProps): JSX.Element {
-  const decorative = !alt;
+  const src = useMemo(() => svgToDataUri(svg), [svg]);
   return (
     <img
-      src={svgToDataUri(svg)}
+      src={src}
       alt={alt ?? ''}
-      aria-hidden={decorative || undefined}
       width={size}
       height={size}
       draggable={false}
