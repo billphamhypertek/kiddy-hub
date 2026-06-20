@@ -9,6 +9,7 @@ import {
   sparkleBurst,
   type MotionObject,
 } from '../../art/sceneMotion';
+import { loadSvgTexture, type ArtScene } from '../../art/svg';
 import {
   gridForLevel,
   isCorrectDrop,
@@ -16,8 +17,9 @@ import {
   starsForMisplacements,
   type Piece,
 } from './jigsawLogic';
+import { jigsawPicture, JIGSAW_PICTURE_COUNT } from './jigsawArt';
 
-const PIC = 480; // placeholder picture size (square)
+const PIC = 480; // native picture size (square) — MUST match jigsawArt's PIC_SIZE
 const TEX_KEY = 'jigsaw-pic';
 
 export class JigsawScene extends Phaser.Scene {
@@ -52,24 +54,31 @@ export class JigsawScene extends Phaser.Scene {
     this.buddy = addBuddy(this, { x: 70, y: this.scale.height * 0.46, size: 96 });
     void this.host.speak('jigsaw.prompt');
 
-    this.buildPicture();
-    this.buildBoardAndPieces();
+    this.preparePicture();
   }
 
-  /** Placeholder picture: a coloured panel + big emoji, baked to a texture, then sliced.
-   *  Phase 4 only swaps this drawing for a real AI image. */
-  private buildPicture(): void {
-    const rt = this.add.renderTexture(0, 0, PIC, PIC).setVisible(false);
-    const g = this.add.graphics();
-    g.fillStyle(0xffd166, 1).fillRect(0, 0, PIC, PIC);
-    g.fillStyle(0x06d6a0, 1).fillRect(0, PIC * 0.6, PIC, PIC * 0.4); // ground
-    rt.draw(g, 0, 0);
-    const emoji = this.add.text(PIC / 2, PIC / 2, '🦊', { fontSize: '300px' }).setOrigin(0.5);
-    rt.draw(emoji, PIC / 2, PIC / 2);
-    g.destroy();
-    emoji.destroy();
-    rt.saveTexture(TEX_KEY);
-    rt.destroy();
+  /**
+   * Register a cute storybook scene (drawn 100% locally in `jigsawArt.ts`) as the
+   * jigsaw picture under TEX_KEY, then build the board/pieces from it.
+   *
+   * A different scene is picked per play (like other games' `Math.random`), so we
+   * drop any texture left under TEX_KEY from a previous play first, then register
+   * the freshly chosen SVG. `loadSvgTexture` uses `textures.addBase64`, which is
+   * ASYNCHRONOUS — the texture is NOT ready on this tick — so we build the
+   * board/pieces only once the texture is available: immediately if it already
+   * exists (idempotent), otherwise on the texture's add event. Building from a
+   * fully-loaded texture keeps the `setCrop` slot math (PIC/cols × PIC/rows) exact.
+   */
+  private preparePicture(): void {
+    const pick = Math.floor(Math.random() * JIGSAW_PICTURE_COUNT);
+    if (this.textures.exists(TEX_KEY)) this.textures.remove(TEX_KEY);
+    loadSvgTexture(this as unknown as ArtScene, TEX_KEY, jigsawPicture(pick));
+
+    if (this.textures.exists(TEX_KEY)) {
+      this.buildBoardAndPieces();
+    } else {
+      this.textures.once(`addtexture-${TEX_KEY}`, () => this.buildBoardAndPieces());
+    }
   }
 
   private buildBoardAndPieces(): void {
