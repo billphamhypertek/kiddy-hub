@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { ChildMasteryCard } from './ChildMasteryCard';
 import type { ChildSkillView, WeeklyRecap } from '../../data/parentInsights';
 
@@ -103,5 +103,54 @@ describe('ChildMasteryCard', () => {
       <ChildMasteryCard name="Bi" avatarKey="cat" recap={emptyRecap} childView={[]} />,
     );
     expect(screen.getByText(/Bé chưa chơi trò nào/)).toBeInTheDocument();
+  });
+
+  // ── D1 deep-link "Luyện tiếp" (§9) ──────────────────────────────────────────
+  it('practice-next renders a launch BUTTON when onPlayGame + profileId given', () => {
+    const onPlayGame = vi.fn();
+    render(
+      <ChildMasteryCard
+        name="Na"
+        avatarKey="fox"
+        recap={emptyRecap}
+        profileId={7}
+        onPlayGame={onPlayGame}
+        childView={[
+          view({
+            skillId: 'number-vi',
+            label: 'Đếm số',
+            status: 'practice-next',
+            practiceGameId: 'counting-fun',
+            practiceGameTitle: 'Đếm Vui',
+          }),
+        ]}
+      />,
+    );
+    const btn = screen.getByRole('button', { name: /Luyện tiếp với Đếm Vui/ });
+    fireEvent.click(btn);
+    expect(onPlayGame).toHaveBeenCalledWith('counting-fun', 7);
+  });
+
+  it('stays as static text (no button) when onPlayGame is absent', () => {
+    // Backward-safe: view-only context keeps the original static line.
+    render(
+      <ChildMasteryCard
+        name="Na"
+        avatarKey="fox"
+        recap={emptyRecap}
+        profileId={7}
+        childView={[
+          view({
+            skillId: 'number-vi',
+            label: 'Đếm số',
+            status: 'practice-next',
+            practiceGameId: 'counting-fun',
+            practiceGameTitle: 'Đếm Vui',
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(/Luyện tiếp với trò: Đếm Vui/)).toBeInTheDocument();
+    expect(screen.queryByRole('button')).toBeNull();
   });
 });

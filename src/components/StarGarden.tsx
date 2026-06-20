@@ -3,7 +3,9 @@ import { getGarden, getWeeklyTally } from '../data/stars';
 import { SvgArt } from '../art/Art';
 import { starArt, gardenItemArt } from '../art/stars';
 import { foxIdle } from '../art/fox';
-import type { Garden } from '../data/types';
+import { StickerBook } from './StickerBook';
+import type { Garden, Profile } from '../data/types';
+import type { MenuAudio } from './menuAudio';
 
 /** Vietnamese labels for grown garden props (used as accessible alt text). */
 const ITEM_LABEL: Record<string, string> = {
@@ -13,15 +15,22 @@ const ITEM_LABEL: Record<string, string> = {
   rabbit: 'Bạn thỏ',
   pond: 'Ao nước',
   butterflies: 'Bươm bướm',
+  // mastery-driven growth (D2)
+  sprout: 'Mầm non',
+  mushroom: 'Cây nấm',
+  birdhouse: 'Nhà chim',
 };
 
 type TallyRow = { profileId: number; name: string; stars: number };
 
 interface Props {
   onBack: () => void;
+  /** Active child — enables their personal sticker-book under the garden (D2). */
+  profile?: Profile;
+  audio?: MenuAudio;
 }
 
-export function StarGarden({ onBack }: Props) {
+export function StarGarden({ onBack, profile, audio }: Props) {
   const [garden, setGarden] = useState<Garden | null>(null);
   const [tally, setTally] = useState<TallyRow[]>([]);
 
@@ -55,7 +64,14 @@ export function StarGarden({ onBack }: Props) {
             style={{ '--stagger-index': i } as CSSProperties}
           />
         ))}
-        {items.length === 0 && <p className="hint">Hãy chơi để vườn lớn lên nhé!</p>}
+        {items.length === 0 && (
+          <div className="garden-empty">
+            <p className="hint">Hãy chơi để vườn lớn lên nhé!</p>
+            <button className="garden-empty-play" onClick={onBack}>
+              Đi chơi nào!
+            </button>
+          </div>
+        )}
       </div>
       <h3>Sao tuần này</h3>
       <ol className="tally">
@@ -66,6 +82,9 @@ export function StarGarden({ onBack }: Props) {
           </li>
         ))}
       </ol>
+      {profile?.id != null && (
+        <StickerBook profileId={profile.id} profileName={profile.name} audio={audio} />
+      )}
     </div>
   );
 }

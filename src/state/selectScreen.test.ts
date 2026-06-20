@@ -63,4 +63,65 @@ describe('selectScreen', () => {
     });
     expect(selectScreen({ name: 'parent' }, true)).toEqual({ key: 'parent', kind: 'parent' });
   });
+
+  // ── D1 onboarding (first-run, no profiles) ──────────────────────────────────
+  // `hasAnyProfile` (3rd arg) defaults to true so legacy two-arg callers keep
+  // their behaviour; passing false opts into the first-run onboarding routing.
+  it('defaults hasAnyProfile=true so existing two-arg calls never onboard', () => {
+    // map with a profile is unaffected (regression guard for the default).
+    expect(selectScreen({ name: 'map' }, true)).toEqual({ key: 'map', kind: 'map' });
+  });
+
+  it('routes first-run (no profiles) to onboarding instead of the bare who', () => {
+    // Zero profiles: who → onboarding:welcome (the soft dead-end is replaced).
+    expect(selectScreen({ name: 'who' }, false, false)).toEqual({
+      key: 'onboarding:welcome',
+      kind: 'onboarding',
+    });
+    // Any child-facing screen with zero profiles also funnels into onboarding.
+    expect(selectScreen({ name: 'map' }, false, false)).toEqual({
+      key: 'onboarding:welcome',
+      kind: 'onboarding',
+    });
+  });
+
+  it('routes an explicit onboarding screen and embeds the step in the key', () => {
+    expect(selectScreen({ name: 'onboarding', step: 'welcome' }, false, false)).toEqual({
+      key: 'onboarding:welcome',
+      kind: 'onboarding',
+    });
+  });
+
+  it('keeps the parent flow reachable during first-run (NOT onboarding)', () => {
+    // The first-run path leads INTO the arithmetic gate; the gate/area must win
+    // over onboarding even with zero profiles, or profile creation is blocked.
+    expect(selectScreen({ name: 'parentGate' }, false, false)).toEqual({
+      key: 'parentGate',
+      kind: 'parentGate',
+    });
+    expect(selectScreen({ name: 'parent' }, false, false)).toEqual({
+      key: 'parent',
+      kind: 'parent',
+    });
+  });
+
+  it('once a profile exists, an onboarding screen falls back to who', () => {
+    // hasAnyProfile=true → no onboarding; an explicit onboarding screen (e.g. a
+    // stale nav state) collapses to the who picker.
+    expect(selectScreen({ name: 'onboarding', step: 'welcome' }, false, true)).toEqual({
+      key: 'who',
+      kind: 'who',
+    });
+  });
+
+  // ── D1 deep-link "Luyện tiếp" (game.from) ───────────────────────────────────
+  it('routes a deep-linked game (from:parent) identically to a normal launch', () => {
+    expect(
+      selectScreen({ name: 'game', gameId: 'counting-fun', level: 3, from: 'parent' }, true),
+    ).toEqual({ key: 'game:counting-fun', kind: 'game' });
+    // `from` never changes the kind/key — stays stable across origins.
+    expect(
+      selectScreen({ name: 'game', gameId: 'counting-fun', level: 3, from: 'category' }, true),
+    ).toEqual({ key: 'game:counting-fun', kind: 'game' });
+  });
 });

@@ -116,6 +116,37 @@ function gButterflies(): string {
   return wing(36, 40, palette.error) + wing(64, 58, palette.accent);
 }
 
+// ─── Mastery-driven garden props (GĐ5 D2, additive) ──────────────────────────
+
+function gSprout(): string {
+  const g = palette.success;
+  return (
+    `<line x1="50" y1="58" x2="50" y2="84" stroke="${g}" stroke-width="${stroke.bold}"/>` +
+    `<path d="M50 64 C40 58 32 60 30 70 C40 72 48 70 50 64 Z" fill="${g}" stroke="${INK}" stroke-width="${SW_THIN}"/>` +
+    `<path d="M50 58 C60 52 68 54 70 64 C60 66 52 64 50 58 Z" fill="${g}" stroke="${INK}" stroke-width="${SW_THIN}"/>`
+  );
+}
+
+function gMushroom(): string {
+  return (
+    `<rect x="45" y="56" width="10" height="26" rx="4" fill="#fff3e0" stroke="${INK}" stroke-width="${SW_THIN}"/>` +
+    `<path d="M26 56 C26 38 74 38 74 56 Z" fill="${palette.error}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<circle cx="40" cy="48" r="4" fill="${palette.white}"/>` +
+    `<circle cx="58" cy="46" r="5" fill="${palette.white}"/>` +
+    `<circle cx="50" cy="52" r="3" fill="${palette.white}"/>`
+  );
+}
+
+function gBirdhouse(): string {
+  return (
+    `<line x1="50" y1="56" x2="50" y2="86" stroke="#a06a3c" stroke-width="${stroke.bold}"/>` +
+    `<rect x="36" y="40" width="28" height="24" rx="3" fill="#f4c97a" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<path d="M34 42 L50 26 L66 42 Z" fill="${palette.error}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<circle cx="50" cy="52" r="6" fill="${INK}"/>` +
+    `<circle cx="50" cy="62" r="2.5" fill="#a06a3c"/>`
+  );
+}
+
 const gardenProps: Record<string, () => string> = {
   flower: gFlower,
   bush: gBush,
@@ -123,6 +154,10 @@ const gardenProps: Record<string, () => string> = {
   rabbit: gRabbit,
   pond: gPond,
   butterflies: gButterflies,
+  // mastery-driven (D2)
+  sprout: gSprout,
+  mushroom: gMushroom,
+  birdhouse: gBirdhouse,
 };
 
 /**

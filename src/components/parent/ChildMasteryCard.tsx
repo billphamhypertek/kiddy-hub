@@ -9,6 +9,14 @@ interface Props {
   avatarKey: string;
   childView: ChildSkillView[];
   recap: WeeklyRecap;
+  /** Bé này (cho deep-link "Luyện tiếp"). Có khi parent biết id của card. */
+  profileId?: number;
+  /**
+   * Deep-link "Luyện tiếp" (Phần D §9): khi có, "Luyện tiếp với <trò>" thành
+   * NÚT mở thẳng trò đó cho đúng bé. Không có (ngữ cảnh chỉ-xem) → giữ chữ tĩnh
+   * (backward-safe — test cũ vẫn xanh).
+   */
+  onPlayGame?: (gameId: string, profileId: number) => void;
 }
 
 /**
@@ -29,7 +37,14 @@ const STATUS_META: Record<SkillStatus, { label: string; icon: string }> = {
  * tên trò luyện dạng CHỮ (không nút — điều hướng hoãn sang Phần D) + tip đời
  * thực (cho practice-next và mastered). Bé chưa chơi → câu dịu.
  */
-export function ChildMasteryCard({ name, avatarKey, childView, recap }: Props): JSX.Element {
+export function ChildMasteryCard({
+  name,
+  avatarKey,
+  childView,
+  recap,
+  profileId,
+  onPlayGame,
+}: Props): JSX.Element {
   return (
     <article className="mastery-card" aria-label={`Tiến bộ của ${name}`}>
       <header className="mastery-header">
@@ -60,7 +75,17 @@ export function ChildMasteryCard({ name, avatarKey, childView, recap }: Props): 
                   </span>
                 </div>
                 {v.status === 'practice-next' && v.practiceGameTitle ? (
-                  <p className="practice-game">Luyện tiếp với trò: {v.practiceGameTitle}</p>
+                  onPlayGame && v.practiceGameId && profileId != null ? (
+                    <button
+                      type="button"
+                      className="practice-game practice-game-btn"
+                      onClick={() => onPlayGame(v.practiceGameId!, profileId)}
+                    >
+                      Luyện tiếp với {v.practiceGameTitle}
+                    </button>
+                  ) : (
+                    <p className="practice-game">Luyện tiếp với trò: {v.practiceGameTitle}</p>
+                  )
                 ) : null}
                 {v.tip ? <p className="mastery-tip">{v.tip}</p> : null}
               </li>

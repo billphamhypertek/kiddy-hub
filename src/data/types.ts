@@ -58,6 +58,19 @@ export type SkillId =
   | 'observe' // spot-difference
   | 'quantity'; // match-quantity
 
+/**
+ * One earned sticker in a child's collection (GĐ5 D2 §6). Finite/completable:
+ * a row only exists once the child crosses the milestone's mastery rule, and a
+ * child can never own more than the fixed STICKER_MILESTONES set. `unlockedAt`
+ * lets the UI flag newly-earned stickers with a gentle "Mới!" (no FOMO).
+ */
+export interface CollectionSticker {
+  id?: number;
+  profileId: number;
+  stickerId: string;
+  unlockedAt: number; // ms epoch — when the milestone was first reached
+}
+
 export type ItemResult = 'correct' | 'wrong';
 
 export interface ItemMastery {

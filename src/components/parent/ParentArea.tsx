@@ -15,11 +15,13 @@ import type { AudioManager } from '../../audio/AudioManager';
 interface Props {
   audio: AudioManager;
   onExit: () => void;
+  /** Deep-link "Luyện tiếp" (Phần D §9) — launches a game for a given child. */
+  onPlayGame?: (gameId: string, profileId: number) => void;
 }
 
 type TallyRow = { profileId: number; name: string; stars: number };
 
-export function ParentArea({ audio, onExit }: Props) {
+export function ParentArea({ audio, onExit, onPlayGame }: Props) {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [tally, setTally] = useState<TallyRow[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
@@ -141,7 +143,7 @@ export function ParentArea({ audio, onExit }: Props) {
         )}
       </section>
 
-      <ChildProgressList profiles={profiles} />
+      <ChildProgressList profiles={profiles} onPlayGame={onPlayGame} />
 
       <PrivacyNote />
       <HealthyUseNote />

@@ -35,6 +35,21 @@ export const AUDIO_MANIFEST: AudioManifest = {
     'hint.number': { text: 'Mình cùng đếm lại từ một xem nào!', lang: 'vi-VN' },
     'hint.word': { text: 'Nhìn hình rồi chọn từ đúng nha bé!', lang: 'vi-VN' },
     'hint.colorshape': { text: 'Nhìn kĩ màu và hình rồi chọn lại nhé!', lang: 'vi-VN' },
+    // GĐ5 D2 — Cáo bạn đồng hành (warm, never pressuring) + real-world bridge.
+    // Onboarding/map greeting + sticker cheer + the per-skill end-of-round nudges.
+    'fox.welcome': {
+      text: 'Chào bé! Mình là Cáo. Cùng tạo một bạn nhỏ để chơi nhé!',
+      lang: 'vi-VN',
+    },
+    'fox.adventure.invite': { text: 'Hôm nay Cáo chọn vài trò vui cho bé này!', lang: 'vi-VN' },
+    'fox.sticker.new': { text: 'Tuyệt quá, bé vừa mở được một hình mới!', lang: 'vi-VN' },
+    'fox.bridge.count': { text: 'Bé thử đếm ba món đồ thật quanh nhà nhé!', lang: 'vi-VN' },
+    'fox.bridge.letter': { text: 'Bé thử tìm một chữ cái trên hộp sữa nhé!', lang: 'vi-VN' },
+    'fox.bridge.color': { text: 'Bé thử tìm một món đồ cùng màu quanh nhà nha!', lang: 'vi-VN' },
+    'fox.bridge.generic': {
+      text: 'Bé thử chơi điều vừa học ngoài đời với bố mẹ nhé!',
+      lang: 'vi-VN',
+    },
   },
   sfx: ['tap', 'correct', 'wrong', 'star'],
 };

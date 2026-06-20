@@ -36,9 +36,18 @@ export function WhoIsPlaying({ onSelect, onParent, audio }: Props) {
         <SvgArt svg={foxIdle()} alt="" size={48} className="title-fox" /> Ai đang chơi?
       </h1>
       {profiles === null ? (
-        <p>Đang tải…</p>
+        <p className="loading-line" aria-live="polite">
+          <SvgArt svg={foxIdle()} alt="" size={32} className="inline-fox" /> Đang tải…
+        </p>
       ) : profiles.length === 0 ? (
-        <p className="hint">Chưa có bé nào. Bố mẹ hãy tạo hồ sơ nhé!</p>
+        // First-run normally routes to <Onboarding> before reaching here (see
+        // selectScreen). This stays as a safe fallback with a clear next action.
+        <div className="who-empty">
+          <p className="hint">Chưa có bé nào.</p>
+          <button className="who-empty-create" onClick={onParent}>
+            Bố mẹ tạo hồ sơ cho bé
+          </button>
+        </div>
       ) : (
         <div className="avatar-grid">
           {profiles.map((p, i) => (

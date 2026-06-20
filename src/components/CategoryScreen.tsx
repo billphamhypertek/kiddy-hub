@@ -4,6 +4,7 @@ import { CATEGORIES } from '../content/categories';
 import { SvgArt } from '../art/Art';
 import { gameIcon } from '../art/gameIcons';
 import { islandArt } from '../art/islands';
+import { foxIdle } from '../art/fox';
 import type { CategoryId } from '../data/types';
 import type { IslandKey } from '../art/tokens';
 import type { MenuAudio } from './menuAudio';
@@ -41,7 +42,12 @@ export function CategoryScreen({ categoryId, onPlay, onBack, audio }: Props) {
         {category?.title}
       </h2>
       {games.length === 0 ? (
-        <p className="hint">Sắp có trò chơi mới ở đây!</p>
+        // Every category currently ships games, so this is rare; keep a gentle
+        // Cáo + the clear ⬅️ back affordance above as the "next" out.
+        <div className="category-empty">
+          <SvgArt svg={foxIdle()} alt="" size={72} className="inline-fox" />
+          <p className="hint">Sắp có trò chơi mới ở đây! Bấm ⬅️ để chọn đảo khác nhé.</p>
+        </div>
       ) : (
         <div className="game-list">
           {games.map((g, i) => (

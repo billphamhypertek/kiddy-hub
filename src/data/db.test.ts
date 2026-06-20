@@ -6,10 +6,10 @@ beforeEach(async () => {
   await db.open();
 });
 
-describe('KiddyHubDB schema (v2, additive)', () => {
-  it('opens at version 2', async () => {
+describe('KiddyHubDB schema (v3, additive)', () => {
+  it('opens at version 3', async () => {
     await db.open();
-    expect(db.verno).toBe(2);
+    expect(db.verno).toBe(3);
   });
 
   it('declares the itemMastery table with the hot-path indexes', () => {
@@ -24,11 +24,28 @@ describe('KiddyHubDB schema (v2, additive)', () => {
     expect(indexes).toContain('[profileId+dueAt]');
   });
 
-  it('keeps all legacy tables present after the bump', () => {
+  it('keeps all legacy tables present after the v3 bump and adds collection', () => {
     const names = db.tables.map((t) => t.name).sort();
     expect(names).toEqual(
-      ['garden', 'itemMastery', 'profiles', 'progress', 'settings', 'starEvents'].sort(),
+      [
+        'collection',
+        'garden',
+        'itemMastery',
+        'profiles',
+        'progress',
+        'settings',
+        'starEvents',
+      ].sort(),
     );
+  });
+
+  it('declares the collection table with the per-child upsert index', () => {
+    const table = db.collection;
+    expect(table).toBeDefined();
+    expect(table.schema.primKey.name).toBe('id');
+    const indexes = table.schema.indexes.map((ix) => ix.name);
+    expect(indexes).toContain('profileId');
+    expect(indexes).toContain('[profileId+stickerId]');
   });
 
   it('persists an itemMastery row across a close/open cycle', async () => {

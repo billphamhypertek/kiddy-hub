@@ -368,17 +368,117 @@ button {
 }
 
 /* Brief loading card shown while Phaser + the game's scene chunk load on first
- * open (Giai đoạn 4 · Phần E: Phaser is split out of the initial bundle). */
+ * open (Giai đoạn 4 · Phần E: Phaser is split out of the initial bundle).
+ * GĐ5D: now carries a small Cáo + the game title, and a recoverable error
+ * variant (.game-error) so a failed chunk load never hangs forever. */
 .game-loading {
   position: absolute;
   inset: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 12px;
   font-size: 1.6rem;
   font-weight: 700;
   color: #2b6cb0;
   background: #dff3ff;
+}
+.loading-fox {
+  filter: drop-shadow(0 3px 4px rgba(91, 70, 54, 0.16));
+}
+.game-loading-msg,
+.game-error-msg {
+  margin: 0;
+}
+.game-error-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 4px;
+}
+.game-error-retry {
+  background: #fff3c4;
+}
+.game-error-home {
+  background: #ffffff;
+}
+
+/* ── GĐ5D · Phần D1: onboarding + dead-end/empty/loading affordances ─────────── */
+
+/* First-run onboarding (Cáo-guided welcome that leads into the gate). */
+.onboarding {
+  justify-content: center;
+  text-align: center;
+}
+.onboarding .mascot {
+  filter: drop-shadow(0 6px 8px rgba(91, 70, 54, 0.18));
+}
+.onboarding-title {
+  font-size: 34px;
+  margin: 0;
+}
+.onboarding-line {
+  font-size: 22px;
+  color: #3a5a78;
+  max-width: 520px;
+  margin: 0;
+}
+.onboarding-start {
+  background: #ffd66b;
+  font-weight: 700;
+}
+.onboarding-note {
+  font-size: 17px;
+  max-width: 480px;
+}
+
+/* who / garden empty-state "next" actions (no dead-end). */
+.who-empty,
+.garden-empty,
+.category-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.who-empty-create,
+.garden-empty-play {
+  background: #ffd66b;
+  font-weight: 700;
+}
+.inline-fox {
+  vertical-align: middle;
+  filter: drop-shadow(0 3px 4px rgba(91, 70, 54, 0.16));
+}
+.loading-line {
+  font-size: 22px;
+  color: #555;
+}
+
+/* "Đổi bạn chơi" affordance on the map header (audit #8). */
+.switch-child-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff3c4;
+  min-height: 0;
+  padding: 6px 12px;
+}
+.switch-child-label {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Deep-link "Luyện tiếp" button (parent dashboard, §9). Mirrors the static
+ * .practice-game text styling but reads as a tappable button. */
+.practice-game-btn {
+  display: inline-block;
+  background: #fde9f1;
+  border: 2px solid #9b3b66;
+  min-height: 0;
+  padding: 8px 14px;
+  box-shadow: 0 3px 0 rgba(155, 59, 102, 0.25);
+  cursor: pointer;
 }
 
 /* ── Motion (Giai đoạn 4 · Phần D1) ───────────────────────────────────────────
@@ -441,11 +541,181 @@ button {
   animation-name: stagger-fade;
 }
 
+/* ── GĐ5D · Phần D2: engagement (adventure strip · sticker-book · bridge) ────── */
+
+/* "Cuộc phiêu lưu hôm nay" strip — gentle, no streak counter, no countdown. */
+.todays-adventure {
+  width: min(680px, 100%);
+  background: #fff8ec;
+  border: 3px solid #ffd66b;
+  border-radius: 18px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ta-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ta-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #5b4636;
+}
+.ta-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.ta-card {
+  background: #ffffff;
+  border: 2px solid #ffb877;
+  border-radius: 14px;
+  padding: 10px 16px;
+  font-weight: 700;
+  color: #5b4636;
+}
+.ta-card:hover {
+  background: #fff3c4;
+}
+
+/* Sticker-book — finite/completable; locked = soft outline + "?", no FOMO. */
+.sticker-book {
+  width: min(680px, 100%);
+  margin-top: 8px;
+}
+.sticker-book-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 4px;
+}
+.sticker-book-count {
+  margin: 0 0 10px;
+  color: #6b5644;
+}
+.sticker-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 12px;
+}
+.sticker-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 2px solid #ffe2b0;
+  text-align: center;
+}
+.sticker-slot.locked {
+  background: #f4efe6;
+  border-style: dashed;
+}
+.sticker-art.muted {
+  opacity: 0.4;
+}
+.sticker-locked {
+  position: relative;
+  display: inline-flex;
+}
+.sticker-q {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 800;
+  color: #b8a890;
+}
+.sticker-label {
+  font-size: 14px;
+  color: #5b4636;
+  line-height: 1.15;
+}
+.sticker-new {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #06d6a0;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  animation: sticker-pop var(--motion-duration-base, 250ms) var(--motion-ease-pop, ease-out) both;
+}
+@keyframes sticker-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Real-world bridge overlay — gentle, skippable, never blocks the return. */
+.bridge-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(91, 70, 54, 0.4);
+  z-index: 20;
+}
+.bridge-card {
+  background: #fff8ec;
+  border: 3px solid #ffd66b;
+  border-radius: 22px;
+  padding: 24px 28px;
+  max-width: 420px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: sticker-pop var(--motion-duration-base, 250ms) var(--motion-ease-pop, ease-out) both;
+}
+.bridge-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #5b4636;
+}
+.bridge-line {
+  margin: 0;
+  font-size: 20px;
+  color: #3a5a78;
+}
+.bridge-continue {
+  background: #ffd66b;
+  font-weight: 800;
+  margin-top: 4px;
+}
+
 /* Reduced motion: turn every non-essential animation off. */
 @media (prefers-reduced-motion: reduce) {
   .screen-enter,
   .stagger-item,
-  .island.stagger-item {
+  .island.stagger-item,
+  .sticker-new,
+  .bridge-card {
     animation: none;
   }
 }

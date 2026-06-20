@@ -6,6 +6,8 @@ import type { Profile } from '../../data/types';
 
 interface Props {
   profiles: Profile[];
+  /** Deep-link "Luyện tiếp" (Phần D §9) — passed through to each card. */
+  onPlayGame?: (gameId: string, profileId: number) => void;
 }
 
 interface LoadedChild {
@@ -23,7 +25,7 @@ interface LoadedChild {
  * `profiles` đổi trước khi các Promise giải quyết thì KHÔNG setState (tránh cảnh
  * báo setState-after-unmount và tránh hiển thị dữ liệu cũ).
  */
-export function ChildProgressList({ profiles }: Props): JSX.Element | null {
+export function ChildProgressList({ profiles, onPlayGame }: Props): JSX.Element | null {
   const [loaded, setLoaded] = useState<LoadedChild[] | null>(null);
 
   useEffect(() => {
@@ -64,6 +66,8 @@ export function ChildProgressList({ profiles }: Props): JSX.Element | null {
             avatarKey={profile.avatarKey}
             childView={view}
             recap={recap}
+            profileId={profile.id}
+            onPlayGame={onPlayGame}
           />
         ))
       )}
