@@ -10,7 +10,16 @@ import {
   addBuddy,
   type SceneBuddy,
 } from '../../art/sceneArt';
-import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import {
+  animateIn,
+  popCorrect,
+  flyStars,
+  squashStretchPop,
+  sparkleBurst,
+  tilePress,
+  idleBreathe,
+  type MotionObject,
+} from '../../art/sceneMotion';
 import { distractorsToDim } from '../scaffold';
 import { hintKeyForSkill, HINT_FEWER_KEY } from '../masteryMap';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, letterPoolForLevel, type AbcRound } from './abcLogic';
@@ -86,6 +95,8 @@ export class AbcEnglishScene extends Phaser.Scene {
       .text(width / 2, height / 2 - 70, this.current.target, { fontSize: '110px', color: '#ff7043', fontStyle: 'bold' })
       .setOrigin(0.5);
     this.layer.add(targetText);
+    // GĐ6.4 — chữ đích "thở" nhẹ lúc chờ (calm-safe; chết theo layer mỗi round).
+    idleBreathe(this, targetText as unknown as MotionObject);
     this.sayTarget();
 
     const opts = this.current.options;
@@ -105,7 +116,11 @@ export class AbcEnglishScene extends Phaser.Scene {
       const label = this.add
         .text(x, y, letter, { fontSize: '60px', color: '#5b4636', fontStyle: 'bold' })
         .setOrigin(0.5);
-      btn.on('pointerdown', () => this.choose(letter, btn, tile, label));
+      btn.on('pointerdown', () => {
+        // GĐ6.4 — phản hồi bấm xúc giác (visual-only); KHÔNG đổi luồng choose.
+        tilePress(this, tile as unknown as MotionObject);
+        this.choose(letter, btn, tile, label);
+      });
       this.layer!.add(btn);
       this.layer!.add(label);
       this.optionObjs.push({ value: letter, tile, label, btn });
@@ -128,6 +143,9 @@ export class AbcEnglishScene extends Phaser.Scene {
       void this.host.speak('feedback.correct');
       btn.setFillStyle(0x9be08a);
       popCorrect(this, label);
+      // GĐ6.4 — juice đúng (visual-only, calm-safe, không đổi flow).
+      squashStretchPop(this, label);
+      sparkleBurst(this, label.x, label.y);
       this.buddy?.cheer();
       if (!this.answeredThisRound) {
         this.correctCount++;

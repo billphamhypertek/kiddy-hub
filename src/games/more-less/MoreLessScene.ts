@@ -9,7 +9,16 @@ import {
   addBuddy,
   type SceneBuddy,
 } from '../../art/sceneArt';
-import { animateIn, popCorrect, flyStars } from '../../art/sceneMotion';
+import {
+  animateIn,
+  popCorrect,
+  flyStars,
+  squashStretchPop,
+  sparkleBurst,
+  tilePress,
+  bouncePop,
+  type MotionObject,
+} from '../../art/sceneMotion';
 import { addArt, type ArtScene } from '../../art/svg';
 import { creature, emojiToCreatureId } from '../../art/creatures';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, type MoreLessRound } from './moreLessLogic';
@@ -63,6 +72,9 @@ export class MoreLessScene extends Phaser.Scene {
         50,
       ) as unknown as Phaser.GameObjects.Image;
       this.layer!.add(t);
+      // GĐ6.4 — mỗi vật nảy vào lúc xuất hiện (calm-safe; vật tĩnh, không kéo,
+      // không nằm trong mảng animateIn nên không double-animate).
+      bouncePop(this, t as unknown as MotionObject);
     }
   }
 
@@ -116,8 +128,15 @@ export class MoreLessScene extends Phaser.Scene {
     this.drawGroup(leftX, this.current.leftCount, this.current.emoji);
     this.drawGroup(rightX, this.current.rightCount, this.current.emoji);
 
-    leftFrame.on('pointerdown', () => this.choose('left', leftFrame, leftTile));
-    rightFrame.on('pointerdown', () => this.choose('right', rightFrame, rightTile));
+    // GĐ6.4 — tile lún khi bấm (visual-only; frame vẫn là hit-area thật).
+    leftFrame.on('pointerdown', () => {
+      tilePress(this, leftTile as unknown as MotionObject);
+      this.choose('left', leftFrame, leftTile);
+    });
+    rightFrame.on('pointerdown', () => {
+      tilePress(this, rightTile as unknown as MotionObject);
+      this.choose('right', rightFrame, rightTile);
+    });
   }
 
   private isCorrect(side: 'left' | 'right'): boolean {
@@ -138,6 +157,9 @@ export class MoreLessScene extends Phaser.Scene {
       void this.host.speak('feedback.correct');
       frame.setFillStyle(0x9be08a);
       popCorrect(this, frame);
+      // GĐ6.4 — juice đúng trên frame nhóm (visual-only, calm-safe).
+      squashStretchPop(this, frame);
+      sparkleBurst(this, frame.x, frame.y);
       this.buddy?.cheer();
       if (!this.answeredThisRound) this.correctCount++;
       this.answeredThisRound = true;

@@ -10,7 +10,15 @@ import {
   type SceneBuddy,
 } from '../../art/sceneArt';
 import { drawSwatchPattern } from '../../art/swatchPattern';
-import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import {
+  animateIn,
+  popCorrect,
+  flyStars,
+  squashStretchPop,
+  sparkleBurst,
+  tilePress,
+  type MotionObject,
+} from '../../art/sceneMotion';
 import { distractorsToDim } from '../scaffold';
 import { hintKeyForSkill, HINT_FEWER_KEY } from '../masteryMap';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, colorPoolForLevel, type ColorsEnRound } from './colorsEnLogic';
@@ -104,7 +112,12 @@ export class ColorsEnglishScene extends Phaser.Scene {
         .rectangle(x, y, 130, 130, color.hex)
         .setStrokeStyle(6, 0xffffff)
         .setInteractive({ useHandCursor: true });
-      swatch.on('pointerdown', () => this.choose(color.name, swatch));
+      swatch.on('pointerdown', () => {
+        // GĐ6.4 — tile lún khi bấm (visual-only; hit-area vẫn là swatch 130×130;
+        // KHÔNG đụng pattern/label tín hiệu mù màu GĐ5E).
+        tilePress(this, tile as unknown as MotionObject);
+        this.choose(color.name, swatch);
+      });
       this.layer!.add(swatch);
       // GĐ5E2 — colourblind safety: a DISTINCT monochrome glyph over the swatch +
       // an EN name label under it. Both are decorative, NON-interactive children
@@ -132,6 +145,9 @@ export class ColorsEnglishScene extends Phaser.Scene {
       void this.host.speak('feedback.correct');
       swatch.setStrokeStyle(10, 0x2ecc71);
       popCorrect(this, swatch);
+      // GĐ6.4 — juice đúng trên swatch (visual-only; KHÔNG đụng pattern/label).
+      squashStretchPop(this, swatch);
+      sparkleBurst(this, swatch.x, swatch.y);
       this.buddy?.cheer();
       if (!this.answeredThisRound) {
         this.correctCount++;

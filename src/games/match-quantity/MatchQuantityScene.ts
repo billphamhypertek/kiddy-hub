@@ -1,7 +1,14 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, addOptionTile, celebrate, addBuddy, type SceneBuddy } from '../../art/sceneArt';
-import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import {
+  animateIn,
+  popCorrect,
+  flyStars,
+  squashStretchPop,
+  sparkleBurst,
+  type MotionObject,
+} from '../../art/sceneMotion';
 import { addArt, type ArtScene } from '../../art/svg';
 import { creature, emojiToCreatureId } from '../../art/creatures';
 import { generateRound, starsFor, type MatchQuantityRound } from './matchQuantityLogic';
@@ -152,6 +159,9 @@ export class MatchQuantityScene extends Phaser.Scene {
       // The tile is now locked (no longer draggable), so a pop on its label can't
       // fight a drag; this is the correct-placement reward, not an entrance tween.
       popCorrect(this, label);
+      // GĐ6.4 — juice ở khoảnh khắc SNAP/khoá đúng (toạ độ đã snap → interruption-safe).
+      squashStretchPop(this, label as unknown as MotionObject);
+      sparkleBurst(this, label.x, label.y);
       this.buddy?.cheer();
       this.placed++;
       if (!tile.getData('missed')) this.placedFirstTry++; // counts only if this tile had no prior wrong drop

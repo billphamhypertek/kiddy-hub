@@ -1,7 +1,14 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, celebrate, addBuddy, type SceneBuddy } from '../../art/sceneArt';
-import { animateIn, popCorrect, flyStars } from '../../art/sceneMotion';
+import {
+  animateIn,
+  popCorrect,
+  flyStars,
+  squashStretchPop,
+  sparkleBurst,
+  type MotionObject,
+} from '../../art/sceneMotion';
 import { addArt, type ArtScene } from '../../art/svg';
 import {
   ROUNDS_PER_GAME,
@@ -184,6 +191,9 @@ export class SpotDifferenceScene extends Phaser.Scene {
     // (Replaces the old plain reveal tween; popCorrect owns the ring's scale so
     // there's no competing scale tween, and it touches no round/finish guard.)
     popCorrect(this, ring);
+    // GĐ6.4 — juice "tìm thấy" trên ring (visual-only; không đụng guard round).
+    squashStretchPop(this, ring as unknown as MotionObject);
+    sparkleBurst(this, ring.x, ring.y);
     this.buddy?.cheer();
     hit.disableInteractive();
 

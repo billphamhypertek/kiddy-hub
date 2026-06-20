@@ -10,7 +10,16 @@ import {
   addBuddy,
   type SceneBuddy,
 } from '../../art/sceneArt';
-import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import {
+  animateIn,
+  popCorrect,
+  flyStars,
+  squashStretchPop,
+  sparkleBurst,
+  tilePress,
+  idleBreathe,
+  type MotionObject,
+} from '../../art/sceneMotion';
 import { distractorsToDim } from '../scaffold';
 import { hintKeyForSkill, HINT_FEWER_KEY } from '../masteryMap';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, maxNumberForLevel, type NumbersEnRound } from './numbersEnLogic';
@@ -82,11 +91,12 @@ export class NumbersEnglishScene extends Phaser.Scene {
       .setOrigin(0.5);
     this.layer.add(prompt);
     // English word as a learning aid alongside the placeholder voice.
-    this.layer.add(
-      this.add
-        .text(width / 2, height / 2 - 70, this.current.word, { fontSize: '72px', color: '#ff7043', fontStyle: 'bold' })
-        .setOrigin(0.5),
-    );
+    const wordText = this.add
+      .text(width / 2, height / 2 - 70, this.current.word, { fontSize: '72px', color: '#ff7043', fontStyle: 'bold' })
+      .setOrigin(0.5);
+    this.layer.add(wordText);
+    // GĐ6.4 — số đích "thở" nhẹ lúc chờ (calm-safe; chết theo layer mỗi round).
+    idleBreathe(this, wordText as unknown as MotionObject);
     this.sayTarget();
 
     const opts = this.current.options;
@@ -103,7 +113,11 @@ export class NumbersEnglishScene extends Phaser.Scene {
       const label = this.add
         .text(x, y, String(num), { fontSize: '60px', color: '#5b4636', fontStyle: 'bold' })
         .setOrigin(0.5);
-      btn.on('pointerdown', () => this.choose(num, btn, tile, label));
+      btn.on('pointerdown', () => {
+        // GĐ6.4 — phản hồi bấm xúc giác (visual-only); KHÔNG đổi luồng choose.
+        tilePress(this, tile as unknown as MotionObject);
+        this.choose(num, btn, tile, label);
+      });
       this.layer!.add(btn);
       this.layer!.add(label);
       this.optionObjs.push({ value: num, tile, label, btn });
@@ -126,6 +140,9 @@ export class NumbersEnglishScene extends Phaser.Scene {
       void this.host.speak('feedback.correct');
       btn.setFillStyle(0x9be08a);
       popCorrect(this, label);
+      // GĐ6.4 — juice đúng (visual-only, calm-safe, không đổi flow).
+      squashStretchPop(this, label);
+      sparkleBurst(this, label.x, label.y);
       this.buddy?.cheer();
       if (!this.answeredThisRound) {
         this.correctCount++;

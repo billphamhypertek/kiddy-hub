@@ -1,7 +1,14 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, addOptionTile, celebrate, addBuddy, type SceneBuddy } from '../../art/sceneArt';
-import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import {
+  animateIn,
+  popCorrect,
+  flyStars,
+  squashStretchPop,
+  sparkleBurst,
+  type MotionObject,
+} from '../../art/sceneMotion';
 import { addArt, type ArtScene } from '../../art/svg';
 import { creature, emojiToCreatureId } from '../../art/creatures';
 import { generateRound, starsFor, type SortingRound } from './sortingLogic';
@@ -125,6 +132,9 @@ export class SortingScene extends Phaser.Scene {
       this.host.playSfx('correct');
       // Locked into the basket (no longer draggable) → a reward pop, not entrance.
       popCorrect(this, obj);
+      // GĐ6.4 — juice ở khoảnh khắc SNAP/khoá đúng (toạ độ đã snap → interruption-safe).
+      squashStretchPop(this, obj as unknown as MotionObject);
+      sparkleBurst(this, obj.x, obj.y);
       this.buddy?.cheer();
       this.correct++;
       this.placed++;

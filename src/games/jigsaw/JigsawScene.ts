@@ -1,7 +1,14 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, celebrate, addBuddy, type SceneBuddy } from '../../art/sceneArt';
-import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import {
+  animateIn,
+  popCorrect,
+  flyStars,
+  squashStretchPop,
+  sparkleBurst,
+  type MotionObject,
+} from '../../art/sceneMotion';
 import {
   gridForLevel,
   isCorrectDrop,
@@ -163,6 +170,9 @@ export class JigsawScene extends Phaser.Scene {
       this.host.playSfx('correct');
       // Piece locked into its slot (no longer draggable) → a reward pop.
       popCorrect(this, obj);
+      // GĐ6.4 — juice ở khoảnh khắc SNAP/khoá đúng (toạ độ đã snap → interruption-safe).
+      squashStretchPop(this, obj as unknown as MotionObject);
+      sparkleBurst(this, obj.x, obj.y);
       this.buddy?.cheer();
       this.placed++;
       if (this.placed === this.rows * this.cols) this.finish();

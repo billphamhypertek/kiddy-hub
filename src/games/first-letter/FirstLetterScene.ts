@@ -10,7 +10,15 @@ import {
   addBuddy,
   type SceneBuddy,
 } from '../../art/sceneArt';
-import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import {
+  animateIn,
+  popCorrect,
+  flyStars,
+  squashStretchPop,
+  sparkleBurst,
+  tilePress,
+  type MotionObject,
+} from '../../art/sceneMotion';
 import { addArt, type ArtScene } from '../../art/svg';
 import { creature, emojiToCreatureId } from '../../art/creatures';
 import { distractorsToDim } from '../scaffold';
@@ -120,7 +128,11 @@ export class FirstLetterScene extends Phaser.Scene {
       const label = this.add
         .text(x, y, letter, { fontSize: '60px', color: '#5b4636', fontStyle: 'bold' })
         .setOrigin(0.5);
-      btn.on('pointerdown', () => this.choose(letter, btn, tile, label));
+      btn.on('pointerdown', () => {
+        // GĐ6.4 — phản hồi bấm xúc giác (visual-only); KHÔNG đổi luồng choose.
+        tilePress(this, tile as unknown as MotionObject);
+        this.choose(letter, btn, tile, label);
+      });
       this.layer!.add(btn);
       this.layer!.add(label);
       this.optionObjs.push({ value: letter, tile, label, btn });
@@ -145,6 +157,9 @@ export class FirstLetterScene extends Phaser.Scene {
       void this.host.speak('feedback.correct').then(() => this.host.speakText(target, 'vi-VN'));
       btn.setFillStyle(0x9be08a);
       popCorrect(this, label);
+      // GĐ6.4 — juice đúng (visual-only, calm-safe, không đổi flow).
+      squashStretchPop(this, label);
+      sparkleBurst(this, label.x, label.y);
       this.buddy?.cheer();
       if (!this.answeredThisRound) {
         this.correctCount++;

@@ -11,7 +11,15 @@ import {
   type SceneBuddy,
 } from '../../art/sceneArt';
 import { drawSwatchPattern } from '../../art/swatchPattern';
-import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import {
+  animateIn,
+  popCorrect,
+  flyStars,
+  squashStretchPop,
+  sparkleBurst,
+  tilePress,
+  type MotionObject,
+} from '../../art/sceneMotion';
 import { distractorsToDim } from '../scaffold';
 import { hintKeyForSkill, HINT_FEWER_KEY } from '../masteryMap';
 import {
@@ -164,7 +172,12 @@ export class ShapesColorsScene extends Phaser.Scene {
         .rectangle(x, y, 130, 130, 0xffffff, 0.001)
         .setInteractive({ useHandCursor: true });
       const shape = this.drawShape(opt, x, y, 50);
-      hit.on('pointerdown', () => this.choose(i, hit, tile, shape));
+      hit.on('pointerdown', () => {
+        // GĐ6.4 — tile lún khi bấm (visual-only; hit-area vẫn là hit 130×130;
+        // KHÔNG đụng pattern/label tín hiệu mù màu GĐ5E).
+        tilePress(this, tile as unknown as MotionObject);
+        this.choose(i, hit, tile, shape);
+      });
       this.layer!.add(hit);
       // GĐ5E2 — colourblind safety on the COLOUR axis. Shape rounds already
       // disambiguate by silhouette; only color/both rounds depend on hue, so we
@@ -202,6 +215,9 @@ export class ShapesColorsScene extends Phaser.Scene {
       void this.host.speak('feedback.correct');
       hit.setStrokeStyle(8, 0x2ecc71).setFillStyle(0x9be08a, 0.3);
       popCorrect(this, shape);
+      // GĐ6.4 — juice đúng trên shape (Graphics tâm tại x/y; KHÔNG đụng pattern/label).
+      squashStretchPop(this, shape);
+      sparkleBurst(this, shape.x, shape.y);
       this.buddy?.cheer();
       if (!this.answeredThisRound) {
         this.correctCount++;

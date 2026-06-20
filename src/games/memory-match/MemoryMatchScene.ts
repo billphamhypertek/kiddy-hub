@@ -1,7 +1,15 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, celebrate, addBuddy, type SceneBuddy } from '../../art/sceneArt';
-import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import {
+  animateIn,
+  popCorrect,
+  flyStars,
+  squashStretchPop,
+  sparkleBurst,
+  tilePress,
+  type MotionObject,
+} from '../../art/sceneMotion';
 import { addArt, type ArtScene } from '../../art/svg';
 import { creature, emojiToCreatureId } from '../../art/creatures';
 import { buildBoard, gridForLevel, starsForFlips, type Card } from './memoryLogic';
@@ -80,6 +88,8 @@ export class MemoryMatchScene extends Phaser.Scene {
 
   private flip(view: CardView): void {
     if (this.busy || view.faceUp || view.matched || this.finished) return;
+    // GĐ6.4 — thẻ lún nhẹ khi chạm lật (visual-only; sau guard nên không đổi luồng).
+    tilePress(this, view.rect as unknown as MotionObject);
     view.faceUp = true;
     view.label.setVisible(true);
     view.rect.setFillStyle(0xffffff);
@@ -102,6 +112,9 @@ export class MemoryMatchScene extends Phaser.Scene {
       first.rect.setFillStyle(0x9be08a);
       view.rect.setFillStyle(0x9be08a);
       popCorrect(this, view.label);
+      // GĐ6.4 — juice khi khớp cặp (visual-only, calm-safe; không đổi guard busy).
+      squashStretchPop(this, view.label as unknown as MotionObject);
+      sparkleBurst(this, view.label.x, view.label.y);
       this.buddy?.cheer();
       if (this.matchedPairs === gridForLevel(this.level).pairs) this.finish();
     } else {

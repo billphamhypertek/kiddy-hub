@@ -9,7 +9,15 @@ import {
   addBuddy,
   type SceneBuddy,
 } from '../../art/sceneArt';
-import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import {
+  animateIn,
+  popCorrect,
+  flyStars,
+  squashStretchPop,
+  sparkleBurst,
+  tilePress,
+  type MotionObject,
+} from '../../art/sceneMotion';
 import { addArt, type ArtScene } from '../../art/svg';
 import { creature, emojiToCreatureId } from '../../art/creatures';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, type PatternRound } from './patternLogic';
@@ -105,7 +113,11 @@ export class PatternFinderScene extends Phaser.Scene {
         y,
         72,
       ) as unknown as Phaser.GameObjects.Image;
-      btn.on('pointerdown', () => this.choose(tok, btn, tile, label));
+      btn.on('pointerdown', () => {
+        // GĐ6.4 — phản hồi bấm xúc giác (visual-only); KHÔNG đổi luồng choose.
+        tilePress(this, tile as unknown as MotionObject);
+        this.choose(tok, btn, tile, label);
+      });
       this.layer!.add(btn);
       this.layer!.add(label);
       entrance.push(tile, label);
@@ -127,6 +139,9 @@ export class PatternFinderScene extends Phaser.Scene {
       void this.host.speak('feedback.correct');
       btn.setFillStyle(0x9be08a);
       popCorrect(this, label);
+      // GĐ6.4 — juice đúng (visual-only, calm-safe, không đổi flow).
+      squashStretchPop(this, label as unknown as MotionObject);
+      sparkleBurst(this, label.x, label.y);
       this.buddy?.cheer();
       if (!this.answeredThisRound) this.correctCount++;
       this.answeredThisRound = true;
