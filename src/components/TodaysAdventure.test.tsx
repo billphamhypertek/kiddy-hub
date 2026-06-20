@@ -31,6 +31,23 @@ describe('TodaysAdventure strip', () => {
     expect(onPlayPick).toHaveBeenCalledWith('abc-english');
   });
 
+  // GĐ5E1 — voiced-nav: the cards now read the title aloud on tap (when audio is
+  // threaded in). They must also still work when audio is absent.
+  it('speaks the picked title before launching when audio is provided', async () => {
+    const onPlayPick = vi.fn();
+    const speakText = vi.fn().mockResolvedValue(undefined);
+    render(
+      <TodaysAdventure
+        picks={picks}
+        onPlayPick={onPlayPick}
+        audio={{ speak: vi.fn(), speakText }}
+      />,
+    );
+    await userEvent.click(screen.getByLabelText('Chơi ABC'));
+    expect(speakText).toHaveBeenCalledWith('ABC');
+    expect(onPlayPick).toHaveBeenCalledWith('abc-english');
+  });
+
   it('renders nothing when there are no picks', () => {
     const { container } = render(<TodaysAdventure picks={[]} onPlayPick={() => {}} />);
     expect(container.querySelector('.todays-adventure')).toBeNull();

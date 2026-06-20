@@ -21,7 +21,7 @@ Triết lý thiết kế:
 - 🔒 **Riêng tư tuyệt đối** — toàn bộ hồ sơ & điểm số lưu ngay trên máy (IndexedDB), không gửi dữ liệu ra ngoài.
 - 🌳 **Thi đua vui vẻ** — sao của các bé góp chung vào một "Vườn sao của cả nhà" lớn dần, kèm bảng sao tuần nhẹ nhàng.
 
-> **Trạng thái:** 🎉 **Hoàn thành cả 4 giai đoạn (phần code).** Đủ **16/16 trò chơi**, **giọng đọc Việt/Anh** (Web Speech), bộ **đồ hoạ SVG vector** dễ thương với linh vật **Cáo 🦊**, **hoạt ảnh & hiệu ứng**, tải lần đầu nhẹ (tách bundle Phaser), và **cài đặt được + chạy offline (PWA)**. **213 test** xanh. Việc còn lại duy nhất: kiểm thử trải nghiệm với trẻ thật.
+> **Trạng thái:** 🎉 **Hoàn thành 5 giai đoạn (phần code) — bản "full-fledged".** Đủ **16/16 trò chơi**; **giọng đọc Việt/Anh thu sẵn bằng neural TTS (Piper) — chạy đúng giọng trên MỌI trình duyệt, 100% offline**; bộ **đồ hoạ SVG vector** dễ thương với linh vật **Cáo 🦊**; **hoạt ảnh & hiệu ứng**; **PWA cài đặt được + chạy offline**. Giai đoạn 5 thêm chiều sâu: **lặp lại ngắt quãng + phản hồi gợi-ý-dạy** (mỗi bé học theo nhịp riêng), **bảng phụ huynh 2.0** (Đã thạo/Đang lên/Nên luyện + thẻ tuần + gợi ý chơi ngoài đời), **mạch chơi liền lạc & gắn kết** (onboarding, "Cuộc phiêu lưu hôm nay", Cáo bạn đồng hành, sưu tập sticker + vườn sao), và **tiếp cận** (an toàn mù màu, chế độ êm, đọc giọng mọi nút). **452 test** xanh. Việc còn lại: kiểm thử trải nghiệm với trẻ thật.
 
 ## 🎮 Trò chơi (16 trò / 6 nhóm)
 
@@ -109,7 +109,8 @@ Dự án xây theo 4 giai đoạn — chi tiết & trạng thái xem [`ROADMAP.m
 1. **Giai đoạn 1 — Nền tảng + "Đếm Vui"** ✅
 2. **Giai đoạn 2 — Phủ kín 6 đảo** (thêm 1 trò mỗi nhóm) ✅
 3. **Giai đoạn 3 — Đủ 16 trò** ✅
-4. **Giai đoạn 4 — Đánh bóng** ✅ — giọng đọc Việt/Anh (Web Speech), đồ hoạ **SVG vector + linh vật Cáo**, hoạt ảnh & hiệu ứng, tách bundle Phaser (−84% tải lần đầu), **PWA offline**. *(Còn lại: kiểm thử với trẻ thật.)*
+4. **Giai đoạn 4 — Đánh bóng** ✅ — giọng đọc Việt/Anh, đồ hoạ **SVG vector + linh vật Cáo**, hoạt ảnh & hiệu ứng, tách bundle Phaser (−84% tải lần đầu), **PWA offline**.
+5. **Giai đoạn 5 — Full-fledged** ✅ (phần code A–E) — **A** giọng neural thu sẵn (Piper, chạy mọi trình duyệt) · **B** chiều sâu học tập (lặp lại ngắt quãng + phản hồi gợi-ý-dạy) · **C** bảng phụ huynh 2.0 (mastery + thẻ tuần + gợi ý đời thực) · **D** mạch chơi liền lạc & gắn kết (onboarding, phiêu lưu hôm nay, Cáo đồng hành, sticker + vườn) · **E** tiếp cận (an toàn mù màu, chế độ êm, đọc giọng mọi nút). *(Còn lại: kiểm thử với trẻ thật.)*
 
 Bản thiết kế đầy đủ: [`docs/superpowers/specs/2026-06-19-kiddyhub-design.md`](docs/superpowers/specs/2026-06-19-kiddyhub-design.md).
 

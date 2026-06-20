@@ -25,9 +25,15 @@ export function CategoryScreen({ categoryId, onPlay, onBack, audio }: Props) {
     onPlay(id);
   };
 
+  // Voiced-nav (GĐ5E1): the back button was silent.
+  const handleBack = (): void => {
+    void audio?.speak('nav.back');
+    onBack();
+  };
+
   return (
     <div className="screen category">
-      <button className="back" aria-label="Quay lại bản đồ" onClick={onBack}>
+      <button className="back" aria-label="Quay lại bản đồ" onClick={handleBack}>
         ⬅️
       </button>
       <h2>

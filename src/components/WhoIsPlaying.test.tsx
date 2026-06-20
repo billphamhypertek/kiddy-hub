@@ -25,4 +25,25 @@ describe('WhoIsPlaying', () => {
     await userEvent.click(await screen.findByLabelText('Khu phụ huynh'));
     expect(onParent).toHaveBeenCalled();
   });
+
+  // GĐ5E1 — voiced-nav: the parent entry speaks before routing.
+  it('speaks nav.parents when the parent entry is tapped', async () => {
+    const speak = vi.fn().mockResolvedValue(undefined);
+    render(
+      <WhoIsPlaying
+        onSelect={() => {}}
+        onParent={() => {}}
+        audio={{ speak, speakText: vi.fn() }}
+      />,
+    );
+    await userEvent.click(await screen.findByLabelText('Khu phụ huynh'));
+    expect(speak).toHaveBeenCalledWith('nav.parents');
+  });
+
+  it('does not crash on the parent entry when audio is absent', async () => {
+    const onParent = vi.fn();
+    render(<WhoIsPlaying onSelect={() => {}} onParent={onParent} />);
+    await userEvent.click(await screen.findByLabelText('Khu phụ huynh'));
+    expect(onParent).toHaveBeenCalled();
+  });
 });

@@ -1,6 +1,7 @@
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
 import { usePrefersReducedMotion } from './usePrefersReducedMotion';
+import { setCalmMode } from './calmMode';
 
 function Probe() {
   const reduced = usePrefersReducedMotion();
@@ -11,6 +12,7 @@ afterEach(() => {
   // Restore any matchMedia we installed for a given test.
   // @ts-expect-error — jsdom omits matchMedia; we may have added it.
   delete window.matchMedia;
+  setCalmMode(false); // reset the calm-mode mirror between tests
   vi.restoreAllMocks();
 });
 
@@ -53,5 +55,27 @@ describe('usePrefersReducedMotion', () => {
 
     unmount();
     expect(removeEventListener).toHaveBeenCalledWith('change', expect.any(Function));
+  });
+
+  // GĐ5E1 — calm-mode ORs with the OS query and live-updates the hook.
+  it('reports reduced when calm mode is on even with matchMedia absent', () => {
+    expect(typeof window.matchMedia).not.toBe('function');
+    setCalmMode(true);
+    render(<Probe />);
+    expect(screen.getByTestId('v')).toHaveTextContent('reduced');
+  });
+
+  it('live-updates when calm mode is toggled while mounted', () => {
+    window.matchMedia = vi.fn().mockReturnValue({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }) as unknown as typeof window.matchMedia;
+    render(<Probe />);
+    expect(screen.getByTestId('v')).toHaveTextContent('motion');
+    act(() => setCalmMode(true));
+    expect(screen.getByTestId('v')).toHaveTextContent('reduced');
+    act(() => setCalmMode(false));
+    expect(screen.getByTestId('v')).toHaveTextContent('motion');
   });
 });

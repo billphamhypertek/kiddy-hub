@@ -29,6 +29,7 @@ import { palette, type IslandKey } from './tokens';
 import { homeButtonArt, speakerButtonArt, optionTileArt, cloudArt } from './chrome';
 import { foxCheer } from './fox';
 import { starArt } from './stars';
+import { prefersReducedMotion } from '../motion/prefersReducedMotion';
 
 /** Depths reserved for B3 art so it always sits behind / above gameplay. */
 const DEPTH = {
@@ -234,6 +235,24 @@ export function celebrate(scene: Phaser.Scene): void {
   const { width, height } = scene.scale;
   const cx = width / 2;
   const cy = height / 2;
+
+  // GĐ5E1 — reduced/calm mode: a much gentler "done" cue. Show Cáo STATICALLY at
+  // full size (no Back.easeOut grow), DROP the 8-star flying burst entirely, and
+  // fade the fox out after a beat. SFX + voice (host.speak('reward.cheer') /
+  // awardStars) are fired by the scene separately, so they're untouched here —
+  // the success/`finished` flow and interactivity are unaffected.
+  if (prefersReducedMotion()) {
+    const fox = addArt(scene, 'art-fox-cheer', foxCheer(), cx, cy, 220);
+    fox.setDepth(DEPTH.celebrate);
+    scene.tweens.add({
+      targets: fox,
+      alpha: 0,
+      delay: 900,
+      duration: 300,
+      onComplete: () => fox.destroy(),
+    });
+    return;
+  }
 
   // Cáo cheering, popping in with a little bounce, then fading away.
   const fox = addArt(scene, 'art-fox-cheer', foxCheer(), cx, cy, 0);

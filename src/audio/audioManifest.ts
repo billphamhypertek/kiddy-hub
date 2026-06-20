@@ -50,6 +50,15 @@ export const AUDIO_MANIFEST: AudioManifest = {
       text: 'Bé thử chơi điều vừa học ngoài đời với bố mẹ nhé!',
       lang: 'vi-VN',
     },
+    // GĐ5E1 — voiced navigation: gentle, child-friendly lines spoken when a child
+    // taps a (previously silent) navigation button. Fixed Piper clips (the build
+    // script + anti-drift test enumerate these from the manifest). Parent area
+    // stays intentionally voice-silent — these target the child-facing nav.
+    'nav.parents': { text: 'Khu của bố mẹ nhé!', lang: 'vi-VN' },
+    'nav.garden': { text: 'Vào vườn sao nào!', lang: 'vi-VN' },
+    'nav.switchchild': { text: 'Đổi bạn chơi nhé!', lang: 'vi-VN' },
+    'nav.back': { text: 'Quay lại nào!', lang: 'vi-VN' },
+    'nav.home': { text: 'Về nhà thôi!', lang: 'vi-VN' },
   },
   sfx: ['tap', 'correct', 'wrong', 'star'],
 };

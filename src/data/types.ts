@@ -37,6 +37,12 @@ export interface Settings {
   soundOn: boolean;
   voiceOn: boolean;
   language: 'vi' | 'en';
+  /**
+   * GĐ5E1 — "Chế độ êm": forces reduced motion across the whole app (React +
+   * Phaser), ORed on top of the OS `prefers-reduced-motion`. Additive; defaults
+   * `false` so behaviour is unchanged unless a parent turns it on.
+   */
+  calmMode: boolean;
 }
 
 export type SkillId =

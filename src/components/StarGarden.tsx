@@ -41,9 +41,16 @@ export function StarGarden({ onBack, profile, audio }: Props) {
 
   const items = garden?.grownItems ?? [];
 
+  // Voiced-nav (GĐ5E1): the back + "Đi chơi nào!" buttons were silent. Both mean
+  // "go back to the map", so both speak `nav.back` (respects the voice toggle).
+  const handleBack = (): void => {
+    void audio?.speak('nav.back');
+    onBack();
+  };
+
   return (
     <div className="screen garden">
-      <button className="back" aria-label="Quay lại bản đồ" onClick={onBack}>
+      <button className="back" aria-label="Quay lại bản đồ" onClick={handleBack}>
         ⬅️
       </button>
       <h2>
@@ -67,7 +74,7 @@ export function StarGarden({ onBack, profile, audio }: Props) {
         {items.length === 0 && (
           <div className="garden-empty">
             <p className="hint">Hãy chơi để vườn lớn lên nhé!</p>
-            <button className="garden-empty-play" onClick={onBack}>
+            <button className="garden-empty-play" onClick={handleBack}>
               Đi chơi nào!
             </button>
           </div>

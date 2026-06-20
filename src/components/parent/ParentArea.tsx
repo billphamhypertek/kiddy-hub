@@ -9,6 +9,7 @@ import { starArt } from '../../art/stars';
 import { ChildProgressList } from './ChildProgressList';
 import { PrivacyNote } from './PrivacyNote';
 import { HealthyUseNote } from './HealthyUseNote';
+import { setCalmMode } from '../../motion';
 import type { Profile, Settings } from '../../data/types';
 import type { AudioManager } from '../../audio/AudioManager';
 
@@ -50,12 +51,15 @@ export function ParentArea({ audio, onExit, onPlayGame }: Props) {
     await refresh();
   }
 
-  async function toggle(key: 'soundOn' | 'voiceOn') {
+  async function toggle(key: 'soundOn' | 'voiceOn' | 'calmMode') {
     if (!settings) return;
     const next = await updateSettings({ [key]: !settings[key] });
     setSettings(next);
     audio.setSoundOn(next.soundOn);
     audio.setVoiceOn(next.voiceOn);
+    // Keep the synchronous calm-mode mirror (read by Phaser + React motion) in
+    // step with the persisted setting so the change takes effect immediately.
+    setCalmMode(next.calmMode);
   }
 
   return (
@@ -139,6 +143,26 @@ export function ParentArea({ audio, onExit, onPlayGame }: Props) {
               />{' '}
               Giọng đọc
             </label>
+          </>
+        )}
+      </section>
+
+      <section>
+        <h3>Tiếp cận</h3>
+        {settings && (
+          <>
+            <label>
+              <input
+                type="checkbox"
+                aria-label="Chế độ êm"
+                checked={settings.calmMode}
+                onChange={() => toggle('calmMode')}
+              />{' '}
+              Chế độ êm (giảm hoạt ảnh)
+            </label>
+            <p className="hint setting-hint">
+              Giảm chuyển động và hiệu ứng cho bé nhạy cảm. Vẫn giữ âm thanh và giọng đọc.
+            </p>
           </>
         )}
       </section>

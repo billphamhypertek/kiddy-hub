@@ -24,6 +24,12 @@ h1 {
   font-size: 22px;
   color: #555;
 }
+/* GĐ5E1 — small explanatory note under a settings toggle (e.g. "Chế độ êm"). */
+.setting-hint {
+  font-size: 16px;
+  margin: 4px 0 0;
+  max-width: 36ch;
+}
 
 /* Large touch targets everywhere */
 button {
@@ -455,14 +461,16 @@ button {
   color: #555;
 }
 
-/* "Đổi bạn chơi" affordance on the map header (audit #8). */
+/* "Đổi bạn chơi" affordance on the map header (audit #8). GĐ5E1: this is a
+ * child-facing nav control, so keep a forgiving touch target (≥56px) and roomy
+ * padding rather than the previous tight min-height:0. */
 .switch-child-btn {
   display: flex;
   align-items: center;
   gap: 8px;
   background: #fff3c4;
-  min-height: 0;
-  padding: 6px 12px;
+  min-height: 56px;
+  padding: 8px 14px;
 }
 .switch-child-label {
   font-size: 18px;
@@ -718,4 +726,17 @@ button {
   .bridge-card {
     animation: none;
   }
+}
+
+/* GĐ5E1 — "Chế độ êm" (calm mode): the SAME reduced-motion rules, driven by the
+ * `.calm-mode` class App toggles on <html> when reduced motion is in effect
+ * (calm OR OS-reduce). Duplicating the rules here (rather than only the @media
+ * query) lets the parent's explicit calm toggle silence animations without
+ * needing an OS preference. */
+.calm-mode .screen-enter,
+.calm-mode .stagger-item,
+.calm-mode .island.stagger-item,
+.calm-mode .sticker-new,
+.calm-mode .bridge-card {
+  animation: none;
 }

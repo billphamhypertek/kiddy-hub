@@ -36,12 +36,19 @@ export function Onboarding({ step, onStart, audio }: Props): JSX.Element {
     if (step === 'welcome') void audio?.speak('fox.welcome');
   }, [audio, step]);
 
+  // Voiced-nav (GĐ5E1): the "tạo hồ sơ" button was silent — speak before routing
+  // into the gate (respects the voice toggle).
+  const handleStart = (): void => {
+    void audio?.speak('nav.parents');
+    onStart();
+  };
+
   return (
     <div className="screen onboarding">
       <SvgArt svg={foxGuide('Cáo chào mừng')} alt="Cáo chào mừng" size={140} className="mascot" />
       <h1 className="onboarding-title">Chào mừng đến KiddyHub!</h1>
       <p className="onboarding-line">{WELCOME_LINE}</p>
-      <button className="onboarding-start" onClick={onStart}>
+      <button className="onboarding-start" onClick={handleStart}>
         Bố mẹ tạo hồ sơ cho bé
       </button>
       <p className="hint onboarding-note">

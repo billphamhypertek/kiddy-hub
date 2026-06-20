@@ -16,4 +16,5 @@ export {
 export type { DurationToken, EasingToken } from './tokens';
 export { usePrefersReducedMotion } from './usePrefersReducedMotion';
 export { prefersReducedMotion } from './prefersReducedMotion';
+export { setCalmMode, isCalmMode, subscribeCalmMode } from './calmMode';
 export { ScreenTransition } from './ScreenTransition';

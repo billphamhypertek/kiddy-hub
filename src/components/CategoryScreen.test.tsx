@@ -25,4 +25,21 @@ describe('CategoryScreen', () => {
     render(<CategoryScreen categoryId="memory" onPlay={() => {}} onBack={() => {}} />);
     expect(screen.getByText(/Sắp có/)).toBeInTheDocument();
   });
+
+  // GĐ5E1 — voiced-nav: the back button was silent.
+  it('speaks nav.back when the back button is tapped', async () => {
+    const speak = vi.fn().mockResolvedValue(undefined);
+    const onBack = vi.fn();
+    render(
+      <CategoryScreen
+        categoryId="numbers"
+        onPlay={() => {}}
+        onBack={onBack}
+        audio={{ speak, speakText: vi.fn() }}
+      />,
+    );
+    await userEvent.click(screen.getByLabelText('Quay lại bản đồ'));
+    expect(speak).toHaveBeenCalledWith('nav.back');
+    expect(onBack).toHaveBeenCalled();
+  });
 });

@@ -89,4 +89,40 @@ describe('AdventureMap', () => {
     );
     expect(speak).not.toHaveBeenCalled();
   });
+
+  // GĐ5E1 — voiced-nav: the previously-silent "Đổi bạn" + "Vườn sao" buttons speak.
+  it('speaks nav.switchchild when "Đổi bạn" is tapped', async () => {
+    const speak = vi.fn().mockResolvedValue(undefined);
+    const onSwitchChild = vi.fn();
+    render(
+      <AdventureMap
+        profile={profile}
+        totalStars={0}
+        onCategory={() => {}}
+        onGarden={() => {}}
+        onSwitchChild={onSwitchChild}
+        audio={{ speak, speakText: vi.fn() }}
+      />,
+    );
+    await userEvent.click(screen.getByLabelText('Đổi bạn chơi'));
+    expect(speak).toHaveBeenCalledWith('nav.switchchild');
+    expect(onSwitchChild).toHaveBeenCalled();
+  });
+
+  it('speaks nav.garden when "Vườn sao" is tapped', async () => {
+    const speak = vi.fn().mockResolvedValue(undefined);
+    const onGarden = vi.fn();
+    render(
+      <AdventureMap
+        profile={profile}
+        totalStars={3}
+        onCategory={() => {}}
+        onGarden={onGarden}
+        audio={{ speak, speakText: vi.fn() }}
+      />,
+    );
+    await userEvent.click(screen.getByText(/Vườn sao/));
+    expect(speak).toHaveBeenCalledWith('nav.garden');
+    expect(onGarden).toHaveBeenCalled();
+  });
 });

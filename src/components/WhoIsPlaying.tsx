@@ -30,6 +30,13 @@ export function WhoIsPlaying({ onSelect, onParent, audio }: Props) {
     onSelect(p);
   };
 
+  // Voiced-nav (GĐ5E1): the parent entry was silent. Speak a gentle, child-
+  // friendly line on tap before routing (respects the voice toggle).
+  const handleParent = (): void => {
+    void audio?.speak('nav.parents');
+    onParent();
+  };
+
   return (
     <div className="screen who">
       <h1>
@@ -44,7 +51,7 @@ export function WhoIsPlaying({ onSelect, onParent, audio }: Props) {
         // selectScreen). This stays as a safe fallback with a clear next action.
         <div className="who-empty">
           <p className="hint">Chưa có bé nào.</p>
-          <button className="who-empty-create" onClick={onParent}>
+          <button className="who-empty-create" onClick={handleParent}>
             Bố mẹ tạo hồ sơ cho bé
           </button>
         </div>
@@ -68,7 +75,7 @@ export function WhoIsPlaying({ onSelect, onParent, audio }: Props) {
           ))}
         </div>
       )}
-      <button className="parent-link" aria-label="Khu phụ huynh" onClick={onParent}>
+      <button className="parent-link" aria-label="Khu phụ huynh" onClick={handleParent}>
         👨‍👩‍👧 Bố mẹ
       </button>
     </div>

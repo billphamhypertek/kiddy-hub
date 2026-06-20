@@ -49,6 +49,16 @@ export function AdventureMap({
     void audio?.speakText(c.title);
     onCategory(c.id);
   };
+
+  // Voiced-nav (GĐ5E1): the "Đổi bạn" and "Vườn sao" buttons were silent.
+  const handleSwitchChild = (): void => {
+    void audio?.speak('nav.switchchild');
+    onSwitchChild?.();
+  };
+  const handleGarden = (): void => {
+    void audio?.speak('nav.garden');
+    onGarden();
+  };
   return (
     <div className="screen map">
       <header className="map-header">
@@ -56,7 +66,7 @@ export function AdventureMap({
           <button
             className="switch-child-btn"
             aria-label="Đổi bạn chơi"
-            onClick={onSwitchChild}
+            onClick={handleSwitchChild}
           >
             <SvgArt
               svg={avatarArt(profile.avatarKey, avatarLabel(profile.avatarKey))}
@@ -74,12 +84,12 @@ export function AdventureMap({
             className="avatar-art"
           />
         )}
-        <button className="garden-btn" onClick={onGarden}>
+        <button className="garden-btn" onClick={handleGarden}>
           <SvgArt svg={starArt()} alt="" size={24} className="inline-star" /> Vườn sao {totalStars}
         </button>
       </header>
       {onPlayPick && adventurePicks.length > 0 && (
-        <TodaysAdventure picks={adventurePicks} onPlayPick={onPlayPick} />
+        <TodaysAdventure picks={adventurePicks} onPlayPick={onPlayPick} audio={audio} />
       )}
       <div className="island-field">
         <SvgArt svg={mapBackdrop()} alt="" size={100} className="map-backdrop" />

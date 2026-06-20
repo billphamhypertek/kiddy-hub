@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, addOptionTile, celebrate, dimDistractor } from '../../art/sceneArt';
+import { drawSwatchPattern } from '../../art/swatchPattern';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
 import { distractorsToDim } from '../scaffold';
 import { hintKeyForSkill, HINT_FEWER_KEY } from '../masteryMap';
@@ -21,6 +22,9 @@ export class ColorsEnglishScene extends Phaser.Scene {
     value: string;
     tile: Phaser.GameObjects.Image;
     swatch: Phaser.GameObjects.Rectangle;
+    // GĐ5E2 — colourblind second-signal layers (decorative, non-interactive).
+    pattern: Phaser.GameObjects.Graphics;
+    label: Phaser.GameObjects.Text;
   }> = [];
 
   constructor(host: GameHost, level: number) {
@@ -91,7 +95,18 @@ export class ColorsEnglishScene extends Phaser.Scene {
         .setInteractive({ useHandCursor: true });
       swatch.on('pointerdown', () => this.choose(color.name, swatch));
       this.layer!.add(swatch);
-      this.optionObjs.push({ value: color.name, tile, swatch });
+      // GĐ5E2 — colourblind safety: a DISTINCT monochrome glyph over the swatch +
+      // an EN name label under it. Both are decorative, NON-interactive children
+      // (no hit area, no handler) so they can never intercept the swatch's tap —
+      // the hit area stays exactly the 130×130 swatch.
+      const pattern = drawSwatchPattern(this, x, y, 130, color.name);
+      this.layer!.add(pattern);
+      const label = this.add
+        .text(x, y + 86, color.name, { fontSize: '24px', color: '#5b4636', fontStyle: 'bold' })
+        .setOrigin(0.5)
+        .setStroke('#ffffff', 4);
+      this.layer!.add(label);
+      this.optionObjs.push({ value: color.name, tile, swatch, pattern, label });
       entrance.push(tile, swatch);
     });
     // Visual-only entrance; hit areas are already live so taps work immediately.
@@ -134,7 +149,7 @@ export class ColorsEnglishScene extends Phaser.Scene {
     const dim = distractorsToDim(this.optionObjs.length, correctIndex, keepN);
     for (const i of dim) {
       const o = this.optionObjs[i];
-      dimDistractor(this, o.tile, o.swatch);
+      dimDistractor(this, o.tile, o.swatch, o.pattern, o.label);
     }
     const hintKey = hintKeyForSkill(SKILL);
     if (dim.length > 0) void this.host.speak(HINT_FEWER_KEY).then(() => this.host.speak(hintKey));

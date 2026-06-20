@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption, dimDistractor } from '../../art/sceneArt';
+import { drawSwatchPattern } from '../../art/swatchPattern';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
 import { distractorsToDim } from '../scaffold';
 import { hintKeyForSkill, HINT_FEWER_KEY } from '../masteryMap';
@@ -32,6 +33,10 @@ export class ShapesColorsScene extends Phaser.Scene {
     tile: Phaser.GameObjects.Image;
     shape: Phaser.GameObjects.Graphics;
     hit: Phaser.GameObjects.Rectangle;
+    // GĐ5E2 — colourblind second-signal layers (decorative, non-interactive).
+    // `label` only exists on color/both rounds (shape rounds already disambiguate).
+    pattern: Phaser.GameObjects.Graphics;
+    label?: Phaser.GameObjects.Text;
   }> = [];
 
   constructor(host: GameHost, level: number) {
@@ -149,7 +154,23 @@ export class ShapesColorsScene extends Phaser.Scene {
       const shape = this.drawShape(opt, x, y, 50);
       hit.on('pointerdown', () => this.choose(i, hit, tile, shape));
       this.layer!.add(hit);
-      this.optionObjs.push({ tile, shape, hit });
+      // GĐ5E2 — colourblind safety on the COLOUR axis. Shape rounds already
+      // disambiguate by silhouette; only color/both rounds depend on hue, so we
+      // add the second signal there: a DISTINCT monochrome glyph over the shape
+      // + a VN colour name under the option. Both are decorative, NON-interactive
+      // children (no hit area, no handler) so they never intercept `hit`'s tap —
+      // the 130×130 hit rect is unchanged.
+      const pattern = drawSwatchPattern(this, x, y, 64, opt.color.name);
+      this.layer!.add(pattern);
+      let label: Phaser.GameObjects.Text | undefined;
+      if (this.current.mode !== 'shape') {
+        label = this.add
+          .text(x, y + 80, opt.color.name, { fontSize: '22px', color: '#5b4636', fontStyle: 'bold' })
+          .setOrigin(0.5)
+          .setStroke('#ffffff', 4);
+        this.layer!.add(label);
+      }
+      this.optionObjs.push({ tile, shape, hit, pattern, label });
       entrance.push(tile, shape);
     });
     // Visual-only entrance; hit areas are already live so taps work immediately.
@@ -223,7 +244,9 @@ export class ShapesColorsScene extends Phaser.Scene {
     const dim = distractorsToDim(this.optionObjs.length, r.correctIndex, keepN);
     for (const i of dim) {
       const o = this.optionObjs[i];
-      dimDistractor(this, o.tile, o.shape, o.hit);
+      // Fade the second-signal layers too (label only exists on color/both rounds).
+      const extra = o.label ? [o.pattern, o.label] : [o.pattern];
+      dimDistractor(this, o.tile, o.shape, o.hit, ...extra);
     }
     if (dim.length > 0) {
       void this.host.speak(HINT_FEWER_KEY).then(() => this.host.speak(hintKeyForSkill(SHAPE_SKILL)));

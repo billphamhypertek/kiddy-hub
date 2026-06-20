@@ -25,7 +25,7 @@ import { CategoryScreen } from './components/CategoryScreen';
 import { StarGarden } from './components/StarGarden';
 import { ParentGate } from './components/parent/ParentGate';
 import { ParentArea } from './components/parent/ParentArea';
-import { ScreenTransition, injectMotionTokens } from './motion';
+import { ScreenTransition, injectMotionTokens, setCalmMode, usePrefersReducedMotion } from './motion';
 import './App.css';
 
 // Lazy-loaded so the React side of the Phaser boundary is code-split too: the
@@ -82,10 +82,25 @@ function Root({ audio }: { audio: AudioManager }) {
     void getSettings().then((s) => {
       audio.setSoundOn(s.soundOn);
       audio.setVoiceOn(s.voiceOn);
+      // Seed the calm-mode mirror from the persisted setting at mount so Phaser +
+      // React read the right value from the first frame (and it survives reload).
+      setCalmMode(s.calmMode);
     });
     void refreshStars();
     void refreshProfileCount();
   }, [audio, refreshStars, refreshProfileCount]);
+
+  // Drive a `.calm-mode` class on the document root so CSS can disable
+  // entrance/stagger animations when reduced motion is in effect (mirrors the
+  // `@media (prefers-reduced-motion)` rules — applying the class under OS-reduce
+  // is a harmless no-op since the media query already covers that case).
+  // `usePrefersReducedMotion()` ORs calm with the OS preference and live-updates
+  // via the calm-mode pub-sub, so the parent-area toggle applies instantly.
+  const reducedMotion = usePrefersReducedMotion();
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    document.documentElement.classList.toggle('calm-mode', reducedMotion);
+  }, [reducedMotion]);
 
   // Recompute today's adventure each time the map is shown for a child (FRESH;
   // no day-state). Cleared whenever we're off the map (or the active child
