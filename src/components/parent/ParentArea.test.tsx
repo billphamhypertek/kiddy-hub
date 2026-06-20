@@ -1,5 +1,5 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { db } from '../../data/db';
 import { listProfiles } from '../../data/profiles';
@@ -33,6 +33,9 @@ describe('ParentArea', () => {
     render(<ParentArea audio={fakeAudio} onExit={() => {}} />);
     const voice = await screen.findByLabelText('Giọng đọc');
     await userEvent.click(voice);
-    expect(fakeAudio.setVoiceOn).toHaveBeenCalledWith(false);
+    // toggle() is async (awaits the Dexie updateSettings write before calling
+    // setVoiceOn), and userEvent.click doesn't await that chain — so wait for the
+    // side-effect rather than asserting synchronously (fixes a load-dependent flake).
+    await waitFor(() => expect(fakeAudio.setVoiceOn).toHaveBeenCalledWith(false));
   });
 });
