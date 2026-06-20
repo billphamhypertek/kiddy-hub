@@ -21,30 +21,33 @@ Triết lý thiết kế:
 - 🔒 **Riêng tư tuyệt đối** — toàn bộ hồ sơ & điểm số lưu ngay trên máy (IndexedDB), không gửi dữ liệu ra ngoài.
 - 🌳 **Thi đua vui vẻ** — sao của các bé góp chung vào một "Vườn sao của cả nhà" lớn dần, kèm bảng sao tuần nhẹ nhàng.
 
-> **Trạng thái:** Giai đoạn 1 (nền tảng + 1 trò mẫu) đã hoàn thành. Đồ hoạ hiện dùng **emoji tạm** và **chưa có giọng đọc thật** — bộ minh hoạ AI dễ thương + giọng đọc thật sẽ đến ở Giai đoạn 4.
+> **Trạng thái:** 🎉 **Hoàn thành cả 4 giai đoạn (phần code).** Đủ **16/16 trò chơi**, **giọng đọc Việt/Anh** (Web Speech), bộ **đồ hoạ SVG vector** dễ thương với linh vật **Cáo 🦊**, **hoạt ảnh & hiệu ứng**, tải lần đầu nhẹ (tách bundle Phaser), và **cài đặt được + chạy offline (PWA)**. **213 test** xanh. Việc còn lại duy nhất: kiểm thử trải nghiệm với trẻ thật.
 
 ## 🎮 Trò chơi (16 trò / 6 nhóm)
 
-| Nhóm | Trò chơi | Trạng thái |
-|---|---|---|
-| 🔢 Toán & Con số | **Đếm Vui** · Nhiều hơn–Ít hơn · Ghép Số với Lượng | ✅ Đếm Vui |
-| 🔤 Chữ cái & Ngôn ngữ | Bé Nhận Mặt Chữ · Chữ Cái Đầu Tiên | 🔜 Giai đoạn 2 |
-| 🧩 Logic & Giải đố | Tìm Quy Luật · Vật Lạ Trong Nhóm · Phân Loại | 🔜 |
-| 🧠 Trí nhớ & Quan sát | Lật Hình Tìm Cặp · Tìm Điểm Khác | 🔜 |
-| 🎨 Hình khối & Không gian | Ghép Hình · Nhận Diện Màu & Hình | 🔜 |
-| 🌎 Tiếng Anh vui | First Words · ABC · Numbers 1–10 · Colors | 🔜 |
+| Nhóm | Trò chơi (đều ✅) |
+|---|---|
+| 🔢 Toán & Con số | Đếm Vui · Nhiều hơn–Ít hơn · Ghép Số với Lượng |
+| 🔤 Chữ cái & Ngôn ngữ | Bé Nhận Mặt Chữ · Chữ Cái Đầu Tiên |
+| 🧩 Logic & Giải đố | Tìm Quy Luật · Vật Lạ Trong Nhóm · Phân Loại |
+| 🧠 Trí nhớ & Quan sát | Lật Hình Tìm Cặp · Tìm Điểm Khác |
+| 🎨 Hình khối & Không gian | Ghép Hình · Nhận Diện Màu & Hình |
+| 🌎 Tiếng Anh vui | First Words · ABC · Numbers 1–10 · Colors |
 
-Mỗi trò có **3 mức độ khó tự tăng dần** và thưởng **1–3 sao** mỗi lượt.
+**Cả 16 trò đã hoàn thành** — mỗi trò có **3 mức độ khó tự tăng dần**, **giọng đọc hướng dẫn**, hoạt ảnh xuất hiện & phản hồi vui mắt, và thưởng **1–3 sao** mỗi lượt.
 
 ## 🛠️ Công nghệ
 
 - **Vỏ ứng dụng:** React 18 + TypeScript (strict) + Vite
-- **Cảnh chơi:** Phaser 3 (mỗi trò là một "cảnh sống động" nhúng trong React qua `GameContainer`/`GameHost`)
-- **Âm thanh:** Howler.js (engine được inject để dễ test)
+- **Cảnh chơi:** Phaser 3 (mỗi trò là một "cảnh sống động" nhúng trong React qua `GameContainer`/`GameHost`) — **nạp động** nên Phaser chỉ tải khi bé mở trò (bundle khởi động giảm ~84%)
+- **Đồ hoạ:** hệ thống **SVG vector tự dựng trong code** (style bible + linh vật Cáo) — nhất quán, nhẹ, 100% cục bộ; một nguồn dùng chung cho cả React lẫn Phaser
+- **Giọng đọc & âm thanh:** **Web Speech API** (đọc Việt/Anh trực tiếp, không cần file audio) + **Web Audio API** cho hiệu ứng — engine được inject để dễ test
+- **Hoạt ảnh:** chuyển cảnh + entrance + phản hồi "juicy", tôn trọng `prefers-reduced-motion`
 - **Lưu trữ:** IndexedDB qua Dexie — cục bộ, offline
-- **Kiểm thử:** Vitest + Testing Library + fake-indexeddb (51 test)
+- **PWA:** cài đặt được + chạy offline (service worker precache toàn bộ app, gồm cả Phaser)
+- **Kiểm thử:** Vitest + Testing Library + fake-indexeddb (**213 test**)
 
-Kiến trúc dùng **plugin game**: thêm một trò mới chỉ cần một module tuân theo interface `GameModule` và một dòng đăng ký trong registry.
+Kiến trúc dùng **plugin game**: thêm một trò mới chỉ cần một module tuân theo interface `GameModule` (với `loadScene()` nạp động) và một dòng đăng ký trong registry.
 
 ## 🚀 Bắt đầu
 
@@ -78,20 +81,25 @@ docker compose down            # dừng & xoá container
 
 Cổng host mặc định là **8088** (đổi trong [`docker-compose.yml`](docker-compose.yml) nếu bị trùng).
 
+> 📲 **Cài như ứng dụng:** mở bản build (Docker hoặc `npm run build && npm run preview`) trên trình duyệt → bấm nút **Cài đặt** ở thanh địa chỉ. App chạy toàn màn hình, **offline** và hiện icon linh vật Cáo. *(Service worker chỉ bật ở bản production, không bật khi `npm run dev`.)*
+
 ## 📁 Cấu trúc thư mục
 
 ```
 src/
-  App.tsx              # bộ điều hướng màn hình
+  App.tsx              # vỏ điều hướng (chọn màn qua selectScreen thuần, có test)
   data/                # lớp dữ liệu cục bộ (Dexie): hồ sơ, tiến độ, sao, cài đặt
-  audio/               # AudioManager (inject engine) + Howler player
-  games/               # GameModule/GameHost/registry + trò "counting-fun"
+  audio/               # AudioManager + engine Web Speech / Web Audio (inject để test)
+  art/                 # hệ thống SVG: tokens (style bible), linh vật Cáo, avatar, icon,
+                       #   đảo, UI chrome, nền + hiệu ứng cho scene
+  motion/              # nền tảng chuyển động: tokens, prefers-reduced-motion, ScreenTransition
+  games/               # GameModule/GameHost/registry + 16 trò (mỗi trò nạp scene động)
   content/             # 6 nhóm trò + danh sách avatar
-  components/          # màn hình: avatar, bản đồ, nhóm, vườn sao, khu phụ huynh
-  state/               # context phiên + kiểu điều hướng
-docs/superpowers/
-  specs/               # bản thiết kế tổng
-  plans/               # kế hoạch triển khai
+  components/          # màn hình: avatar, bản đồ, nhóm, vườn sao, khu phụ huynh, GameContainer
+  state/               # context phiên + điều hướng (selectScreen)
+public/icons/          # icon PWA (sinh từ linh vật Cáo)
+scripts/               # công cụ dựng ảnh (style board, icon PWA) bằng headless Chrome
+docs/superpowers/specs # bản thiết kế tổng + spec từng giai đoạn
 ```
 
 ## 🗺️ Lộ trình
@@ -99,9 +107,9 @@ docs/superpowers/
 Dự án xây theo 4 giai đoạn — chi tiết & trạng thái xem [`ROADMAP.md`](ROADMAP.md):
 
 1. **Giai đoạn 1 — Nền tảng + "Đếm Vui"** ✅
-2. **Giai đoạn 2 — Phủ kín 6 đảo** (thêm 1 trò mỗi nhóm)
-3. **Giai đoạn 3 — Đủ 16 trò**
-4. **Giai đoạn 4 — Đánh bóng** (đồ hoạ AI + giọng đọc thật, hoạt ảnh, PWA offline)
+2. **Giai đoạn 2 — Phủ kín 6 đảo** (thêm 1 trò mỗi nhóm) ✅
+3. **Giai đoạn 3 — Đủ 16 trò** ✅
+4. **Giai đoạn 4 — Đánh bóng** ✅ — giọng đọc Việt/Anh (Web Speech), đồ hoạ **SVG vector + linh vật Cáo**, hoạt ảnh & hiệu ứng, tách bundle Phaser (−84% tải lần đầu), **PWA offline**. *(Còn lại: kiểm thử với trẻ thật.)*
 
 Bản thiết kế đầy đủ: [`docs/superpowers/specs/2026-06-19-kiddyhub-design.md`](docs/superpowers/specs/2026-06-19-kiddyhub-design.md).
 
