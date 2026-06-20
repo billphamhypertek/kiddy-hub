@@ -12,11 +12,29 @@
  */
 import { svgDoc } from './svg';
 import { foxIdle } from './fox';
-import { palette, stroke } from './tokens';
+import { paintedFill, softShadow, withDefs } from './paint';
+import { palette, stroke, outline } from './tokens';
 
 const SW = stroke.width;
 const SW_THIN = stroke.thin;
-const INK = palette.ink;
+const INK = outline.ink; // GĐ6.5 — storybook brown "ink" (was palette.ink)
+
+// Namespaced ids per avatar document (one doc per texture → ids never collide).
+const FILL_ID = 'av-fill';
+const SHADOW_ID = 'av-shadow';
+/** The painted body-fur reference (a hue-keyed lighten→hue→darken gradient). */
+const BODY_FILL = `url(#${FILL_ID})`;
+
+/**
+ * Wrap an avatar body in storybook defs (GĐ6.5): a painted gradient keyed to the
+ * species' main body hue + one soft warm shadow carried by the whole group. The
+ * main body/head shapes reference the gradient via `fill="${BODY_FILL}"`; small
+ * details (inner ears, patches, cheeks) keep their flat accent colours.
+ */
+function painted(bodyHue: string, inner: string, title: string): string {
+  const defs = paintedFill(FILL_ID, bodyHue) + softShadow(SHADOW_ID);
+  return svgDoc(withDefs(defs, `<g filter="url(#${SHADOW_ID})">${inner}</g>`), title);
+}
 
 /** Per-species fill colours, all pastel and harmonising with the palette. */
 const fur = {
@@ -54,14 +72,15 @@ function noseSmile(cx: number, cy: number, color: string = INK): string {
 /** Mèo — cat: pointy ears, whiskers, little muzzle. */
 function avatarCat(title: string): string {
   const c = fur.cat;
-  return svgDoc(
+  return painted(
+    c.body,
     // ears
-    `<path d="M28 30 L24 12 L42 24 Z" fill="${c.body}" stroke="${INK}" stroke-width="${SW}"/>` +
-    `<path d="M72 30 L76 12 L58 24 Z" fill="${c.body}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<path d="M28 30 L24 12 L42 24 Z" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<path d="M72 30 L76 12 L58 24 Z" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW}"/>` +
     `<path d="M30 26 L28 17 L37 23 Z" fill="#ff9eb5"/>` +
     `<path d="M70 26 L72 17 L63 23 Z" fill="#ff9eb5"/>` +
     // head
-    `<circle cx="50" cy="52" r="32" fill="${c.body}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<circle cx="50" cy="52" r="32" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW}"/>` +
     `<ellipse cx="50" cy="60" rx="20" ry="16" fill="${c.light}"/>` +
     eye(39, 48) + eye(61, 48) +
     blush(33, 58) + blush(67, 58) +
@@ -77,12 +96,13 @@ function avatarCat(title: string): string {
 /** Cún — dog: floppy ears, round snout. */
 function avatarDog(title: string): string {
   const c = fur.dog;
-  return svgDoc(
-    // floppy ears (behind head)
+  return painted(
+    c.body,
+    // floppy ears (behind head) — keep their darker flat fur
     `<path d="M24 38 C12 36 10 58 22 66 C30 60 30 46 30 40 Z" fill="${c.dark}" stroke="${INK}" stroke-width="${SW}"/>` +
     `<path d="M76 38 C88 36 90 58 78 66 C70 60 70 46 70 40 Z" fill="${c.dark}" stroke="${INK}" stroke-width="${SW}"/>` +
     // head
-    `<circle cx="50" cy="50" r="32" fill="${c.body}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<circle cx="50" cy="50" r="32" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW}"/>` +
     // patch over one eye
     `<path d="M36 36 C28 38 28 52 38 54 C46 52 46 38 36 36 Z" fill="${c.dark}" opacity="0.55"/>` +
     eye(39, 46) + eye(61, 46) +
@@ -97,12 +117,13 @@ function avatarDog(title: string): string {
 /** Gấu — bear: round ears, warm brown. */
 function avatarBear(title: string): string {
   const c = fur.bear;
-  return svgDoc(
-    `<circle cx="28" cy="28" r="13" fill="${c.body}" stroke="${INK}" stroke-width="${SW}"/>` +
-    `<circle cx="72" cy="28" r="13" fill="${c.body}" stroke="${INK}" stroke-width="${SW}"/>` +
+  return painted(
+    c.body,
+    `<circle cx="28" cy="28" r="13" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<circle cx="72" cy="28" r="13" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW}"/>` +
     `<circle cx="28" cy="28" r="6.5" fill="${c.light}"/>` +
     `<circle cx="72" cy="28" r="6.5" fill="${c.light}"/>` +
-    `<circle cx="50" cy="52" r="32" fill="${c.body}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<circle cx="50" cy="52" r="32" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW}"/>` +
     `<ellipse cx="50" cy="60" rx="17" ry="14" fill="${c.light}"/>` +
     eye(40, 47) + eye(60, 47) +
     blush(31, 57) + blush(69, 57) +
@@ -114,12 +135,13 @@ function avatarBear(title: string): string {
 /** Thỏ — rabbit: tall ears, buck-tooth smile. */
 function avatarRabbit(title: string): string {
   const c = fur.rabbit;
-  return svgDoc(
-    `<path d="M38 32 C32 6 40 2 44 24 C45 30 44 34 42 36 Z" fill="${c.body}" stroke="${INK}" stroke-width="${SW}"/>` +
-    `<path d="M62 32 C68 6 60 2 56 24 C55 30 56 34 58 36 Z" fill="${c.body}" stroke="${INK}" stroke-width="${SW}"/>` +
+  return painted(
+    c.body,
+    `<path d="M38 32 C32 6 40 2 44 24 C45 30 44 34 42 36 Z" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<path d="M62 32 C68 6 60 2 56 24 C55 30 56 34 58 36 Z" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW}"/>` +
     `<path d="M39 30 C35 12 40 10 42 24 Z" fill="#ff9eb5"/>` +
     `<path d="M61 30 C65 12 60 10 58 24 Z" fill="#ff9eb5"/>` +
-    `<circle cx="50" cy="56" r="30" fill="${c.body}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<circle cx="50" cy="56" r="30" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW}"/>` +
     eye(40, 52) + eye(60, 52) +
     blush(32, 62) + blush(68, 62) +
     `<path d="M50 60 c2 0 3 1.4 2 2.8 c-1 1.2 -3 1.2 -4 0 c-1 -1.4 0 -2.8 2 -2.8 Z" fill="#e8757f"/>` +
@@ -138,10 +160,11 @@ function avatarFox(title: string): string {
 
 /** Trúc — panda: black ears & eye patches, white face. */
 function avatarPanda(title: string): string {
-  return svgDoc(
+  return painted(
+    palette.white,
     `<circle cx="28" cy="26" r="13" fill="#2f2a28" stroke="${INK}" stroke-width="${SW}"/>` +
     `<circle cx="72" cy="26" r="13" fill="#2f2a28" stroke="${INK}" stroke-width="${SW}"/>` +
-    `<circle cx="50" cy="52" r="32" fill="${palette.white}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<circle cx="50" cy="52" r="32" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW}"/>` +
     // eye patches (teardrop)
     `<path d="M40 40 C30 42 30 56 40 58 C48 56 48 42 40 40 Z" fill="#2f2a28"/>` +
     `<path d="M60 40 C70 42 70 56 60 58 C52 56 52 42 60 40 Z" fill="#2f2a28"/>` +
@@ -166,12 +189,13 @@ function avatarLion(title: string): string {
     maneRing += `<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="9"/>`;
   }
   maneRing += '</g>';
-  return svgDoc(
+  return painted(
+    c.body,
     maneRing +
     // ears
-    `<circle cx="32" cy="32" r="8" fill="${c.body}" stroke="${INK}" stroke-width="${SW_THIN}"/>` +
-    `<circle cx="68" cy="32" r="8" fill="${c.body}" stroke="${INK}" stroke-width="${SW_THIN}"/>` +
-    `<circle cx="50" cy="52" r="28" fill="${c.body}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<circle cx="32" cy="32" r="8" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW_THIN}"/>` +
+    `<circle cx="68" cy="32" r="8" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW_THIN}"/>` +
+    `<circle cx="50" cy="52" r="28" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW}"/>` +
     `<ellipse cx="50" cy="60" rx="16" ry="13" fill="${c.light}"/>` +
     eye(41, 48) + eye(59, 48) +
     blush(33, 58) + blush(67, 58) +
@@ -183,12 +207,13 @@ function avatarLion(title: string): string {
 /** Ếch — frog: green, eyes on top, wide smile. */
 function avatarFrog(title: string): string {
   const c = fur.frog;
-  return svgDoc(
+  return painted(
+    c.body,
     // eye bumps on top
-    `<circle cx="34" cy="30" r="14" fill="${c.body}" stroke="${INK}" stroke-width="${SW}"/>` +
-    `<circle cx="66" cy="30" r="14" fill="${c.body}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<circle cx="34" cy="30" r="14" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<circle cx="66" cy="30" r="14" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW}"/>` +
     // head
-    `<path d="M18 50 C18 36 34 32 50 32 C66 32 82 36 82 50 C82 70 66 80 50 80 C34 80 18 70 18 50 Z" fill="${c.body}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<path d="M18 50 C18 36 34 32 50 32 C66 32 82 36 82 50 C82 70 66 80 50 80 C34 80 18 70 18 50 Z" fill="${BODY_FILL}" stroke="${INK}" stroke-width="${SW}"/>` +
     `<ellipse cx="50" cy="62" rx="22" ry="15" fill="${c.light}"/>` +
     eye(34, 29, 8) + eye(66, 29, 8) +
     blush(30, 58) + blush(70, 58) +

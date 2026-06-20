@@ -11,11 +11,16 @@
  * `gameIcon(id, title)` — the resolver also picks the right category tint.
  */
 import { svgDoc } from './svg';
-import { palette, stroke, radius, type IslandKey } from './tokens';
+import { paintedFill, softShadow, withDefs } from './paint';
+import { palette, stroke, radius, outline, type IslandKey } from './tokens';
 
 const SW = stroke.width;
 const SW_THIN = stroke.thin;
-const INK = palette.ink;
+const INK = outline.ink; // GĐ6.5 — storybook brown "ink" (was palette.ink)
+
+// Namespaced ids per icon document (one doc per texture → ids never collide).
+const BADGE_ID = 'gi-badge';
+const SHADOW_ID = 'gi-shadow';
 
 /** Which category each game belongs to → drives the icon's accent tint. */
 const GAME_CATEGORY: Record<string, IslandKey> = {
@@ -37,10 +42,11 @@ const GAME_CATEGORY: Record<string, IslandKey> = {
   'first-words': 'english',
 };
 
-/** A soft rounded badge that every icon sits on, tinted by the category hue. */
-function badge(color: string): string {
+/** A soft rounded badge that every icon sits on, PAINTED with the category hue
+ *  (lighten→hue→darken via the shared gradient #gi-badge). */
+function badge(): string {
   return (
-    `<rect x="10" y="10" width="80" height="80" rx="${radius.lg}" fill="${color}" stroke="${INK}" stroke-width="${stroke.bold}"/>` +
+    `<rect x="10" y="10" width="80" height="80" rx="${radius.lg}" fill="url(#${BADGE_ID})" stroke="${INK}" stroke-width="${stroke.bold}"/>` +
     // glossy top highlight
     `<rect x="18" y="16" width="64" height="20" rx="${radius.md}" fill="${palette.white}" opacity="0.22"/>`
   );
@@ -238,8 +244,11 @@ export function gameIcon(id: string, title = ''): string {
   const cat = GAME_CATEGORY[id];
   const color = cat ? palette.island[cat] : palette.accent;
   const emblem = emblems[id];
-  const inner = badge(color) + (emblem ? emblem() : glyphText('?'));
-  return svgDoc(inner, title);
+  // GĐ6.5 — paint the badge with the category hue + lift the whole icon with one
+  // soft warm shadow (storybook surface, matching the in-scene creatures/Cáo).
+  const defs = paintedFill(BADGE_ID, color) + softShadow(SHADOW_ID);
+  const inner = `<g filter="url(#${SHADOW_ID})">${badge()}${emblem ? emblem() : glyphText('?')}</g>`;
+  return svgDoc(withDefs(defs, inner), title);
 }
 
 /** Game ids that have a drawn icon — handy for galleries / the style board. */

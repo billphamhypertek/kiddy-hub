@@ -2,12 +2,36 @@
   /* GĐ6.1 — Baloo 2 (bundled locally) first; rounded system faces as fallback. */
   font-family: 'Baloo 2', 'Comic Sans MS', system-ui, 'Segoe UI', sans-serif;
   -webkit-text-size-adjust: 100%;
+
+  /* GĐ6.5 — storybook surface bridge tokens. Values mirror src/art/tokens.ts so
+   * the React/menu layer wears the SAME ink/shadow/paper as the Phaser scenes. */
+  --sb-ink: #6b4a2a; /* outline.ink — soft brown "mực" */
+  --sb-ink-w: 2px; /* ≈ outline.width 2.2, snapped for crisp edges */
+  --sb-radius: 18px; /* warm rounded card corner (≈ radius.lg) */
+  --sb-shadow: 0 4px 10px rgba(91, 70, 54, 0.22); /* soft warm shadow (shadow.color, ~opacity) */
+  --sb-paper: 0.05; /* paper.opacity ≈ 5% */
+  --sb-cream: #fef6ec; /* palette.background — warm cream page colour */
 }
 * {
   box-sizing: border-box;
 }
 body {
   margin: 0;
+}
+/* GĐ6.5 — one cheap paper-grain wash over the whole page (spec §9). A fixed,
+ * behind-everything pseudo-element at very low opacity; a tiny tiled SVG
+ * turbulence data-URI keeps it 100% local (no network) and lightweight.
+ * pointer-events:none so it never intercepts a tap; z-index:-1 sits it under
+ * all content. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--sb-paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
 }
 .screen {
   min-height: 100vh;
@@ -16,7 +40,9 @@ body {
   align-items: center;
   padding: 24px;
   gap: 16px;
-  background: linear-gradient(#cdeeff, #e9fbe2);
+  /* GĐ6.5 — warm storybook page: a soft sky fading into the cream page colour,
+   * matching the scenes' sky-over-ground feel. */
+  background: linear-gradient(#e7f4ff 0%, #fff6e8 58%, var(--sb-cream) 100%);
 }
 h1 {
   font-size: 40px;
@@ -36,12 +62,15 @@ h1 {
 button {
   font-size: 22px;
   min-height: 72px;
-  border: none;
+  /* GĐ6.5 — painted storybook button: thin warm ink outline, rounded corner, a
+   * gentle light→cream gradient, and a soft warm shadow (was a hard 0 4px 0). */
+  border: var(--sb-ink-w) solid var(--sb-ink);
   border-radius: 16px;
   padding: 12px 20px;
   cursor: pointer;
-  background: #ffffff;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
+  background: linear-gradient(#ffffff 0%, #fff7ec 100%);
+  box-shadow: var(--sb-shadow);
+  color: #4a3526;
 }
 
 /* Avatar entry */
@@ -57,6 +86,12 @@ button {
   align-items: center;
   width: 140px;
   height: 140px;
+  /* GĐ6.5 — painted storybook card. */
+  border-radius: var(--sb-radius);
+  box-shadow: var(--sb-shadow);
+  background: linear-gradient(#fffdf8 0%, #fff3e0 100%);
+  gap: 6px;
+  padding: 10px;
 }
 .avatar-art {
   width: 88px;
@@ -124,6 +159,9 @@ button {
   justify-content: flex-start;
   background: transparent;
   border: none;
+  /* GĐ6.5 — islands are transparent tap targets; their SVG carries its own soft
+   * shadow, so cancel the base button's painted card shadow here. */
+  box-shadow: none;
   padding: 0;
   z-index: 1;
   cursor: pointer;
@@ -171,6 +209,12 @@ button {
   align-items: center;
   width: 160px;
   height: 160px;
+  /* GĐ6.5 — painted storybook card. */
+  border-radius: var(--sb-radius);
+  box-shadow: var(--sb-shadow);
+  background: linear-gradient(#fffdf8 0%, #fff3e0 100%);
+  gap: 6px;
+  padding: 10px;
 }
 .game-icon {
   width: 72px;

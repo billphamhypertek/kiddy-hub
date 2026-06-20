@@ -12,12 +12,17 @@
  * `palette.island.*` accent so they stay on-brand.
  */
 import { svgDoc } from './svg';
-import { palette, stroke, type IslandKey } from './tokens';
+import { paintedFill, softShadow, withDefs } from './paint';
+import { palette, stroke, outline, type IslandKey } from './tokens';
 
 const SW = stroke.width;
 const SW_THIN = stroke.thin;
-const INK = palette.ink;
+const INK = outline.ink; // GĐ6.5 — storybook brown "ink" (was palette.ink)
 const SAND = '#ffe6b3';
+
+// Namespaced ids per island document (one doc per texture → ids never collide).
+const SHADOW_ID = 'isl-shadow';
+const GRASS_ID = 'isl-grass';
 
 /** Slightly darken a hex colour (for grass shadow / tree foliage). */
 function shade(hex: string, amount = 0.18): string {
@@ -28,7 +33,7 @@ function shade(hex: string, amount = 0.18): string {
   return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
 }
 
-/** The shared island base: soft shadow, sand ring, grassy top. */
+/** The shared island base: soft shadow, sand ring, PAINTED grassy top. */
 function base(color: string): string {
   const grassDark = shade(color);
   return (
@@ -36,9 +41,9 @@ function base(color: string): string {
     `<ellipse cx="50" cy="84" rx="40" ry="9" fill="${INK}" opacity="0.10"/>` +
     // sandy beach
     `<ellipse cx="50" cy="74" rx="42" ry="18" fill="${SAND}" stroke="${INK}" stroke-width="${SW}"/>` +
-    // grass dome
+    // painted grass dome (lighten→hue→darken via the shared gradient #isl-grass)
     `<path d="M14 70 C14 48 30 36 50 36 C70 36 86 48 86 70 C72 78 60 80 50 80 C40 80 28 78 14 70 Z" ` +
-    `fill="${color}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `fill="url(#${GRASS_ID})" stroke="${INK}" stroke-width="${SW}"/>` +
     // grass under-shade
     `<path d="M16 68 C30 76 70 76 84 68 C72 74 60 76 50 76 C40 76 28 74 16 68 Z" fill="${grassDark}" opacity="0.5"/>`
   );
@@ -185,7 +190,11 @@ const scenes: Record<IslandKey, (color: string) => string> = {
  */
 export function islandArt(id: IslandKey, title = ''): string {
   const color = palette.island[id];
-  return svgDoc(scenes[id](color), title);
+  // GĐ6.5 — paint the grass dome with this island's hue + lift the whole scene
+  // with one soft warm shadow (storybook surface, matching the Phaser scenes).
+  const defs = paintedFill(GRASS_ID, color) + softShadow(SHADOW_ID);
+  const body = `<g filter="url(#${SHADOW_ID})">${scenes[id](color)}</g>`;
+  return svgDoc(withDefs(defs, body), title);
 }
 
 /**
@@ -194,25 +203,34 @@ export function islandArt(id: IslandKey, title = ''): string {
  * a decorative background (no title → `aria-hidden` via `<SvgArt>` with no alt).
  */
 export function mapBackdrop(): string {
+  // GĐ6.5 — lift the sun + drifting clouds with one soft warm shadow so the
+  // backdrop reads as a layered storybook scene, not flat shapes.
+  const defs = softShadow(SHADOW_ID);
   return svgDoc(
-    // sky
-    `<rect x="0" y="0" width="100" height="58" fill="${palette.backgroundSky}"/>` +
-    // sun glow
-    `<circle cx="82" cy="16" r="12" fill="${palette.star}" opacity="0.55"/>` +
-    `<circle cx="82" cy="16" r="7" fill="${palette.star}"/>` +
-    // sea
-    `<rect x="0" y="50" width="100" height="50" fill="#bfeaff"/>` +
-    `<rect x="0" y="64" width="100" height="36" fill="#a6dcf7"/>` +
-    `<rect x="0" y="80" width="100" height="20" fill="#8fcff0"/>` +
-    // drifting clouds
-    cloud(20, 14, 1.1) +
-    cloud(54, 10, 0.9) +
-    cloud(38, 30, 0.7) +
-    // sparkles on the water
-    `<g fill="${palette.white}" opacity="0.55">` +
-    `<path d="M16 72 l1 2 l2 1 l-2 1 l-1 2 l-1 -2 l-2 -1 l2 -1 z"/>` +
-    `<path d="M70 84 l1 2 l2 1 l-2 1 l-1 2 l-1 -2 l-2 -1 l2 -1 z"/>` +
-    `<path d="M44 90 l1 2 l2 1 l-2 1 l-1 2 l-1 -2 l-2 -1 l2 -1 z"/></g>`,
+    withDefs(
+      defs,
+      // sky
+      `<rect x="0" y="0" width="100" height="58" fill="${palette.backgroundSky}"/>` +
+        // soft sun glow (lifted)
+        `<g filter="url(#${SHADOW_ID})">` +
+        `<circle cx="82" cy="16" r="12" fill="${palette.star}" opacity="0.55"/>` +
+        `<circle cx="82" cy="16" r="7" fill="${palette.star}"/></g>` +
+        // sea
+        `<rect x="0" y="50" width="100" height="50" fill="#bfeaff"/>` +
+        `<rect x="0" y="64" width="100" height="36" fill="#a6dcf7"/>` +
+        `<rect x="0" y="80" width="100" height="20" fill="#8fcff0"/>` +
+        // drifting clouds (lifted)
+        `<g filter="url(#${SHADOW_ID})">` +
+        cloud(20, 14, 1.1) +
+        cloud(54, 10, 0.9) +
+        cloud(38, 30, 0.7) +
+        `</g>` +
+        // sparkles on the water
+        `<g fill="${palette.white}" opacity="0.55">` +
+        `<path d="M16 72 l1 2 l2 1 l-2 1 l-1 2 l-1 -2 l-2 -1 l2 -1 z"/>` +
+        `<path d="M70 84 l1 2 l2 1 l-2 1 l-1 2 l-1 -2 l-2 -1 l2 -1 z"/>` +
+        `<path d="M44 90 l1 2 l2 1 l-2 1 l-1 2 l-1 -2 l-2 -1 l2 -1 z"/></g>`,
+    ),
   );
 }
 
