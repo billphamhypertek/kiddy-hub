@@ -31,11 +31,16 @@ export function createWebSpeechEngine(): SpeechEngine {
 
   function pickVoice(lang: string): SpeechSynthesisVoice | undefined {
     if (voices.length === 0) refreshVoices();
-    const prefix = lang.split('-')[0].toLowerCase();
-    return (
-      voices.find((v) => v.lang.toLowerCase() === lang.toLowerCase()) ??
-      voices.find((v) => v.lang.toLowerCase().startsWith(prefix))
-    );
+    const want = lang.toLowerCase();
+    const prefix = want.split('-')[0];
+    // Exact locale match first; fall back to same-language voices.
+    const exact = voices.filter((v) => v.lang.toLowerCase() === want);
+    const pool = exact.length ? exact : voices.filter((v) => v.lang.toLowerCase().startsWith(prefix));
+    // When several voices exist for the language, prefer a higher-quality one
+    // (macOS/Windows ship "Enhanced"/"Premium"/neural variants that sound far
+    // less robotic than the default compact voice).
+    const nicer = pool.find((v) => /enhanced|premium|natural|neural/i.test(v.name));
+    return nicer ?? pool[0];
   }
 
   return {
@@ -53,6 +58,12 @@ export function createWebSpeechEngine(): SpeechEngine {
 
       const utt = new SpeechSynthesisUtterance(text);
       utt.lang = lang;
+      // Warm, gentle delivery tuned for young children: a touch slower so each
+      // word stays clear, and a slightly higher pitch so the voice sounds
+      // friendly rather than flat/robotic. The browser applies these even to
+      // the compact system voices, softening their machine-like edge.
+      utt.rate = 0.9;
+      utt.pitch = 1.1;
       const voice = pickVoice(lang);
       if (voice) utt.voice = voice;
       // Fire onDone on BOTH end and error so the caller's promise never hangs.
