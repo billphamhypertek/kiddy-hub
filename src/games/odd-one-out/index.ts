@@ -1,5 +1,4 @@
-import type { GameHost, GameModule } from '../GameModule';
-import { OddOneOutScene } from './OddOneOutScene';
+import type { GameModule } from '../GameModule';
 
 export const oddOneOut: GameModule = {
   id: 'odd-one-out',
@@ -8,5 +7,6 @@ export const oddOneOut: GameModule = {
   iconKey: '🔍',
   skill: 'Phân loại, loại trừ',
   levels: 3,
-  createScene: (host: GameHost, level: number) => new OddOneOutScene(host, level),
+  loadScene: () =>
+    import('./OddOneOutScene').then((m) => (host, level) => new m.OddOneOutScene(host, level)),
 };

@@ -1,5 +1,4 @@
-import type { GameHost, GameModule } from '../GameModule';
-import { LetterSpottingScene } from './LetterSpottingScene';
+import type { GameModule } from '../GameModule';
 
 export const letterSpotting: GameModule = {
   id: 'letter-spotting',
@@ -8,5 +7,8 @@ export const letterSpotting: GameModule = {
   iconKey: '🔤',
   skill: 'Nhận diện mặt chữ cái',
   levels: 3,
-  createScene: (host: GameHost, level: number) => new LetterSpottingScene(host, level),
+  loadScene: () =>
+    import('./LetterSpottingScene').then(
+      (m) => (host, level) => new m.LetterSpottingScene(host, level),
+    ),
 };

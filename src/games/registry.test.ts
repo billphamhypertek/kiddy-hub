@@ -10,7 +10,7 @@ function fakeGame(id: string, categoryId: GameModule['categoryId']): GameModule 
     iconKey: '🎲',
     skill: 'test',
     levels: 3,
-    createScene: () => ({}) as never,
+    loadScene: () => Promise.resolve(() => ({}) as never),
   };
 }
 

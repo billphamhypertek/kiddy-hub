@@ -6,6 +6,11 @@ describe('shapes-colors module', () => {
     expect(shapesColors.id).toBe('shapes-colors');
     expect(shapesColors.categoryId).toBe('shapes');
     expect(shapesColors.levels).toBe(3);
-    expect(typeof shapesColors.createScene).toBe('function');
+    expect(typeof shapesColors.loadScene).toBe('function');
+  });
+
+  it('lazily resolves a scene factory', async () => {
+    const createScene = await shapesColors.loadScene();
+    expect(typeof createScene).toBe('function');
   });
 });

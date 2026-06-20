@@ -6,6 +6,11 @@ describe('match-quantity module', () => {
     expect(matchQuantity.id).toBe('match-quantity');
     expect(matchQuantity.categoryId).toBe('numbers');
     expect(matchQuantity.levels).toBe(3);
-    expect(typeof matchQuantity.createScene).toBe('function');
+    expect(typeof matchQuantity.loadScene).toBe('function');
+  });
+
+  it('lazily resolves a scene factory', async () => {
+    const createScene = await matchQuantity.loadScene();
+    expect(typeof createScene).toBe('function');
   });
 });

@@ -7,6 +7,11 @@ describe('counting-fun module', () => {
     expect(countingFun.id).toBe('counting-fun');
     expect(countingFun.categoryId).toBe('numbers');
     expect(countingFun.levels).toBe(3);
-    expect(typeof countingFun.createScene).toBe('function');
+    expect(typeof countingFun.loadScene).toBe('function');
+  });
+
+  it('lazily resolves a scene factory', async () => {
+    const createScene = await countingFun.loadScene();
+    expect(typeof createScene).toBe('function');
   });
 });

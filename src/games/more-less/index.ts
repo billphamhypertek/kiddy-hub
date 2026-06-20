@@ -1,5 +1,4 @@
-import type { GameHost, GameModule } from '../GameModule';
-import { MoreLessScene } from './MoreLessScene';
+import type { GameModule } from '../GameModule';
 
 export const moreLess: GameModule = {
   id: 'more-less',
@@ -8,5 +7,6 @@ export const moreLess: GameModule = {
   iconKey: '⚖️',
   skill: 'So sánh số lượng',
   levels: 3,
-  createScene: (host: GameHost, level: number) => new MoreLessScene(host, level),
+  loadScene: () =>
+    import('./MoreLessScene').then((m) => (host, level) => new m.MoreLessScene(host, level)),
 };

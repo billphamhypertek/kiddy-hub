@@ -1,5 +1,4 @@
-import type { GameHost, GameModule } from '../GameModule';
-import { CountingFunScene } from './CountingFunScene';
+import type { GameModule } from '../GameModule';
 
 export const countingFun: GameModule = {
   id: 'counting-fun',
@@ -8,5 +7,8 @@ export const countingFun: GameModule = {
   iconKey: '🦆',
   skill: 'Đếm và nhận diện số',
   levels: 3,
-  createScene: (host: GameHost, level: number) => new CountingFunScene(host, level),
+  loadScene: () =>
+    import('./CountingFunScene').then(
+      (m) => (host, level) => new m.CountingFunScene(host, level),
+    ),
 };

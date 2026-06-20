@@ -1,5 +1,4 @@
-import type { GameHost, GameModule } from '../GameModule';
-import { MatchQuantityScene } from './MatchQuantityScene';
+import type { GameModule } from '../GameModule';
 
 export const matchQuantity: GameModule = {
   id: 'match-quantity',
@@ -8,5 +7,8 @@ export const matchQuantity: GameModule = {
   iconKey: '🔢',
   skill: 'Liên hệ số ↔ lượng',
   levels: 3,
-  createScene: (host: GameHost, level: number) => new MatchQuantityScene(host, level),
+  loadScene: () =>
+    import('./MatchQuantityScene').then(
+      (m) => (host, level) => new m.MatchQuantityScene(host, level),
+    ),
 };

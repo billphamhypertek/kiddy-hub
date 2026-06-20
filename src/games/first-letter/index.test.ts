@@ -6,6 +6,11 @@ describe('first-letter module', () => {
     expect(firstLetter.id).toBe('first-letter');
     expect(firstLetter.categoryId).toBe('letters');
     expect(firstLetter.levels).toBe(3);
-    expect(typeof firstLetter.createScene).toBe('function');
+    expect(typeof firstLetter.loadScene).toBe('function');
+  });
+
+  it('lazily resolves a scene factory', async () => {
+    const createScene = await firstLetter.loadScene();
+    expect(typeof createScene).toBe('function');
   });
 });

@@ -6,6 +6,11 @@ describe('colors-english module', () => {
     expect(colorsEnglish.id).toBe('colors-english');
     expect(colorsEnglish.categoryId).toBe('english');
     expect(colorsEnglish.levels).toBe(3);
-    expect(typeof colorsEnglish.createScene).toBe('function');
+    expect(typeof colorsEnglish.loadScene).toBe('function');
+  });
+
+  it('lazily resolves a scene factory', async () => {
+    const createScene = await colorsEnglish.loadScene();
+    expect(typeof createScene).toBe('function');
   });
 });

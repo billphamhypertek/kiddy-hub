@@ -1,5 +1,4 @@
-import type { GameHost, GameModule } from '../GameModule';
-import { NumbersEnglishScene } from './NumbersEnglishScene';
+import type { GameModule } from '../GameModule';
 
 export const numbersEnglish: GameModule = {
   id: 'numbers-english',
@@ -8,5 +7,8 @@ export const numbersEnglish: GameModule = {
   iconKey: '🔟',
   skill: 'Số đếm EN',
   levels: 3,
-  createScene: (host: GameHost, level: number) => new NumbersEnglishScene(host, level),
+  loadScene: () =>
+    import('./NumbersEnglishScene').then(
+      (m) => (host, level) => new m.NumbersEnglishScene(host, level),
+    ),
 };

@@ -6,6 +6,11 @@ describe('sorting module', () => {
     expect(sorting.id).toBe('sorting');
     expect(sorting.categoryId).toBe('logic');
     expect(sorting.levels).toBe(3);
-    expect(typeof sorting.createScene).toBe('function');
+    expect(typeof sorting.loadScene).toBe('function');
+  });
+
+  it('lazily resolves a scene factory', async () => {
+    const createScene = await sorting.loadScene();
+    expect(typeof createScene).toBe('function');
   });
 });

@@ -1,5 +1,4 @@
-import type { GameHost, GameModule } from '../GameModule';
-import { PatternFinderScene } from './PatternFinderScene';
+import type { GameModule } from '../GameModule';
 
 export const patternFinder: GameModule = {
   id: 'pattern-finder',
@@ -8,5 +7,8 @@ export const patternFinder: GameModule = {
   iconKey: '🧩',
   skill: 'Nhận ra quy luật chuỗi',
   levels: 3,
-  createScene: (host: GameHost, level: number) => new PatternFinderScene(host, level),
+  loadScene: () =>
+    import('./PatternFinderScene').then(
+      (m) => (host, level) => new m.PatternFinderScene(host, level),
+    ),
 };

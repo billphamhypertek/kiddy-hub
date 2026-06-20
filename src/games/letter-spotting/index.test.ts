@@ -6,6 +6,11 @@ describe('letter-spotting module', () => {
     expect(letterSpotting.id).toBe('letter-spotting');
     expect(letterSpotting.categoryId).toBe('letters');
     expect(letterSpotting.levels).toBe(3);
-    expect(typeof letterSpotting.createScene).toBe('function');
+    expect(typeof letterSpotting.loadScene).toBe('function');
+  });
+
+  it('lazily resolves a scene factory', async () => {
+    const createScene = await letterSpotting.loadScene();
+    expect(typeof createScene).toBe('function');
   });
 });

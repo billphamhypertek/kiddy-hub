@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Phaser from 'phaser';
 import { getGame } from '../games/registry';
 import { createGameHost } from '../games/GameHost';
@@ -18,11 +18,21 @@ interface GameContainerProps {
 
 export function GameContainer({ gameId, level, profileId, audio, onExit }: GameContainerProps) {
   const parentRef = useRef<HTMLDivElement>(null);
+  // While true we show a brief loading card; the game's Scene chunk (and Phaser
+  // on first open) is fetched dynamically via `moduleDef.loadScene()`.
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const moduleDef = getGame(gameId);
     const parent = parentRef.current;
     if (!moduleDef || !parent) return;
+
+    // Guards teardown: if this effect re-runs (or unmounts) before the async
+    // scene factory resolves, we must not boot a Phaser game into a stale parent.
+    let cancelled = false;
+    let game: Phaser.Game | undefined;
+
+    setLoading(true);
 
     const host = createGameHost({
       audio,
@@ -36,21 +46,30 @@ export function GameContainer({ gameId, level, profileId, audio, onExit }: GameC
       onHome: () => onExit(),
     });
 
-    const scene = moduleDef.createScene(host, level);
-    const game = new Phaser.Game({
-      type: Phaser.AUTO,
-      parent,
-      width: 1024,
-      height: 768,
-      backgroundColor: '#dff3ff',
-      scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-      scene,
+    void moduleDef.loadScene().then((createScene) => {
+      if (cancelled) return;
+      const scene = createScene(host, level);
+      game = new Phaser.Game({
+        type: Phaser.AUTO,
+        parent,
+        width: 1024,
+        height: 768,
+        backgroundColor: '#dff3ff',
+        scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+        scene,
+      });
+      setLoading(false);
     });
 
     return () => {
-      game.destroy(true);
+      cancelled = true;
+      game?.destroy(true);
     };
   }, [gameId, level, profileId, audio, onExit]);
 
-  return <div ref={parentRef} style={{ width: '100%', height: '100%' }} />;
+  return (
+    <div ref={parentRef} style={{ width: '100%', height: '100%' }}>
+      {loading && <div className="game-loading">Đang tải trò chơi…</div>}
+    </div>
+  );
 }

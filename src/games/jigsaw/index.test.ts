@@ -6,6 +6,11 @@ describe('jigsaw module', () => {
     expect(jigsaw.id).toBe('jigsaw');
     expect(jigsaw.categoryId).toBe('shapes');
     expect(jigsaw.levels).toBe(3);
-    expect(typeof jigsaw.createScene).toBe('function');
+    expect(typeof jigsaw.loadScene).toBe('function');
+  });
+
+  it('lazily resolves a scene factory', async () => {
+    const createScene = await jigsaw.loadScene();
+    expect(typeof createScene).toBe('function');
   });
 });

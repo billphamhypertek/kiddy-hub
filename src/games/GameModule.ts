@@ -18,6 +18,10 @@ export interface GameHost {
   goHome(): void;
 }
 
+/** Builds a fresh scene for a given host + level. Lives in the game's Scene
+ *  module so importing it pulls in Phaser. */
+export type SceneFactory = (host: GameHost, level: number) => Phaser.Scene;
+
 export interface GameModule {
   id: string;
   categoryId: CategoryId;
@@ -25,5 +29,11 @@ export interface GameModule {
   iconKey: string;
   skill: string;
   levels: number;
-  createScene(host: GameHost, level: number): Phaser.Scene;
+  /**
+   * Lazily loads the game's scene factory. The module's top level stays
+   * Phaser-free: it only references the heavy `<Name>Scene.ts` (and therefore
+   * `phaser`) through this dynamic `import()`. This keeps the menu/registry
+   * graph out of the initial bundle so Phaser loads only when a game starts.
+   */
+  loadScene(): Promise<SceneFactory>;
 }

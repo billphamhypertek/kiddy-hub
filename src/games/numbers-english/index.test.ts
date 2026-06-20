@@ -6,6 +6,11 @@ describe('numbers-english module', () => {
     expect(numbersEnglish.id).toBe('numbers-english');
     expect(numbersEnglish.categoryId).toBe('english');
     expect(numbersEnglish.levels).toBe(3);
-    expect(typeof numbersEnglish.createScene).toBe('function');
+    expect(typeof numbersEnglish.loadScene).toBe('function');
+  });
+
+  it('lazily resolves a scene factory', async () => {
+    const createScene = await numbersEnglish.loadScene();
+    expect(typeof createScene).toBe('function');
   });
 });

@@ -1,5 +1,4 @@
-import type { GameHost, GameModule } from '../GameModule';
-import { FirstLetterScene } from './FirstLetterScene';
+import type { GameModule } from '../GameModule';
 
 export const firstLetter: GameModule = {
   id: 'first-letter',
@@ -8,5 +7,6 @@ export const firstLetter: GameModule = {
   iconKey: '🅰️',
   skill: 'Âm đầu của từ',
   levels: 3,
-  createScene: (host: GameHost, level: number) => new FirstLetterScene(host, level),
+  loadScene: () =>
+    import('./FirstLetterScene').then((m) => (host, level) => new m.FirstLetterScene(host, level)),
 };

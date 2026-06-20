@@ -1,5 +1,4 @@
-import type { GameHost, GameModule } from '../GameModule';
-import { MemoryMatchScene } from './MemoryMatchScene';
+import type { GameModule } from '../GameModule';
 
 export const memoryMatch: GameModule = {
   id: 'memory-match',
@@ -8,5 +7,6 @@ export const memoryMatch: GameModule = {
   iconKey: '🧠',
   skill: 'Trí nhớ ngắn hạn',
   levels: 3,
-  createScene: (host: GameHost, level: number) => new MemoryMatchScene(host, level),
+  loadScene: () =>
+    import('./MemoryMatchScene').then((m) => (host, level) => new m.MemoryMatchScene(host, level)),
 };

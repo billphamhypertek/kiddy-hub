@@ -6,6 +6,11 @@ describe('odd-one-out module', () => {
     expect(oddOneOut.id).toBe('odd-one-out');
     expect(oddOneOut.categoryId).toBe('logic');
     expect(oddOneOut.levels).toBe(3);
-    expect(typeof oddOneOut.createScene).toBe('function');
+    expect(typeof oddOneOut.loadScene).toBe('function');
+  });
+
+  it('lazily resolves a scene factory', async () => {
+    const createScene = await oddOneOut.loadScene();
+    expect(typeof createScene).toBe('function');
   });
 });

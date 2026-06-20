@@ -1,5 +1,4 @@
-import type { GameHost, GameModule } from '../GameModule';
-import { SortingScene } from './SortingScene';
+import type { GameModule } from '../GameModule';
 
 export const sorting: GameModule = {
   id: 'sorting',
@@ -8,5 +7,6 @@ export const sorting: GameModule = {
   iconKey: '🧺',
   skill: 'Nhóm gộp theo thuộc tính',
   levels: 3,
-  createScene: (host: GameHost, level: number) => new SortingScene(host, level),
+  loadScene: () =>
+    import('./SortingScene').then((m) => (host, level) => new m.SortingScene(host, level)),
 };

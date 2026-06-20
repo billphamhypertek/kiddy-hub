@@ -6,6 +6,11 @@ describe('pattern-finder module', () => {
     expect(patternFinder.id).toBe('pattern-finder');
     expect(patternFinder.categoryId).toBe('logic');
     expect(patternFinder.levels).toBe(3);
-    expect(typeof patternFinder.createScene).toBe('function');
+    expect(typeof patternFinder.loadScene).toBe('function');
+  });
+
+  it('lazily resolves a scene factory', async () => {
+    const createScene = await patternFinder.loadScene();
+    expect(typeof createScene).toBe('function');
   });
 });

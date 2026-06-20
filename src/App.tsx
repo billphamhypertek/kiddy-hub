@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import { SessionProvider, useSession } from './state/SessionContext';
 import type { Screen } from './state/screens';
+import { selectScreen } from './state/selectScreen';
 import { createAudioManager, type AudioManager } from './audio/AudioManager';
 import { createWebSpeechEngine } from './audio/speechEngine';
 import { createWebAudioSfxEngine } from './audio/sfxEngine';
@@ -15,11 +16,18 @@ import { WhoIsPlaying } from './components/WhoIsPlaying';
 import { AdventureMap } from './components/AdventureMap';
 import { CategoryScreen } from './components/CategoryScreen';
 import { StarGarden } from './components/StarGarden';
-import { GameContainer } from './components/GameContainer';
 import { ParentGate } from './components/parent/ParentGate';
 import { ParentArea } from './components/parent/ParentArea';
 import { ScreenTransition, injectMotionTokens } from './motion';
 import './App.css';
+
+// Lazy-loaded so the React side of the Phaser boundary is code-split too: the
+// menu graph never statically imports GameContainer (which imports Phaser), so
+// Phaser + the game scenes stay out of the initial bundle and load only when a
+// child opens a game.
+const GameContainer = lazy(() =>
+  import('./components/GameContainer').then((m) => ({ default: m.GameContainer })),
+);
 
 registerAllGames();
 // Expose the shared motion tokens to CSS (var(--motion-*)). Idempotent.
@@ -71,77 +79,79 @@ function Root({ audio }: { audio: AudioManager }) {
     [refreshStars],
   );
 
-  // Each branch produces the active view; we wrap it once in <ScreenTransition>
-  // so navigating between screens plays a short, reduced-motion-aware entrance.
-  // `screenKey` identifies the active screen so the transition replays on change.
+  // `selectScreen` owns the routing branch (parentGate/parent before the
+  // who/no-profile fallback) so it can be unit-tested in isolation. We then
+  // render the matching view and wrap it once in <ScreenTransition> so
+  // navigating between screens plays a short, reduced-motion-aware entrance.
+  // `key` identifies the active screen so the transition replays on change.
+  const { key: screenKey, kind } = selectScreen(screen, !!profile);
   let view: JSX.Element;
-  let screenKey: string;
 
-  // NOTE: parentGate/parent MUST be checked before the `who || !profile` fallback.
-  // `profile` is null while on the parent gate (it's only set by selectProfile,
-  // which also navigates away), so putting `!profile` first would swallow these
-  // two screens and make the Parent Area unreachable.
-  if (screen.name === 'parentGate') {
-    screenKey = 'parentGate';
-    view = <ParentGate onPass={() => setScreen({ name: 'parent' })} />;
-  } else if (screen.name === 'parent') {
-    screenKey = 'parent';
-    view = (
-      <ParentArea
-        audio={audio}
-        onExit={() => {
-          void refreshStars();
-          setScreen({ name: 'who' });
-        }}
-      />
-    );
-  } else if (screen.name === 'who' || !profile) {
-    screenKey = 'who';
-    view = (
-      <WhoIsPlaying
-        audio={audio}
-        onSelect={selectProfile}
-        onParent={() => setScreen({ name: 'parentGate' })}
-      />
-    );
-  } else if (screen.name === 'map') {
-    screenKey = 'map';
-    view = (
-      <AdventureMap
-        profile={profile}
-        totalStars={totalStars}
-        onCategory={onCategory}
-        onGarden={() => setScreen({ name: 'garden' })}
-        audio={audio}
-      />
-    );
-  } else if (screen.name === 'category') {
-    screenKey = `category:${screen.categoryId}`;
-    view = (
-      <CategoryScreen
-        categoryId={screen.categoryId}
-        onPlay={onPlay}
-        onBack={() => setScreen({ name: 'map' })}
-        audio={audio}
-      />
-    );
-  } else if (screen.name === 'garden') {
-    screenKey = 'garden';
-    view = <StarGarden onBack={() => setScreen({ name: 'map' })} />;
-  } else {
-    // screen.name === 'game'
-    screenKey = `game:${screen.gameId}`;
-    view = (
-      <div className="game-screen">
-        <GameContainer
-          gameId={screen.gameId}
-          level={screen.level}
-          profileId={profile.id!}
+  switch (kind) {
+    case 'parentGate':
+      view = <ParentGate onPass={() => setScreen({ name: 'parent' })} />;
+      break;
+    case 'parent':
+      view = (
+        <ParentArea
           audio={audio}
-          onExit={onGameExit}
+          onExit={() => {
+            void refreshStars();
+            setScreen({ name: 'who' });
+          }}
         />
-      </div>
-    );
+      );
+      break;
+    case 'who':
+      view = (
+        <WhoIsPlaying
+          audio={audio}
+          onSelect={selectProfile}
+          onParent={() => setScreen({ name: 'parentGate' })}
+        />
+      );
+      break;
+    case 'map':
+      view = (
+        <AdventureMap
+          profile={profile!}
+          totalStars={totalStars}
+          onCategory={onCategory}
+          onGarden={() => setScreen({ name: 'garden' })}
+          audio={audio}
+        />
+      );
+      break;
+    case 'category':
+      view = (
+        <CategoryScreen
+          categoryId={(screen as Extract<Screen, { name: 'category' }>).categoryId}
+          onPlay={onPlay}
+          onBack={() => setScreen({ name: 'map' })}
+          audio={audio}
+        />
+      );
+      break;
+    case 'garden':
+      view = <StarGarden onBack={() => setScreen({ name: 'map' })} />;
+      break;
+    case 'game': {
+      const gameScreen = screen as Extract<Screen, { name: 'game' }>;
+      view = (
+        <div className="game-screen">
+          <Suspense fallback={<div className="game-loading">Đang tải trò chơi…</div>}>
+            <GameContainer
+              gameId={gameScreen.gameId}
+              level={gameScreen.level}
+              profileId={profile!.id!}
+              audio={audio}
+              onExit={onGameExit}
+            />
+          </Suspense>
+        </div>
+      );
+      break;
+    }
   }
 
   return <ScreenTransition screenKey={screenKey}>{view}</ScreenTransition>;

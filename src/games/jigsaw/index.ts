@@ -1,5 +1,4 @@
-import type { GameHost, GameModule } from '../GameModule';
-import { JigsawScene } from './JigsawScene';
+import type { GameModule } from '../GameModule';
 
 export const jigsaw: GameModule = {
   id: 'jigsaw',
@@ -8,5 +7,6 @@ export const jigsaw: GameModule = {
   iconKey: '🎨',
   skill: 'Tư duy không gian',
   levels: 3,
-  createScene: (host: GameHost, level: number) => new JigsawScene(host, level),
+  loadScene: () =>
+    import('./JigsawScene').then((m) => (host, level) => new m.JigsawScene(host, level)),
 };

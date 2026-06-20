@@ -6,6 +6,11 @@ describe('more-less module', () => {
     expect(moreLess.id).toBe('more-less');
     expect(moreLess.categoryId).toBe('numbers');
     expect(moreLess.levels).toBe(3);
-    expect(typeof moreLess.createScene).toBe('function');
+    expect(typeof moreLess.loadScene).toBe('function');
+  });
+
+  it('lazily resolves a scene factory', async () => {
+    const createScene = await moreLess.loadScene();
+    expect(typeof createScene).toBe('function');
   });
 });

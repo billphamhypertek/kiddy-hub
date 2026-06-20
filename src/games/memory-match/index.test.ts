@@ -6,6 +6,11 @@ describe('memory-match module', () => {
     expect(memoryMatch.id).toBe('memory-match');
     expect(memoryMatch.categoryId).toBe('memory');
     expect(memoryMatch.levels).toBe(3);
-    expect(typeof memoryMatch.createScene).toBe('function');
+    expect(typeof memoryMatch.loadScene).toBe('function');
+  });
+
+  it('lazily resolves a scene factory', async () => {
+    const createScene = await memoryMatch.loadScene();
+    expect(typeof createScene).toBe('function');
   });
 });

@@ -1,5 +1,4 @@
-import type { GameHost, GameModule } from '../GameModule';
-import { SpotDifferenceScene } from './SpotDifferenceScene';
+import type { GameModule } from '../GameModule';
 
 export const spotDifference: GameModule = {
   id: 'spot-difference',
@@ -8,5 +7,8 @@ export const spotDifference: GameModule = {
   iconKey: '🔎',
   skill: 'Quan sát chi tiết',
   levels: 3,
-  createScene: (host: GameHost, level: number) => new SpotDifferenceScene(host, level),
+  loadScene: () =>
+    import('./SpotDifferenceScene').then(
+      (m) => (host, level) => new m.SpotDifferenceScene(host, level),
+    ),
 };

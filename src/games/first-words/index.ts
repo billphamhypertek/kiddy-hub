@@ -1,5 +1,4 @@
-import type { GameHost, GameModule } from '../GameModule';
-import { FirstWordsScene } from './FirstWordsScene';
+import type { GameModule } from '../GameModule';
 
 export const firstWords: GameModule = {
   id: 'first-words',
@@ -8,5 +7,6 @@ export const firstWords: GameModule = {
   iconKey: '🌎',
   skill: 'Từ vựng tiếng Anh cơ bản',
   levels: 3,
-  createScene: (host: GameHost, level: number) => new FirstWordsScene(host, level),
+  loadScene: () =>
+    import('./FirstWordsScene').then((m) => (host, level) => new m.FirstWordsScene(host, level)),
 };

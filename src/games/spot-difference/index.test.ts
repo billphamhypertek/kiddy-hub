@@ -8,6 +8,11 @@ describe('spot-difference module', () => {
     expect(spotDifference.title).toBe('Tìm Điểm Khác');
     expect(spotDifference.skill).toBe('Quan sát chi tiết');
     expect(spotDifference.levels).toBe(3);
-    expect(typeof spotDifference.createScene).toBe('function');
+    expect(typeof spotDifference.loadScene).toBe('function');
+  });
+
+  it('lazily resolves a scene factory', async () => {
+    const createScene = await spotDifference.loadScene();
+    expect(typeof createScene).toBe('function');
   });
 });
