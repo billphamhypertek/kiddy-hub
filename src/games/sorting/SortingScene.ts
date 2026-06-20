@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
-import { addSceneBackground, addChrome, addOptionTile, celebrate } from '../../art/sceneArt';
+import { addSceneBackground, addChrome, addOptionTile, celebrate, addBuddy, type SceneBuddy } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
 import { addArt, type ArtScene } from '../../art/svg';
 import { creature, emojiToCreatureId } from '../../art/creatures';
@@ -20,6 +20,7 @@ export class SortingScene extends Phaser.Scene {
   private placed = 0;
   private correct = 0;
   private finished = false;
+  private buddy?: SceneBuddy;
 
   constructor(host: GameHost, level: number) {
     super({ key: 'sorting' });
@@ -33,6 +34,8 @@ export class SortingScene extends Phaser.Scene {
       onHome: () => this.host.goHome(),
       onReplay: () => void this.host.speak('sorting.prompt'),
     });
+    // GĐ6.3 — Cáo đồng hành (visual-only): hiện diện khi chơi, phản ứng đúng/sai.
+    this.buddy = addBuddy(this);
     const { width } = this.scale;
     const prompt = this.add
       .text(width / 2, 70, 'Kéo mỗi vật vào đúng giỏ', { fontSize: '34px', color: '#8a6d00', fontStyle: 'bold' })
@@ -122,6 +125,7 @@ export class SortingScene extends Phaser.Scene {
       this.host.playSfx('correct');
       // Locked into the basket (no longer draggable) → a reward pop, not entrance.
       popCorrect(this, obj);
+      this.buddy?.cheer();
       this.correct++;
       this.placed++;
       if (this.placed === this.round.pile.length) this.finish();
@@ -133,11 +137,13 @@ export class SortingScene extends Phaser.Scene {
       this.input.setDraggable(obj, false);
       obj.disableInteractive();
       this.host.playSfx('wrong');
+      this.buddy?.encourage();
       this.placed++;
       if (this.placed === this.round.pile.length) this.finish();
     } else {
       // Not near any basket: bounce back home, try again.
       this.host.playSfx('wrong');
+      this.buddy?.encourage();
       const homeX = obj.getData('homeX') as number;
       const homeY = obj.getData('homeY') as number;
       obj.x = homeX;

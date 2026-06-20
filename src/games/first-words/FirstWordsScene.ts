@@ -1,6 +1,15 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
-import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption, dimDistractor } from '../../art/sceneArt';
+import {
+  addSceneBackground,
+  addChrome,
+  addOptionTile,
+  celebrate,
+  shakeOption,
+  dimDistractor,
+  addBuddy,
+  type SceneBuddy,
+} from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
 import { addArt, type ArtScene } from '../../art/svg';
 import { creature, emojiToCreatureId } from '../../art/creatures';
@@ -23,6 +32,7 @@ export class FirstWordsScene extends Phaser.Scene {
   private roundResolved = false;
   private current!: WordRound;
   private layer?: Phaser.GameObjects.Container;
+  private buddy?: SceneBuddy;
   private optionObjs: Array<{
     value: string;
     tile: Phaser.GameObjects.Image;
@@ -42,6 +52,8 @@ export class FirstWordsScene extends Phaser.Scene {
       onHome: () => this.host.goHome(),
       onReplay: () => this.sayTarget(),
     });
+    // GĐ6.3 — Cáo đồng hành (visual-only): hiện diện khi chơi, phản ứng đúng/sai.
+    this.buddy = addBuddy(this);
     this.nextRound();
   }
 
@@ -120,6 +132,7 @@ export class FirstWordsScene extends Phaser.Scene {
       void this.host.speak('feedback.correct');
       btn.setFillStyle(0x9be08a);
       popCorrect(this, label);
+      this.buddy?.cheer();
       if (!this.answeredThisRound) {
         this.correctCount++;
         this.host.recordItemResult?.(SKILL, this.current.target.word, true);
@@ -136,6 +149,7 @@ export class FirstWordsScene extends Phaser.Scene {
       if (firstTry) this.scaffold();
       else void this.host.speak('feedback.tryagain');
       shakeOption(this, tile, label, btn);
+      this.buddy?.encourage();
     }
   }
 

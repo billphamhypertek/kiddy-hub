@@ -1,6 +1,15 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
-import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption, dimDistractor } from '../../art/sceneArt';
+import {
+  addSceneBackground,
+  addChrome,
+  addOptionTile,
+  celebrate,
+  shakeOption,
+  dimDistractor,
+  addBuddy,
+  type SceneBuddy,
+} from '../../art/sceneArt';
 import { drawSwatchPattern } from '../../art/swatchPattern';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
 import { distractorsToDim } from '../scaffold';
@@ -28,6 +37,7 @@ export class ShapesColorsScene extends Phaser.Scene {
   private roundResolved = false;
   private current!: ShapeColorRound;
   private layer?: Phaser.GameObjects.Container;
+  private buddy?: SceneBuddy;
   // Per-round option objects (indexed like current.options) for scaffolding.
   private optionObjs: Array<{
     tile: Phaser.GameObjects.Image;
@@ -51,6 +61,8 @@ export class ShapesColorsScene extends Phaser.Scene {
       onHome: () => this.host.goHome(),
       onReplay: () => void this.host.speak('shapecolor.prompt'),
     });
+    // GĐ6.3 — Cáo đồng hành (visual-only): hiện diện khi chơi, phản ứng đúng/sai.
+    this.buddy = addBuddy(this);
     this.nextRound();
   }
 
@@ -190,6 +202,7 @@ export class ShapesColorsScene extends Phaser.Scene {
       void this.host.speak('feedback.correct');
       hit.setStrokeStyle(8, 0x2ecc71).setFillStyle(0x9be08a, 0.3);
       popCorrect(this, shape);
+      this.buddy?.cheer();
       if (!this.answeredThisRound) {
         this.correctCount++;
         this.recordRound(true);
@@ -206,6 +219,7 @@ export class ShapesColorsScene extends Phaser.Scene {
       if (firstTry) this.scaffold();
       else void this.host.speak('feedback.tryagain');
       shakeOption(this, tile, shape, hit);
+      this.buddy?.encourage();
     }
   }
 

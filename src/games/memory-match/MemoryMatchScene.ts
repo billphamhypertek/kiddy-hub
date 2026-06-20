@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
-import { addSceneBackground, addChrome, celebrate } from '../../art/sceneArt';
+import { addSceneBackground, addChrome, celebrate, addBuddy, type SceneBuddy } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
 import { addArt, type ArtScene } from '../../art/svg';
 import { creature, emojiToCreatureId } from '../../art/creatures';
@@ -23,6 +23,7 @@ export class MemoryMatchScene extends Phaser.Scene {
   private matchedPairs = 0;
   private busy = false; // guards the third tap while two cards resolve
   private finished = false;
+  private buddy?: SceneBuddy;
 
   constructor(host: GameHost, level: number) {
     super({ key: 'memory-match' });
@@ -36,6 +37,8 @@ export class MemoryMatchScene extends Phaser.Scene {
       onHome: () => this.host.goHome(),
       onReplay: () => void this.host.speak('memory.prompt'),
     });
+    // GĐ6.3 — Cáo đồng hành (visual-only): hiện diện khi chơi, phản ứng đúng/sai.
+    this.buddy = addBuddy(this);
     void this.host.speak('memory.prompt');
     this.layoutBoard();
   }
@@ -99,10 +102,12 @@ export class MemoryMatchScene extends Phaser.Scene {
       first.rect.setFillStyle(0x9be08a);
       view.rect.setFillStyle(0x9be08a);
       popCorrect(this, view.label);
+      this.buddy?.cheer();
       if (this.matchedPairs === gridForLevel(this.level).pairs) this.finish();
     } else {
       this.busy = true;
       this.host.playSfx('wrong');
+      this.buddy?.encourage();
       this.time.delayedCall(700, () => {
         for (const v of [first, view]) {
           v.faceUp = false;

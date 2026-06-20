@@ -1,6 +1,14 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
-import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption } from '../../art/sceneArt';
+import {
+  addSceneBackground,
+  addChrome,
+  addOptionTile,
+  celebrate,
+  shakeOption,
+  addBuddy,
+  type SceneBuddy,
+} from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
 import { addArt, type ArtScene } from '../../art/svg';
 import { creature, emojiToCreatureId } from '../../art/creatures';
@@ -15,6 +23,7 @@ export class PatternFinderScene extends Phaser.Scene {
   private roundResolved = false;
   private current!: PatternRound;
   private layer?: Phaser.GameObjects.Container;
+  private buddy?: SceneBuddy;
 
   constructor(host: GameHost, level: number) {
     super({ key: 'pattern-finder' });
@@ -28,6 +37,8 @@ export class PatternFinderScene extends Phaser.Scene {
       onHome: () => this.host.goHome(),
       onReplay: () => void this.host.speak('pattern.prompt'),
     });
+    // GĐ6.3 — Cáo đồng hành (visual-only): hiện diện khi chơi, phản ứng đúng/sai.
+    this.buddy = addBuddy(this);
     this.nextRound();
   }
 
@@ -116,6 +127,7 @@ export class PatternFinderScene extends Phaser.Scene {
       void this.host.speak('feedback.correct');
       btn.setFillStyle(0x9be08a);
       popCorrect(this, label);
+      this.buddy?.cheer();
       if (!this.answeredThisRound) this.correctCount++;
       this.answeredThisRound = true;
       this.time.delayedCall(700, () => {
@@ -127,6 +139,7 @@ export class PatternFinderScene extends Phaser.Scene {
       this.host.playSfx('wrong');
       void this.host.speak('feedback.tryagain');
       shakeOption(this, tile, label, btn);
+      this.buddy?.encourage();
     }
   }
 

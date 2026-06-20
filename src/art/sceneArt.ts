@@ -217,6 +217,21 @@ export interface SceneBuddy {
 }
 
 /**
+ * Optional placement overrides for the in-scene Cáo companion. Defaults keep the
+ * mascot in the lower-left corner at its standard size; a scene whose lower-left
+ * corner is busy (e.g. a wide drag tray) can nudge the buddy to a free spot or
+ * shrink it WITHOUT any layout/hit-area impact — it's pure decoration either way.
+ */
+export interface BuddyOptions {
+  /** Centre x (defaults to 72 — the lower-left corner). */
+  x?: number;
+  /** Centre y (defaults to scene height − 72 — the lower-left corner). */
+  y?: number;
+  /** Render size in px (defaults to 110). */
+  size?: number;
+}
+
+/**
  * Place a small Cáo companion in the lower-left corner so the mascot is present
  * DURING play (spec §6, fixing "Cáo vắng mặt khi chơi"). VISUAL-ONLY: it never
  * becomes interactive, never touches a hit area or any round/finish guard. It
@@ -224,12 +239,15 @@ export interface SceneBuddy {
  * one-shot reactions the scene can fire next to its existing feedback. Under
  * reduced motion / calm mode the buddy is placed statically with no looping tween
  * and the reactions are no-ops, so it can never strand a transform.
+ *
+ * Pass `opts` to move/shrink it for a scene whose default corner is crowded; this
+ * only changes where the decorative sprite sits, never any interactive geometry.
  */
-export function addBuddy(scene: Phaser.Scene): SceneBuddy {
+export function addBuddy(scene: Phaser.Scene, opts: BuddyOptions = {}): SceneBuddy {
   const { height } = scene.scale;
-  const size = 110;
-  const x = 72;
-  const y = height - 72;
+  const size = opts.size ?? 110;
+  const x = opts.x ?? 72;
+  const y = opts.y ?? height - 72;
   const img = addArt(scene, 'art-fox-idle', foxIdle(), x, y, size);
   img.setDepth(DEPTH.buddy);
 

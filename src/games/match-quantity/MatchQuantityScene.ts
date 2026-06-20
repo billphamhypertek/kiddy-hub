@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
-import { addSceneBackground, addChrome, addOptionTile, celebrate } from '../../art/sceneArt';
+import { addSceneBackground, addChrome, addOptionTile, celebrate, addBuddy, type SceneBuddy } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
 import { addArt, type ArtScene } from '../../art/svg';
 import { creature, emojiToCreatureId } from '../../art/creatures';
@@ -21,6 +21,7 @@ export class MatchQuantityScene extends Phaser.Scene {
   private placedFirstTry = 0;
   private placed = 0;
   private finished = false;
+  private buddy?: SceneBuddy;
 
   constructor(host: GameHost, level: number) {
     super({ key: 'match-quantity' });
@@ -34,6 +35,8 @@ export class MatchQuantityScene extends Phaser.Scene {
       onHome: () => this.host.goHome(),
       onReplay: () => void this.host.speak('matchquantity.prompt'),
     });
+    // GĐ6.3 — Cáo đồng hành (visual-only): hiện diện khi chơi, phản ứng đúng/sai.
+    this.buddy = addBuddy(this);
     const { width } = this.scale;
     const prompt = this.add
       .text(width / 2, 80, 'Kéo số vào nhóm đúng', { fontSize: '34px', color: '#a01a3a', fontStyle: 'bold' })
@@ -149,12 +152,14 @@ export class MatchQuantityScene extends Phaser.Scene {
       // The tile is now locked (no longer draggable), so a pop on its label can't
       // fight a drag; this is the correct-placement reward, not an entrance tween.
       popCorrect(this, label);
+      this.buddy?.cheer();
       this.placed++;
       if (!tile.getData('missed')) this.placedFirstTry++; // counts only if this tile had no prior wrong drop
       if (this.placed === this.round.pairs.length) this.finish();
     } else {
       // Wrong drop: bounce home; this tile no longer earns a first-try point.
       this.host.playSfx('wrong');
+      this.buddy?.encourage();
       tile.setData('missed', true);
       const homeX = tile.getData('homeX') as number;
       const homeY = tile.getData('homeY') as number;

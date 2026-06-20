@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
-import { addSceneBackground, addChrome, celebrate } from '../../art/sceneArt';
+import { addSceneBackground, addChrome, celebrate, addBuddy, type SceneBuddy } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars } from '../../art/sceneMotion';
 import { addArt, type ArtScene } from '../../art/svg';
 import {
@@ -32,6 +32,7 @@ export class SpotDifferenceScene extends Phaser.Scene {
   private found = new Set<string>();
   private layer?: Phaser.GameObjects.Container;
   private progressText?: Phaser.GameObjects.Text;
+  private buddy?: SceneBuddy;
 
   /** Top-left of the right (changed) image — catalog coords map relative to it. */
   private rightX = 0;
@@ -49,6 +50,8 @@ export class SpotDifferenceScene extends Phaser.Scene {
       onHome: () => this.host.goHome(),
       onReplay: () => void this.host.speak('spotdiff.prompt'),
     });
+    // GĐ6.3 — Cáo đồng hành (visual-only): hiện diện khi chơi, phản ứng đúng/sai.
+    this.buddy = addBuddy(this);
     this.nextRound();
   }
 
@@ -181,6 +184,7 @@ export class SpotDifferenceScene extends Phaser.Scene {
     // (Replaces the old plain reveal tween; popCorrect owns the ring's scale so
     // there's no competing scale tween, and it touches no round/finish guard.)
     popCorrect(this, ring);
+    this.buddy?.cheer();
     hit.disableInteractive();
 
     this.progressText?.setText(this.progressLabel());
@@ -200,6 +204,7 @@ export class SpotDifferenceScene extends Phaser.Scene {
     if (this.roundResolved) return;
     this.host.playSfx('wrong');
     void this.host.speak('feedback.tryagain');
+    this.buddy?.encourage();
   }
 
   private progressLabel(): string {

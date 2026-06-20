@@ -1,6 +1,14 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
-import { addSceneBackground, addChrome, addOptionTile, celebrate, dimDistractor } from '../../art/sceneArt';
+import {
+  addSceneBackground,
+  addChrome,
+  addOptionTile,
+  celebrate,
+  dimDistractor,
+  addBuddy,
+  type SceneBuddy,
+} from '../../art/sceneArt';
 import { drawSwatchPattern } from '../../art/swatchPattern';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
 import { distractorsToDim } from '../scaffold';
@@ -18,6 +26,7 @@ export class ColorsEnglishScene extends Phaser.Scene {
   private roundResolved = false;
   private current!: ColorsEnRound;
   private layer?: Phaser.GameObjects.Container;
+  private buddy?: SceneBuddy;
   private optionObjs: Array<{
     value: string;
     tile: Phaser.GameObjects.Image;
@@ -39,6 +48,8 @@ export class ColorsEnglishScene extends Phaser.Scene {
       onHome: () => this.host.goHome(),
       onReplay: () => this.sayTarget(),
     });
+    // GĐ6.3 — Cáo đồng hành (visual-only): hiện diện khi chơi, phản ứng đúng/sai.
+    this.buddy = addBuddy(this);
     this.nextRound();
   }
 
@@ -121,6 +132,7 @@ export class ColorsEnglishScene extends Phaser.Scene {
       void this.host.speak('feedback.correct');
       swatch.setStrokeStyle(10, 0x2ecc71);
       popCorrect(this, swatch);
+      this.buddy?.cheer();
       if (!this.answeredThisRound) {
         this.correctCount++;
         this.host.recordItemResult?.(SKILL, this.current.target.name, true);
@@ -137,6 +149,7 @@ export class ColorsEnglishScene extends Phaser.Scene {
       if (firstTry) this.scaffold();
       else void this.host.speak('feedback.tryagain');
       this.tweens.add({ targets: swatch, x: swatch.x + 8, duration: 60, yoyo: true, repeat: 3 });
+      this.buddy?.encourage();
     }
   }
 

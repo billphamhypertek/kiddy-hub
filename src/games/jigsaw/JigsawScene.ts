@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
-import { addSceneBackground, addChrome, celebrate } from '../../art/sceneArt';
+import { addSceneBackground, addChrome, celebrate, addBuddy, type SceneBuddy } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
 import {
   gridForLevel,
@@ -25,6 +25,7 @@ export class JigsawScene extends Phaser.Scene {
   private slotH = 0;
   private boardX = 0;
   private boardY = 0;
+  private buddy?: SceneBuddy;
 
   constructor(host: GameHost, level: number) {
     super({ key: 'jigsaw' });
@@ -38,6 +39,10 @@ export class JigsawScene extends Phaser.Scene {
       onHome: () => this.host.goHome(),
       onReplay: () => void this.host.speak('jigsaw.prompt'),
     });
+    // GĐ6.3 — Cáo đồng hành (visual-only). The bottom is a wide drag tray, so the
+    // buddy sits mid-left (between the home button and the board), clear of every
+    // tray piece and the picture board.
+    this.buddy = addBuddy(this, { x: 70, y: this.scale.height * 0.46, size: 96 });
     void this.host.speak('jigsaw.prompt');
 
     this.buildPicture();
@@ -158,11 +163,13 @@ export class JigsawScene extends Phaser.Scene {
       this.host.playSfx('correct');
       // Piece locked into its slot (no longer draggable) → a reward pop.
       popCorrect(this, obj);
+      this.buddy?.cheer();
       this.placed++;
       if (this.placed === this.rows * this.cols) this.finish();
     } else {
       this.misses++;
       this.host.playSfx('wrong');
+      this.buddy?.encourage();
       this.tweens.add({ targets: obj, x: obj.x + 8, duration: 60, yoyo: true, repeat: 2 });
     }
   }
