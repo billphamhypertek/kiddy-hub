@@ -1,7 +1,27 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
-import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption, dimDistractor } from '../../art/sceneArt';
-import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import {
+  addSceneBackground,
+  addChrome,
+  addOptionTile,
+  celebrate,
+  shakeOption,
+  dimDistractor,
+  addBuddy,
+  type SceneBuddy,
+} from '../../art/sceneArt';
+import {
+  animateIn,
+  popCorrect,
+  flyStars,
+  squashStretchPop,
+  sparkleBurst,
+  bouncePop,
+  tilePress,
+  type MotionObject,
+} from '../../art/sceneMotion';
+import { addArt, type ArtScene } from '../../art/svg';
+import { creature, emojiToCreatureId } from '../../art/creaturesCounting';
 import { distractorsToDim } from '../scaffold';
 import { hintKeyForSkill, HINT_FEWER_KEY } from '../masteryMap';
 import {
@@ -23,6 +43,7 @@ export class CountingFunScene extends Phaser.Scene {
   private roundResolved = false;
   private current!: CountingRound;
   private layer?: Phaser.GameObjects.Container;
+  private buddy?: SceneBuddy;
   // Per-round option objects, kept so a wrong first try can dim distractors.
   private optionObjs: Array<{
     value: number;
@@ -43,6 +64,8 @@ export class CountingFunScene extends Phaser.Scene {
       onHome: () => this.host.goHome(),
       onReplay: () => void this.host.speak('counting.prompt'),
     });
+    // GĐ6.1 — Cáo đồng hành (visual-only): present DURING play, reacts to answers.
+    this.buddy = addBuddy(this);
     this.nextRound();
   }
 
@@ -67,19 +90,31 @@ export class CountingFunScene extends Phaser.Scene {
     const prompt = this.add
       .text(width / 2, 90, `Có mấy chú ${this.current.animal}?`, {
         fontSize: '34px',
-        color: '#22335a',
+        color: '#5b4636', // GĐ6.1 — warm storybook ink (was #22335a)
         fontStyle: 'bold',
+        fontFamily: "'Baloo 2','Comic Sans MS',system-ui,sans-serif",
       })
       .setOrigin(0.5);
     this.layer.add(prompt);
     void this.host.speak('counting.prompt');
 
+    // GĐ6.1 — DRAWN SVG creatures replace the emoji sprites. This is the VIEW only:
+    // count/options/hit-areas/guards are all unchanged (set below as before). Each
+    // creature bounce-pops in (calm-safe) so the row feels alive.
+    const creatureId = emojiToCreatureId(this.current.animal);
+    const creatureSvg = creature(creatureId);
     const startX = width / 2 - ((this.current.count - 1) * 72) / 2;
     for (let i = 0; i < this.current.count; i++) {
-      const sprite = this.add
-        .text(startX + i * 72, height / 2 - 30, this.current.animal, { fontSize: '60px' })
-        .setOrigin(0.5);
+      const sprite = addArt(
+        this as unknown as ArtScene,
+        `creature-${creatureId}`,
+        creatureSvg,
+        startX + i * 72,
+        height / 2 - 30,
+        72,
+      ) as unknown as Phaser.GameObjects.Image;
       this.layer.add(sprite);
+      bouncePop(this, sprite as unknown as MotionObject);
     }
 
     const optY = height - 130;
@@ -93,9 +128,18 @@ export class CountingFunScene extends Phaser.Scene {
         .rectangle(x, optY, 104, 104, 0xffffff, 0.001)
         .setInteractive({ useHandCursor: true });
       const label = this.add
-        .text(x, optY, String(opt), { fontSize: '52px', color: '#5b4636', fontStyle: 'bold' })
+        .text(x, optY, String(opt), {
+          fontSize: '52px',
+          color: '#5b4636',
+          fontStyle: 'bold',
+          fontFamily: "'Baloo 2','Comic Sans MS',system-ui,sans-serif",
+        })
         .setOrigin(0.5);
-      btn.on('pointerdown', () => this.choose(opt, btn, tile, label));
+      btn.on('pointerdown', () => {
+        // GĐ6.1 — tactile press feedback (visual-only); does NOT change the choose flow.
+        tilePress(this, tile as unknown as MotionObject);
+        this.choose(opt, btn, tile, label);
+      });
       this.layer!.add(btn);
       this.layer!.add(label);
       this.optionObjs.push({ value: opt, tile, label, btn });
@@ -120,6 +164,10 @@ export class CountingFunScene extends Phaser.Scene {
       void this.host.speak('feedback.correct').then(() => this.host.speakText(String(count), 'vi-VN'));
       btn.setFillStyle(0x9be08a);
       popCorrect(this, label);
+      // GĐ6.1 — extra juice + Cáo reacts (all visual-only, calm-safe, no flow change).
+      squashStretchPop(this, label);
+      sparkleBurst(this, label.x, label.y);
+      this.buddy?.cheer();
       // SR: record first-try outcome once (correct only if no wrong try yet).
       if (!this.answeredThisRound) {
         this.correctCount++;
@@ -138,6 +186,8 @@ export class CountingFunScene extends Phaser.Scene {
       if (firstTry) this.scaffold();
       else void this.host.speak('feedback.tryagain');
       shakeOption(this, tile, label, btn);
+      // GĐ6.1 — Cáo encourages on a wrong try (visual-only, calm-safe).
+      this.buddy?.encourage();
     }
   }
 

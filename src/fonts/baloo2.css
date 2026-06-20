@@ -1,0 +1,17 @@
+/* KiddyHub — Baloo 2 (GĐ6.1), bundled LOCALLY (OFL). No Google CDN at runtime;
+   Vite fingerprints + copies the woff2 into dist for offline-first. The subset
+   covers Latin + Vietnamese (precomposed + combining) so titles render with
+   full dấu. Fallback is a rounded system face so layout never breaks.
+
+   The shipped file is the variable Baloo 2 instanced to weight 600 (a warm,
+   rounded display weight) then subset — ~33 KB. Regenerate with:
+     fonttools varLib.instancer Baloo2[wght].ttf wght=600 -o b.ttf
+     pyftsubset b.ttf --output-file=Baloo2-subset.woff2 --flavor=woff2 \
+       --unicodes="U+0000-00FF,U+0100-024F,U+1E00-1EFF,U+2000-206F,..." */
+@font-face {
+  font-family: 'Baloo 2';
+  font-style: normal;
+  font-weight: 400 800; /* the static subset maps the whole UI weight range here */
+  font-display: swap;
+  src: url('./Baloo2-subset.woff2') format('woff2');
+}

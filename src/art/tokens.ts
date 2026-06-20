@@ -102,6 +102,48 @@ export const proportion = {
  */
 export const ART_VIEWBOX = 100;
 
+/**
+ * Storybook (GĐ6) surface tokens — soft warm shadow, brown "ink" outline, faint
+ * paper grain, and the paint gradient coefficients. ADDITIVE: every key above
+ * (palette/fox/stroke/radius/proportion) is untouched so existing assets that
+ * import them are unaffected. These drive `src/art/paint.ts`.
+ */
+
+/** Soft warm drop-shadow under painted shapes (feDropShadow). offset low, blur soft. */
+export const shadow = {
+  color: '#5b4636', // warm dark brown (matches palette.ink), never pure black
+  dx: 0,
+  dy: 1.6, // low offset — light from above
+  blur: 2.4,
+  opacity: 0.25, // spec §4.1: ~0.22–0.28
+} as const;
+
+/**
+ * Storybook "ink" outline — soft brown, THIN. Kept separate from `fox.ink` /
+ * `palette.ink` so the storybook line weight can be tuned independently.
+ */
+export const outline = {
+  ink: '#6b4a2a', // soft brown "mực" (spec §4.1)
+  width: 2.2,
+  widthThin: 1.4,
+} as const;
+
+/** Faint paper grain for ONE scene-level overlay (feTurbulence + desaturate). */
+export const paper = {
+  baseFrequency: 0.9, // fine grain
+  opacity: 0.05, // ~5% (spec §4.2)
+} as const;
+
+/** Painted-fill gradient coefficients: peak lighten at top, depth darken at foot. */
+export const paint = {
+  lighten: 0.22, // how much lighter the top of a painted shape is
+  darken: 0.16, // how much darker the foot is
+} as const;
+
 export type Palette = typeof palette;
 export type FoxColors = typeof fox;
 export type IslandKey = keyof typeof palette.island;
+export type Shadow = typeof shadow;
+export type Outline = typeof outline;
+export type Paper = typeof paper;
+export type Paint = typeof paint;

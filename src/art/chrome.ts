@@ -85,6 +85,18 @@ export function optionTileArt(accent: string = palette.star, title = ''): string
   );
 }
 
+/**
+ * A single confetti piece — a small rounded rectangle in `color` with a soft ink
+ * edge. Used by the GĐ6.1 celebrate burst (drawn via `addArt` so the texture
+ * cache stays tidy: one texture per colour). Decorative.
+ */
+export function confettiArt(color: string, title = ''): string {
+  return svgDoc(
+    `<rect x="38" y="22" width="24" height="56" rx="8" fill="${color}" stroke="${INK}" stroke-width="${SW_THIN}"/>`,
+    title,
+  );
+}
+
 /** A single soft fluffy cloud used to dress the scene sky. Decorative. */
 export function cloudArt(title = ''): string {
   return svgDoc(

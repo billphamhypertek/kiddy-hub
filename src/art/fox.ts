@@ -13,9 +13,28 @@
  */
 import { svgDoc } from './svg';
 import { fox, stroke } from './tokens';
+import { paintedFill, softShadow, withDefs } from './paint';
 
 const SW = stroke.width;
 const SW_THIN = stroke.thin;
+
+// Namespaced ids per fox document (one doc per texture → ids never collide).
+const FUR_ID = 'fox-fur';
+const SHADOW_ID = 'fox-shadow';
+
+/**
+ * Wrap a pose body in storybook defs (GĐ6.1): a painted orange-fur gradient
+ * (lighten→hue→darken depth) + a single soft warm shadow carried by the whole
+ * group (cheap — one filter per fox). The fur fill is referenced via
+ * `fill="url(#fox-fur)"` from the body/head/tail/arm paths.
+ */
+function painted(inner: string, title?: string): string {
+  const defs = paintedFill(FUR_ID, fox.body) + softShadow(SHADOW_ID);
+  return svgDoc(withDefs(defs, `<g filter="url(#${SHADOW_ID})">${inner}</g>`), title);
+}
+
+/** The painted-fur reference used everywhere the orange body fur is drawn. */
+const FUR = `url(#${FUR_ID})`;
 
 /** Tail — drawn first so the body overlaps its base. `up` lifts it for cheer. */
 function tail(up: boolean): string {
@@ -37,7 +56,7 @@ function body(): string {
   return (
     // main body blob
     `<path d="M30 92 C26 70 32 56 50 56 C68 56 74 70 70 92 Z" ` +
-    `fill="${fox.body}" stroke="${fox.ink}" stroke-width="${SW}"/>` +
+    `fill="${FUR}" stroke="${fox.ink}" stroke-width="${SW}"/>` +
     // cream belly
     `<path d="M40 90 C38 74 43 66 50 66 C57 66 62 74 60 90 Z" fill="${fox.cream}"/>` +
     // two little feet
@@ -54,13 +73,13 @@ function head(look: 'center' | 'side' = 'center'): string {
   const px = look === 'side' ? 1.6 : 0; // pupil x-offset
   return (
     // ears (behind head)
-    `<path d="M30 30 C26 14 30 9 38 14 C42 18 43 26 42 32 Z" fill="${fox.body}" stroke="${fox.ink}" stroke-width="${SW}"/>` +
-    `<path d="M70 30 C74 14 70 9 62 14 C58 18 57 26 58 32 Z" fill="${fox.body}" stroke="${fox.ink}" stroke-width="${SW}"/>` +
+    `<path d="M30 30 C26 14 30 9 38 14 C42 18 43 26 42 32 Z" fill="${FUR}" stroke="${fox.ink}" stroke-width="${SW}"/>` +
+    `<path d="M70 30 C74 14 70 9 62 14 C58 18 57 26 58 32 Z" fill="${FUR}" stroke="${fox.ink}" stroke-width="${SW}"/>` +
     `<path d="M33 27 C31 18 33 15 37 18 C39 21 40 25 39 29 Z" fill="${fox.cream}"/>` +
     `<path d="M67 27 C69 18 67 15 63 18 C61 21 60 25 61 29 Z" fill="${fox.cream}"/>` +
     // head shape (slightly wider than tall, rounded)
     `<path d="M50 18 C68 18 76 30 76 42 C76 56 64 64 50 64 C36 64 24 56 24 42 C24 30 32 18 50 18 Z" ` +
-    `fill="${fox.body}" stroke="${fox.ink}" stroke-width="${SW}"/>` +
+    `fill="${FUR}" stroke="${fox.ink}" stroke-width="${SW}"/>` +
     // cream muzzle/cheeks mask (the friendly white face)
     `<path d="M50 36 C62 36 66 46 64 53 C61 60 55 62 50 62 C45 62 39 60 36 53 C34 46 38 36 50 36 Z" fill="${fox.cream}"/>` +
     // cheek blush
@@ -116,7 +135,7 @@ function arm(dir: -1 | 1, raised: boolean, waving = false): string {
     // outline (drawn first, slightly thicker) → soft dark edge
     `<path d="${limb}" fill="none" stroke="${fox.ink}" stroke-width="11"/>` +
     // fur fill on top
-    `<path d="${limb}" fill="none" stroke="${fox.body}" stroke-width="8"/>` +
+    `<path d="${limb}" fill="none" stroke="${FUR}" stroke-width="8"/>` +
     // cream paw
     `<circle cx="${handX}" cy="${handY}" r="5.5" fill="${fox.cream}" stroke="${fox.ink}" stroke-width="${SW_THIN}"/>`
   );
@@ -124,7 +143,7 @@ function arm(dir: -1 | 1, raised: boolean, waving = false): string {
 
 /** GUIDE — friendly wave/point, welcoming the child to follow. */
 export function foxGuide(title = 'Cáo dẫn đường'): string {
-  return svgDoc(
+  return painted(
     tail(false) +
       body() +
       arm(-1, false) + // left arm relaxed
@@ -136,7 +155,7 @@ export function foxGuide(title = 'Cáo dẫn đường'): string {
 
 /** CHEER — both arms up, celebrating a reward. */
 export function foxCheer(title = 'Cáo cổ vũ'): string {
-  return svgDoc(
+  return painted(
     tail(true) +
       body() +
       arm(-1, true) +
@@ -154,7 +173,44 @@ export function foxCheer(title = 'Cáo cổ vũ'): string {
 
 /** IDLE — standing calmly with a soft smile. */
 export function foxIdle(title = 'Cáo'): string {
-  return svgDoc(tail(false) + body() + arm(-1, false) + arm(1, false) + head('center'), title);
+  return painted(tail(false) + body() + arm(-1, false) + arm(1, false) + head('center'), title);
+}
+
+// ─── Storybook expressions (GĐ6.1) — additive; foxPoses (stable API) unchanged ──
+
+/** THINK — head tilted, a little "?" bubble — for scaffolding / idle curiosity. */
+export function foxThink(title = 'Cáo suy nghĩ'): string {
+  return painted(
+    tail(false) +
+      body() +
+      arm(-1, false) +
+      arm(1, false) +
+      `<g transform="rotate(-8 50 40)">${head('side')}</g>` +
+      // a soft "?" bubble near the right ear
+      `<circle cx="80" cy="20" r="11" fill="${fox.cream}" stroke="${fox.ink}" stroke-width="${SW_THIN}"/>` +
+      `<text x="80" y="25" text-anchor="middle" font-size="14" font-weight="800" fill="${fox.ink}" font-family="'Baloo 2','Comic Sans MS',system-ui,sans-serif">?</text>`,
+    title,
+  );
+}
+
+/** POINT — one paw raised toward an answer. `dir` = -1 left, +1 right. */
+export function foxPoint(dir: -1 | 1 = 1, title = 'Cáo chỉ'): string {
+  return painted(
+    tail(false) + body() + arm((-dir) as -1 | 1, false) + arm(dir, true) + head('side'),
+    title,
+  );
+}
+
+/** NOD — head dipped in a friendly "yes". Static SVG; the nod motion is a tween. */
+export function foxNod(title = 'Cáo gật'): string {
+  return painted(
+    tail(false) +
+      body() +
+      arm(-1, false) +
+      arm(1, false) +
+      `<g transform="translate(0 3)">${head('center')}</g>`,
+    title,
+  );
 }
 
 function sparkle(x: number, y: number): string {
@@ -168,4 +224,12 @@ export const foxPoses = {
   idle: foxIdle,
 } as const;
 
+/** New storybook expressions (GĐ6.1) — kept SEPARATE from foxPoses (stable API). */
+export const foxExpressions = {
+  think: foxThink,
+  point: (): string => foxPoint(1),
+  nod: foxNod,
+} as const;
+
 export type FoxPose = keyof typeof foxPoses;
+export type FoxExpression = keyof typeof foxExpressions;

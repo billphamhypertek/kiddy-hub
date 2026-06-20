@@ -25,16 +25,20 @@
  */
 import type Phaser from 'phaser';
 import { addArt as addArtRaw, type ArtScene } from './svg';
-import { palette, type IslandKey } from './tokens';
-import { homeButtonArt, speakerButtonArt, optionTileArt, cloudArt } from './chrome';
-import { foxCheer } from './fox';
+import { palette, paper, type IslandKey } from './tokens';
+import { homeButtonArt, speakerButtonArt, optionTileArt, cloudArt, confettiArt } from './chrome';
+import { foxCheer, foxIdle } from './fox';
 import { starArt } from './stars';
+import { paperGrain, withDefs } from './paint';
 import { prefersReducedMotion } from '../motion/prefersReducedMotion';
 
 /** Depths reserved for B3 art so it always sits behind / above gameplay. */
 const DEPTH = {
   background: -1000,
+  ground: -995, // GĐ6.1 — ground plane, above the sky gradient, below clouds/grain
   cloud: -990,
+  grain: -980, // GĐ6.1 — ONE scene-level paper-grain overlay, still behind gameplay
+  buddy: 50, // GĐ6.1 — the in-scene Cáo companion: above tiles, below chrome (100)
   tile: -1, // just behind an option's content + hit area (which sit at depth 0)
   chrome: 100,
   celebrate: 1000,
@@ -72,9 +76,15 @@ function tint(hex: string, amount: number): number {
 }
 
 /**
- * Soft pastel backdrop tinted by the game's category colour: a vertical
- * gradient sky (very pale at the top → a gentle wash of the category hue near
- * the foot) plus three drifting clouds. Drawn first, far behind everything.
+ * Storybook backdrop tinted by the game's category colour (GĐ6.1 staging): a
+ * vertical gradient sky (pale at top → a gentle wash of the category hue near the
+ * foot), a soft glowing sun, a few drifting clouds, a ground plane so objects
+ * read as "standing on" it, and ONE scene-level paper-grain overlay (never
+ * per-sprite, spec §4.2). Drawn first, far behind everything; the existing
+ * depth-sort is preserved (sky < sun < ground < cloud < grain < gameplay).
+ *
+ * VISUAL-ONLY: every layer here is non-interactive (a plain Graphics / Image),
+ * so it never intercepts a tap or touches a hit area / round-finish guard.
  */
 export function addSceneBackground(scene: Phaser.Scene, categoryId: IslandKey): void {
   const { width, height } = scene.scale;
@@ -88,6 +98,22 @@ export function addSceneBackground(scene: Phaser.Scene, categoryId: IslandKey): 
   g.fillRect(0, 0, width, height);
   g.setDepth(DEPTH.background);
 
+  // Soft sun — a pale glowing disc top-left of the sky, just above the gradient.
+  const sun = scene.add.graphics();
+  sun.fillStyle(tint(base, 0.93), 0.9);
+  sun.fillCircle(width * 0.16, height * 0.18, Math.min(width, height) * 0.09);
+  sun.setDepth(DEPTH.background + 1);
+
+  // Ground plane — a band of the category hue (a touch darker) so objects read as
+  // standing on it, with a soft grass-edge highlight. One graphics object (cheap).
+  const groundY = height * 0.78;
+  const ground = scene.add.graphics();
+  ground.fillStyle(tint(base, 0.34), 1);
+  ground.fillRect(0, groundY, width, height - groundY);
+  ground.fillStyle(tint(base, 0.5), 1);
+  ground.fillRect(0, groundY, width, 8);
+  ground.setDepth(DEPTH.ground);
+
   // A few clouds for life. Sizes/positions are decorative and deterministic.
   const clouds: Array<{ x: number; y: number; s: number }> = [
     { x: width * 0.18, y: height * 0.16, s: 120 },
@@ -97,6 +123,19 @@ export function addSceneBackground(scene: Phaser.Scene, categoryId: IslandKey): 
   clouds.forEach((c) => {
     addArt(scene, 'art-cloud', cloudArt(), c.x, c.y, c.s).setDepth(DEPTH.cloud);
   });
+
+  // ONE scene-level paper-grain overlay (spec §4.2) — never per-sprite. A faint
+  // desaturated turbulence baked into a full-bleed texture, very low opacity.
+  const grainSvg =
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" preserveAspectRatio="none">` +
+    withDefs(
+      paperGrain('scene-grain'),
+      `<rect width="100" height="100" filter="url(#scene-grain)" opacity="${paper.opacity}"/>`,
+    ) +
+    `</svg>`;
+  const grain = addArt(scene, 'art-scene-grain', grainSvg, width / 2, height / 2, Math.max(width, height));
+  grain.setDisplaySize(width, height);
+  grain.setDepth(DEPTH.grain);
 }
 
 /** Callbacks for the two chrome buttons. */
@@ -165,6 +204,66 @@ export function addOptionTile(
   const img = addArt(scene, key, optionTileArt(accent), x, y, size);
   img.setDepth(DEPTH.tile);
   return img;
+}
+
+/** A small in-scene Cáo companion that lives in the corner and reacts. */
+export interface SceneBuddy {
+  /** The companion image (handle kept so a scene could reposition it if needed). */
+  img: Phaser.GameObjects.Image;
+  /** Happy bounce on a correct answer. */
+  cheer(): void;
+  /** Gentle encourage wiggle on a wrong answer. */
+  encourage(): void;
+}
+
+/**
+ * Place a small Cáo companion in the lower-left corner so the mascot is present
+ * DURING play (spec §6, fixing "Cáo vắng mặt khi chơi"). VISUAL-ONLY: it never
+ * becomes interactive, never touches a hit area or any round/finish guard. It
+ * breathes while idle (a slow scale yoyo) and offers `cheer()` / `encourage()`
+ * one-shot reactions the scene can fire next to its existing feedback. Under
+ * reduced motion / calm mode the buddy is placed statically with no looping tween
+ * and the reactions are no-ops, so it can never strand a transform.
+ */
+export function addBuddy(scene: Phaser.Scene): SceneBuddy {
+  const { height } = scene.scale;
+  const size = 110;
+  const x = 72;
+  const y = height - 72;
+  const img = addArt(scene, 'art-fox-idle', foxIdle(), x, y, size);
+  img.setDepth(DEPTH.buddy);
+
+  const baseScale = img.scale;
+  if (!prefersReducedMotion()) {
+    // Slow "breathing" — a tiny scale yoyo that loops; safe end-state is baseScale.
+    scene.tweens.add({
+      targets: img,
+      scaleX: baseScale * 1.05,
+      scaleY: baseScale * 1.05,
+      duration: 1400,
+      ease: 'Sine.easeInOut',
+      yoyo: true,
+      repeat: -1,
+    });
+  }
+
+  return {
+    img,
+    cheer(): void {
+      if (prefersReducedMotion()) return;
+      scene.tweens.add({
+        targets: img,
+        y: y - 16,
+        ease: 'Back.easeOut',
+        duration: 200,
+        yoyo: true,
+      });
+    },
+    encourage(): void {
+      if (prefersReducedMotion()) return;
+      scene.tweens.add({ targets: img, angle: 6, duration: 90, yoyo: true, repeat: 2 });
+    },
+  };
 }
 
 /**
@@ -292,6 +391,28 @@ export function celebrate(scene: Phaser.Scene): void {
       duration: 900,
       delay: 120 + (i % 4) * 40,
       onComplete: () => star.destroy(),
+    });
+  }
+
+  // GĐ6.1 — confetti raining down for a richer storybook flourish. One texture
+  // per colour (idempotent), drawn as images so it tweens + cleans up like the
+  // stars. Brand hues only. Still VISUAL-ONLY (pure tweens, self-destructing).
+  const CONFETTI_COLORS = [palette.error, palette.accent, palette.star, palette.success];
+  const CONFETTI = 10;
+  for (let i = 0; i < CONFETTI; i++) {
+    const color = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+    const px = cx + (i - CONFETTI / 2) * 26;
+    const piece = addArt(scene, `art-confetti-${color.replace('#', '')}`, confettiArt(color), px, cy - 60, 18);
+    piece.setDepth(DEPTH.celebrate + 1);
+    scene.tweens.add({
+      targets: piece,
+      y: cy + 230,
+      angle: 180 + i * 24,
+      alpha: { from: 1, to: 0 },
+      ease: 'Cubic.easeIn',
+      duration: 1100,
+      delay: i * 30,
+      onComplete: () => piece.destroy(),
     });
   }
 }

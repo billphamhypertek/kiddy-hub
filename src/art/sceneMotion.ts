@@ -283,3 +283,145 @@ export function flyStars(scene: Phaser.Scene, fromX: number, fromY: number): voi
     });
   }
 }
+
+// ─── GĐ6.1 juice toolkit (spec §8) ───────────────────────────────────────────
+// Every function reads `prefersReducedMotion()` (which already ORs calmMode) and
+// has a reduced / no-op branch, never calls setInteractive, and yoyos / settles
+// back to a safe end-state so an interrupted tween can't strand a transform.
+
+/**
+ * Correct-answer POP with squash & stretch (a punchier `popCorrect`): the target
+ * briefly stretches wide-and-flat, then narrow-and-tall, then settles back to its
+ * captured base scale (each leg yoyos, so the end equals the start — it can never
+ * strand a wrong scale). No-op under reduced motion / missing target; never
+ * touches interactivity. Bounces scaleX / scaleY independently so a non-square
+ * target keeps its aspect ratio.
+ */
+export function squashStretchPop(scene: Phaser.Scene, target?: MotionObject): void {
+  if (!target) return;
+  if (prefersReducedMotion()) return;
+  const obj = asAnimatable(target);
+  const sx = typeof obj.scaleX === 'number' && obj.scaleX > 0 ? obj.scaleX : 1;
+  const sy = typeof obj.scaleY === 'number' && obj.scaleY > 0 ? obj.scaleY : 1;
+  // squash (wide/flat) → stretch (narrow/tall) → settle, each yoyo back to base.
+  scene.tweens.add({
+    targets: obj,
+    scaleX: sx * 1.22,
+    scaleY: sy * 0.82,
+    duration: durations.fast,
+    ease: PHASER_EASE.pop,
+    yoyo: true,
+    onComplete: () => {
+      scene.tweens.add({
+        targets: obj,
+        scaleX: sx * 0.9,
+        scaleY: sy * 1.12,
+        duration: durations.fast,
+        ease: PHASER_EASE.pop,
+        yoyo: true,
+      });
+    },
+  });
+}
+
+/**
+ * A small burst of sparkle stars at (x, y) — a per-interaction "lấp lánh" cue.
+ * Pure tweens, self-destructing. No-op under reduced motion (no images, no
+ * tweens). VISUAL-ONLY.
+ */
+export function sparkleBurst(scene: Phaser.Scene, x: number, y: number): void {
+  if (prefersReducedMotion()) return;
+  const N = 6;
+  for (let i = 0; i < N; i++) {
+    const angle = (i / N) * Math.PI * 2;
+    const dist = 38 + (i % 2) * 16;
+    const star = addArt(scene, 'art-star', starArt(), x, y, 22);
+    star.setDepth(FX_DEPTH);
+    star.setAlpha(0);
+    scene.tweens.add({
+      targets: star,
+      x: x + Math.cos(angle) * dist,
+      y: y + Math.sin(angle) * dist,
+      alpha: { from: 1, to: 0 },
+      scale: { from: 0.3, to: 1 },
+      angle: 140,
+      ease: 'Cubic.easeOut',
+      duration: durations.slow + 120,
+      delay: i * 18,
+      onComplete: () => star.destroy(),
+    });
+  }
+}
+
+/**
+ * A tactile "press" on a tile/button: a quick shrink-and-return (scale ≈0.94
+ * yoyo). No-op under reduced motion / missing target. VISUAL-ONLY — fire it from
+ * the scene's own pointerdown handler; it never wires interactivity itself.
+ */
+export function tilePress(scene: Phaser.Scene, target?: MotionObject): void {
+  if (!target) return;
+  if (prefersReducedMotion()) return;
+  const obj = asAnimatable(target);
+  const sx = typeof obj.scaleX === 'number' && obj.scaleX > 0 ? obj.scaleX : 1;
+  const sy = typeof obj.scaleY === 'number' && obj.scaleY > 0 ? obj.scaleY : 1;
+  scene.tweens.add({
+    targets: obj,
+    scaleX: sx * 0.94,
+    scaleY: sy * 0.94,
+    duration: durations.fast,
+    ease: PHASER_EASE.standard,
+    yoyo: true,
+  });
+}
+
+/**
+ * A slow looping "breathing" for an idle object (the Cáo buddy, a waiting prop):
+ * a gentle scale yoyo, repeat forever. The looping end equals the base scale, so
+ * stopping it (round advance / scene restart) leaves the object at its base. No-op
+ * under reduced motion / missing target.
+ */
+export function idleBreathe(scene: Phaser.Scene, target?: MotionObject): void {
+  if (!target) return;
+  if (prefersReducedMotion()) return;
+  const obj = asAnimatable(target);
+  const sx = typeof obj.scaleX === 'number' && obj.scaleX > 0 ? obj.scaleX : 1;
+  const sy = typeof obj.scaleY === 'number' && obj.scaleY > 0 ? obj.scaleY : 1;
+  scene.tweens.add({
+    targets: obj,
+    scaleX: sx * 1.05,
+    scaleY: sy * 1.05,
+    duration: 1400,
+    ease: PHASER_EASE.standard,
+    yoyo: true,
+    repeat: -1,
+  });
+}
+
+/**
+ * A bouncy entrance for an object as it appears (sync with an SFX "pop"). The
+ * object grows from a small scale to its captured base with a gentle overshoot.
+ * Under reduced motion it is snapped to its base scale instantly (no tween) so it
+ * still shows at the right size — never stranded tiny. Missing target → no-op.
+ * Scales each axis independently so a non-square target keeps its aspect ratio.
+ */
+export function bouncePop(scene: Phaser.Scene, target?: MotionObject): void {
+  if (!target) return;
+  const obj = asAnimatable(target);
+  const sx = typeof obj.scaleX === 'number' && obj.scaleX > 0 ? obj.scaleX : 1;
+  const sy = typeof obj.scaleY === 'number' && obj.scaleY > 0 ? obj.scaleY : 1;
+  if (prefersReducedMotion()) {
+    // Ensure visible at base scale with no animation.
+    obj.scaleX = sx;
+    obj.scaleY = sy;
+    return;
+  }
+  obj.scaleX = sx * 0.5;
+  obj.scaleY = sy * 0.5;
+  scene.tweens.add({
+    targets: obj,
+    scaleX: sx,
+    scaleY: sy,
+    ease: PHASER_EASE.pop,
+    duration: durations.base,
+  });
+}

@@ -1,6 +1,16 @@
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import type Phaser from 'phaser';
-import { animateIn, popCorrect, flyStars } from './sceneMotion';
+import {
+  animateIn,
+  popCorrect,
+  flyStars,
+  squashStretchPop,
+  sparkleBurst,
+  tilePress,
+  idleBreathe,
+  bouncePop,
+} from './sceneMotion';
+import { setCalmMode } from '../motion/calmMode';
 
 /**
  * D2 motion-helper contract tests. These lock in the load-bearing guarantees:
@@ -108,6 +118,7 @@ function makeScene() {
 afterEach(() => {
   // @ts-expect-error — jsdom omits matchMedia; we may have added it.
   delete window.matchMedia;
+  setCalmMode(false);
   vi.restoreAllMocks();
 });
 
@@ -222,6 +233,122 @@ describe('flyStars', () => {
     setReducedMotion(true);
     const { scene, tweens } = makeScene();
     flyStars(scene, 500, 400);
+    expect(tweens).toHaveLength(0);
+  });
+});
+
+// ─── GĐ6.1 juice toolkit — every function must honour prefersReducedMotion() /
+//     calmMode (a reduced / no-op branch) and never touch interactivity. ────────
+
+describe('squashStretchPop', () => {
+  it('adds tweens on a target and never touches interactivity', () => {
+    const { scene, tweens } = makeScene();
+    const obj = makeObj();
+    squashStretchPop(scene, asMotion(obj));
+    expect(tweens.length).toBeGreaterThan(0);
+    expect(obj.interactiveCalls).toBe(0);
+  });
+  it('is a no-op for a missing target', () => {
+    const { scene, tweens } = makeScene();
+    squashStretchPop(scene, null);
+    expect(tweens).toHaveLength(0);
+  });
+  it('does nothing under reduced motion', () => {
+    setReducedMotion(true);
+    const { scene, tweens } = makeScene();
+    squashStretchPop(scene, asMotion(makeObj()));
+    expect(tweens).toHaveLength(0);
+  });
+  it('does nothing under calm mode (OS motion ON)', () => {
+    setReducedMotion(false);
+    setCalmMode(true);
+    const { scene, tweens } = makeScene();
+    squashStretchPop(scene, asMotion(makeObj()));
+    expect(tweens).toHaveLength(0);
+  });
+});
+
+describe('sparkleBurst', () => {
+  it('spawns sparkle images + tweens at normal motion', () => {
+    const { scene, tweens, images } = makeScene();
+    sparkleBurst(scene, 100, 100);
+    expect(images.length).toBeGreaterThan(0);
+    expect(tweens.length).toBeGreaterThan(0);
+  });
+  it('does nothing under reduced motion (no images, no tweens)', () => {
+    setReducedMotion(true);
+    const { scene, tweens, images } = makeScene();
+    sparkleBurst(scene, 100, 100);
+    expect(tweens).toHaveLength(0);
+    expect(images).toHaveLength(0);
+  });
+  it('does nothing under calm mode (no images, no tweens)', () => {
+    setReducedMotion(false);
+    setCalmMode(true);
+    const { scene, tweens, images } = makeScene();
+    sparkleBurst(scene, 100, 100);
+    expect(tweens).toHaveLength(0);
+    expect(images).toHaveLength(0);
+  });
+});
+
+describe('tilePress', () => {
+  it('adds a press tween normally', () => {
+    const { scene, tweens } = makeScene();
+    tilePress(scene, asMotion(makeObj()));
+    expect(tweens.length).toBeGreaterThan(0);
+  });
+  it('is a no-op under reduced motion', () => {
+    setReducedMotion(true);
+    const { scene, tweens } = makeScene();
+    tilePress(scene, asMotion(makeObj()));
+    expect(tweens).toHaveLength(0);
+  });
+  it('is a no-op for a missing target', () => {
+    const { scene, tweens } = makeScene();
+    tilePress(scene, null);
+    expect(tweens).toHaveLength(0);
+  });
+});
+
+describe('idleBreathe', () => {
+  it('adds a single looping tween normally', () => {
+    const { scene, tweens } = makeScene();
+    idleBreathe(scene, asMotion(makeObj()));
+    expect(tweens).toHaveLength(1);
+    expect(tweens[0].repeat).toBe(-1);
+  });
+  it('is a no-op under reduced motion', () => {
+    setReducedMotion(true);
+    const { scene, tweens } = makeScene();
+    idleBreathe(scene, asMotion(makeObj()));
+    expect(tweens).toHaveLength(0);
+  });
+  it('is a no-op for a missing target', () => {
+    const { scene, tweens } = makeScene();
+    idleBreathe(scene, null);
+    expect(tweens).toHaveLength(0);
+  });
+});
+
+describe('bouncePop', () => {
+  it('adds an entrance tween normally', () => {
+    const { scene, tweens } = makeScene();
+    bouncePop(scene, asMotion(makeObj()));
+    expect(tweens).toHaveLength(1);
+  });
+  it('under reduced motion sets base scale with NO tween (never stranded tiny)', () => {
+    setReducedMotion(true);
+    const { scene, tweens } = makeScene();
+    const obj = makeObj(0, 0, 1, 0.5);
+    bouncePop(scene, asMotion(obj));
+    expect(tweens).toHaveLength(0);
+    expect(obj.scaleX).toBe(1);
+    expect(obj.scaleY).toBe(0.5);
+  });
+  it('is a no-op for a missing target', () => {
+    const { scene, tweens } = makeScene();
+    bouncePop(scene, null);
     expect(tweens).toHaveLength(0);
   });
 });

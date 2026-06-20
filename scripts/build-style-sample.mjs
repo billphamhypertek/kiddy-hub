@@ -8,7 +8,8 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 import { palette, radius } from '../src/art/tokens.ts';
-import { foxGuide, foxCheer, foxIdle } from '../src/art/fox.ts';
+import { foxGuide, foxCheer, foxIdle, foxThink, foxPoint, foxNod } from '../src/art/fox.ts';
+import { creature, COUNTING_CREATURE_IDS } from '../src/art/creaturesCounting.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const artDir = resolve(__dirname, '../docs/art');
@@ -74,7 +75,7 @@ function island(cx, cy) {
 }
 
 const W = 1200;
-const H = 840;
+const H = 1180;
 const board =
   `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="'Baloo 2','Comic Sans MS',system-ui,sans-serif">` +
   `<rect width="${W}" height="${H}" fill="${palette.background}"/>` +
@@ -105,6 +106,15 @@ const board =
   swatch(170, 650, palette.ink, 'ink') +
   `<text x="340" y="640" font-size="24" font-weight="700" fill="${palette.ink}">Đảo mẫu</text>` +
   island(520, 720) +
+  // ── GĐ6.1 Storybook row — drawn creatures (replace emoji) + new Cáo expressions ──
+  `<text x="40" y="840" font-size="24" font-weight="700" fill="${palette.ink}">Storybook 6.1 — sinh vật vẽ tay (thay emoji)</text>` +
+  COUNTING_CREATURE_IDS.map((id, i) => cell(60 + i * 130, 864, 100, 100, () => creature(id), id)).join('') +
+  `<text x="40" y="1030" font-size="24" font-weight="700" fill="${palette.ink}">Cáo biểu cảm (storybook + think/point/nod)</text>` +
+  cell(60, 1054, 110, 110, foxThink, 'think') +
+  cell(220, 1054, 110, 110, () => foxPoint(1), 'point') +
+  cell(380, 1054, 110, 110, foxNod, 'nod') +
+  cell(540, 1054, 110, 110, foxIdle, 'idle (repaint)') +
+  cell(700, 1054, 110, 110, foxCheer, 'cheer (repaint)') +
   `</svg>`;
 
 mkdirSync(artDir, { recursive: true });

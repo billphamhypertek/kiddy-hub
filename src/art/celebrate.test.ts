@@ -76,14 +76,14 @@ function setOsReducedMotion(reduced: boolean) {
 }
 
 describe('celebrate', () => {
-  it('plays the full burst (fox grow + 8 flying stars) at normal motion', () => {
+  it('plays the full burst (fox grow + 8 flying stars + 10 confetti) at normal motion', () => {
     setOsReducedMotion(false);
     const { scene, tweens, images } = makeScene();
     celebrate(scene);
-    // 1 fox image + 8 star images.
-    expect(images).toHaveLength(9);
-    // 1 fox grow tween + 8 star tweens (the fade-out is added in onComplete).
-    expect(tweens).toHaveLength(9);
+    // 1 fox image + 8 star images + 10 confetti images (GĐ6.1).
+    expect(images).toHaveLength(19);
+    // 1 fox grow + 8 star + 10 confetti tweens (the fade-out is added in onComplete).
+    expect(tweens).toHaveLength(19);
   });
 
   it('under calm mode: a static fox + a single fade tween, NO star burst', () => {
