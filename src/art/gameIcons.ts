@@ -28,6 +28,7 @@ const GAME_CATEGORY: Record<string, IslandKey> = {
   'odd-one-out': 'logic',
   sorting: 'logic',
   'memory-match': 'memory',
+  'spot-difference': 'memory',
   jigsaw: 'shapes',
   'shapes-colors': 'shapes',
   'abc-english': 'english',
@@ -142,6 +143,22 @@ function emMemory(): string {
   );
 }
 
+/** spot-difference 🔎 → two side-by-side picture frames with a magnifier. */
+function emSpotDifference(): string {
+  return (
+    // two little framed pictures
+    `<rect x="20" y="30" width="24" height="30" rx="4" fill="${palette.white}" stroke="${INK}" stroke-width="${SW}"/>` +
+    `<rect x="56" y="30" width="24" height="30" rx="4" fill="${palette.white}" stroke="${INK}" stroke-width="${SW}"/>` +
+    // a sun in each (the "same" detail) + the difference dot on the right
+    `<circle cx="29" cy="40" r="4" fill="${palette.star}" stroke="${INK}" stroke-width="1"/>` +
+    `<circle cx="65" cy="40" r="4" fill="${palette.star}" stroke="${INK}" stroke-width="1"/>` +
+    `<circle cx="72" cy="52" r="3" fill="${palette.error}" stroke="${INK}" stroke-width="1"/>` +
+    // magnifier hunting the difference
+    `<circle cx="60" cy="64" r="11" fill="none" stroke="${palette.star}" stroke-width="${SW}"/>` +
+    `<path d="M68 72 l9 9" stroke="${palette.star}" stroke-width="${stroke.bold}"/>`
+  );
+}
+
 /** jigsaw 🎨 → a single puzzle piece. */
 function emJigsaw(): string {
   return (
@@ -203,6 +220,7 @@ const emblems: Record<string, () => string> = {
   'odd-one-out': emOddOneOut,
   sorting: emSorting,
   'memory-match': emMemory,
+  'spot-difference': emSpotDifference,
   jigsaw: emJigsaw,
   'shapes-colors': emShapes,
   'abc-english': emAbc,

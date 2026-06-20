@@ -22,6 +22,7 @@ export const AUDIO_MANIFEST: AudioManifest = {
     'colorsen.prompt': { text: 'Nghe và chạm đúng màu nhé!', lang: 'vi-VN' },
     'matchquantity.prompt': { text: 'Kéo số vào đúng nhóm nào!', lang: 'vi-VN' },
     'sorting.prompt': { text: 'Phân loại các bạn vào đúng giỏ nhé!', lang: 'vi-VN' },
+    'spotdiff.prompt': { text: 'Tìm điểm khác nhau giữa hai bức tranh nhé!', lang: 'vi-VN' },
     'feedback.correct': { text: 'Giỏi quá!', lang: 'vi-VN' },
     'feedback.tryagain': { text: 'Thử lại nhé!', lang: 'vi-VN' },
     'reward.cheer': { text: 'Tuyệt vời, con được thưởng sao!', lang: 'vi-VN' },
