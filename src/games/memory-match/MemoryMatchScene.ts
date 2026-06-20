@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
+import { addSceneBackground, addChrome, celebrate } from '../../art/sceneArt';
 import { buildBoard, gridForLevel, starsForFlips, type Card } from './memoryLogic';
 
 interface CardView {
@@ -27,17 +28,11 @@ export class MemoryMatchScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.cameras.main.setBackgroundColor('#efe6ff');
-    const { width } = this.scale;
-    this.add
-      .text(24, 18, '🏠', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.host.goHome());
-    this.add
-      .text(width - 64, 18, '🔊', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => void this.host.speak('memory.prompt'));
-
+    addSceneBackground(this, 'memory');
+    addChrome(this, {
+      onHome: () => this.host.goHome(),
+      onReplay: () => void this.host.speak('memory.prompt'),
+    });
     void this.host.speak('memory.prompt');
     this.layoutBoard();
   }
@@ -116,6 +111,7 @@ export class MemoryMatchScene extends Phaser.Scene {
     const stars = starsForFlips(this.flips, gridForLevel(this.level).pairs);
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
+    celebrate(this);
     this.host.awardStars(stars);
     this.host.complete({
       gameId: 'memory-match',

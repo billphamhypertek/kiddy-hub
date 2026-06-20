@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
 import { getGarden, getWeeklyTally } from '../data/stars';
+import { SvgArt } from '../art/Art';
+import { starArt, gardenItemArt } from '../art/stars';
+import { foxIdle } from '../art/fox';
 import type { Garden } from '../data/types';
 
-const ITEM_EMOJI: Record<string, string> = {
-  flower: '🌸',
-  bush: '🌿',
-  tree: '🌳',
-  rabbit: '🐰',
-  pond: '💧',
-  butterflies: '🦋',
+/** Vietnamese labels for grown garden props (used as accessible alt text). */
+const ITEM_LABEL: Record<string, string> = {
+  flower: 'Bông hoa',
+  bush: 'Bụi cây',
+  tree: 'Cây xanh',
+  rabbit: 'Bạn thỏ',
+  pond: 'Ao nước',
+  butterflies: 'Bươm bướm',
 };
 
 type TallyRow = { profileId: number; name: string; stars: number };
@@ -33,21 +37,31 @@ export function StarGarden({ onBack }: Props) {
       <button className="back" aria-label="Quay lại bản đồ" onClick={onBack}>
         ⬅️
       </button>
-      <h2>🌳 Vườn sao của cả nhà</h2>
-      <p>Tổng cộng: ⭐ {garden?.totalStars ?? 0}</p>
+      <h2>
+        <SvgArt svg={foxIdle()} alt="" size={40} className="title-fox" /> Vườn sao của cả nhà
+      </h2>
+      <p className="garden-total">
+        Tổng cộng: <SvgArt svg={starArt()} alt="ngôi sao" size={28} className="inline-star" />{' '}
+        {garden?.totalStars ?? 0}
+      </p>
       <div className="garden-field" aria-label="Khu vườn">
         {items.map((item) => (
-          <span key={item} className="garden-item">
-            {ITEM_EMOJI[item] ?? '✨'}
-          </span>
+          <SvgArt
+            key={item}
+            svg={gardenItemArt(item, ITEM_LABEL[item] ?? 'Vật trang trí')}
+            alt={ITEM_LABEL[item] ?? 'Vật trang trí'}
+            size={64}
+            className="garden-item"
+          />
         ))}
-        {items.length === 0 && <p className="hint">Hãy chơi để vườn lớn lên nhé! 🌱</p>}
+        {items.length === 0 && <p className="hint">Hãy chơi để vườn lớn lên nhé!</p>}
       </div>
       <h3>Sao tuần này</h3>
       <ol className="tally">
         {tally.map((t) => (
           <li key={t.profileId}>
-            {t.name}: ⭐ {t.stars}
+            {t.name}: <SvgArt svg={starArt()} alt="ngôi sao" size={20} className="inline-star" />{' '}
+            {t.stars}
           </li>
         ))}
       </ol>

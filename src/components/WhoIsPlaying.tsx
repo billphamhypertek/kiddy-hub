@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { listProfiles } from '../data/profiles';
-import { avatarEmoji } from '../content/avatars';
+import { avatarLabel } from '../content/avatars';
+import { SvgArt } from '../art/Art';
+import { avatarArt } from '../art/avatars';
+import { foxIdle } from '../art/fox';
 import type { Profile } from '../data/types';
 import type { MenuAudio } from './menuAudio';
 
@@ -29,7 +32,9 @@ export function WhoIsPlaying({ onSelect, onParent, audio }: Props) {
 
   return (
     <div className="screen who">
-      <h1>Ai đang chơi? 🦊</h1>
+      <h1>
+        <SvgArt svg={foxIdle()} alt="" size={48} className="title-fox" /> Ai đang chơi?
+      </h1>
       {profiles === null ? (
         <p>Đang tải…</p>
       ) : profiles.length === 0 ? (
@@ -38,7 +43,12 @@ export function WhoIsPlaying({ onSelect, onParent, audio }: Props) {
         <div className="avatar-grid">
           {profiles.map((p) => (
             <button key={p.id} className="avatar-card" onClick={() => handleSelect(p)}>
-              <span className="avatar-emoji">{avatarEmoji(p.avatarKey)}</span>
+              <SvgArt
+                svg={avatarArt(p.avatarKey, avatarLabel(p.avatarKey))}
+                alt={avatarLabel(p.avatarKey)}
+                size={88}
+                className="avatar-art"
+              />
               <span className="avatar-name">{p.name}</span>
             </button>
           ))}

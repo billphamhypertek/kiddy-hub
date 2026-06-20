@@ -1,6 +1,12 @@
 import { CATEGORIES } from '../content/categories';
-import { avatarEmoji } from '../content/avatars';
+import { avatarLabel } from '../content/avatars';
+import { SvgArt } from '../art/Art';
+import { foxGuide } from '../art/fox';
+import { avatarArt } from '../art/avatars';
+import { islandArt, mapBackdrop } from '../art/islands';
+import { starArt } from '../art/stars';
 import type { CategoryId, Profile } from '../data/types';
+import type { IslandKey } from '../art/tokens';
 import type { MenuAudio } from './menuAudio';
 
 interface Props {
@@ -19,27 +25,36 @@ export function AdventureMap({ profile, totalStars, onCategory, onGarden, audio 
   return (
     <div className="screen map">
       <header className="map-header">
-        <span className="avatar-emoji">{avatarEmoji(profile.avatarKey)}</span>
+        <SvgArt
+          svg={avatarArt(profile.avatarKey, avatarLabel(profile.avatarKey))}
+          alt={avatarLabel(profile.avatarKey)}
+          size={52}
+          className="avatar-art"
+        />
         <button className="garden-btn" onClick={onGarden}>
-          🌳 Vườn sao ⭐ {totalStars}
+          <SvgArt svg={starArt()} alt="" size={24} className="inline-star" /> Vườn sao {totalStars}
         </button>
       </header>
       <div className="island-field">
+        <SvgArt svg={mapBackdrop()} alt="" size={100} className="map-backdrop" />
         {CATEGORIES.map((c) => (
           <button
             key={c.id}
             className="island"
-            style={{ left: `${c.islandPos.x}%`, top: `${c.islandPos.y}%`, backgroundColor: c.color }}
+            style={{ left: `${c.islandPos.x}%`, top: `${c.islandPos.y}%` }}
             aria-label={c.title}
             onClick={() => handleCategory(c)}
           >
-            <span className="island-icon">{c.icon}</span>
+            <SvgArt
+              svg={islandArt(c.id as IslandKey, c.title)}
+              alt=""
+              size={120}
+              className="island-icon"
+            />
             <span className="island-title">{c.title}</span>
           </button>
         ))}
-        <span className="mascot" aria-hidden="true">
-          🦊
-        </span>
+        <SvgArt svg={foxGuide()} alt="Cáo dẫn đường" size={120} className="mascot" />
       </div>
     </div>
   );

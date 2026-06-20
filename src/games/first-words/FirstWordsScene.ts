@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
+import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption } from '../../art/sceneArt';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, type WordRound } from './wordLogic';
 
 export class FirstWordsScene extends Phaser.Scene {
@@ -19,21 +20,12 @@ export class FirstWordsScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.cameras.main.setBackgroundColor('#ffe6df');
-    this.buildChrome();
+    addSceneBackground(this, 'english');
+    addChrome(this, {
+      onHome: () => this.host.goHome(),
+      onReplay: () => this.sayTarget(),
+    });
     this.nextRound();
-  }
-
-  private buildChrome(): void {
-    const { width } = this.scale;
-    this.add
-      .text(24, 18, '🏠', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.host.goHome());
-    this.add
-      .text(width - 64, 18, '🔊', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.sayTarget());
   }
 
   /** Re-read the prompt then the English target word in its native voice. */
@@ -71,18 +63,24 @@ export class FirstWordsScene extends Phaser.Scene {
     const y = height / 2 + 40;
     opts.forEach((item, i) => {
       const x = optStartX + i * 160;
+      const tile = addOptionTile(this, x, y, 142);
+      this.layer!.add(tile);
       const btn = this.add
-        .rectangle(x, y, 130, 130, 0xffffff)
-        .setStrokeStyle(6, 0xff8a65)
+        .rectangle(x, y, 130, 130, 0xffffff, 0.001)
         .setInteractive({ useHandCursor: true });
       const label = this.add.text(x, y, item.emoji, { fontSize: '66px' }).setOrigin(0.5);
-      btn.on('pointerdown', () => this.choose(item.word, btn));
+      btn.on('pointerdown', () => this.choose(item.word, btn, tile, label));
       this.layer!.add(btn);
       this.layer!.add(label);
     });
   }
 
-  private choose(word: string, btn: Phaser.GameObjects.Rectangle): void {
+  private choose(
+    word: string,
+    btn: Phaser.GameObjects.Rectangle,
+    tile: Phaser.GameObjects.Image,
+    label: Phaser.GameObjects.Text,
+  ): void {
     if (this.roundResolved) return;
     if (word === this.current.target.word) {
       this.roundResolved = true;
@@ -99,7 +97,7 @@ export class FirstWordsScene extends Phaser.Scene {
       this.answeredThisRound = true;
       this.host.playSfx('wrong');
       void this.host.speak('feedback.tryagain');
-      this.tweens.add({ targets: btn, x: btn.x + 8, duration: 60, yoyo: true, repeat: 3 });
+      shakeOption(this, tile, label, btn);
     }
   }
 
@@ -107,6 +105,7 @@ export class FirstWordsScene extends Phaser.Scene {
     const stars = starsFor(this.correctCount, QUESTIONS_PER_GAME);
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
+    celebrate(this);
     this.host.awardStars(stars);
     this.host.complete({
       gameId: 'first-words',

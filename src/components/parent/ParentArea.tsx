@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import { listProfiles, createProfile, deleteProfile } from '../../data/profiles';
 import { getSettings, updateSettings } from '../../data/settings';
 import { getWeeklyTally } from '../../data/stars';
-import { AVATARS, avatarEmoji } from '../../content/avatars';
+import { AVATARS, avatarLabel } from '../../content/avatars';
+import { SvgArt } from '../../art/Art';
+import { avatarArt } from '../../art/avatars';
+import { starArt } from '../../art/stars';
 import type { Profile, Settings } from '../../data/types';
 import type { AudioManager } from '../../audio/AudioManager';
 
@@ -59,8 +62,14 @@ export function ParentArea({ audio, onExit }: Props) {
         <ul className="child-list">
           {profiles.map((p) => (
             <li key={p.id}>
-              <span>
-                {avatarEmoji(p.avatarKey)} {p.name}
+              <span className="child-row">
+                <SvgArt
+                  svg={avatarArt(p.avatarKey, avatarLabel(p.avatarKey))}
+                  alt={avatarLabel(p.avatarKey)}
+                  size={32}
+                  className="avatar-art-sm"
+                />{' '}
+                {p.name}
               </span>
               <button aria-label={`Xoá ${p.name}`} onClick={() => removeChild(p.id!)}>
                 🗑️
@@ -83,7 +92,7 @@ export function ParentArea({ audio, onExit }: Props) {
                 aria-pressed={a.key === avatarKey}
                 onClick={() => setAvatarKey(a.key)}
               >
-                {a.emoji}
+                <SvgArt svg={avatarArt(a.key, a.label)} alt="" size={40} className="avatar-art-sm" />
               </button>
             ))}
           </div>
@@ -96,7 +105,8 @@ export function ParentArea({ audio, onExit }: Props) {
         <ol className="tally">
           {tally.map((t) => (
             <li key={t.profileId}>
-              {t.name}: ⭐ {t.stars}
+              {t.name}: <SvgArt svg={starArt()} alt="ngôi sao" size={18} className="inline-star" />{' '}
+              {t.stars}
             </li>
           ))}
         </ol>

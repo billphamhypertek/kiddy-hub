@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
+import { addSceneBackground, addChrome, addOptionTile, celebrate } from '../../art/sceneArt';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, type ColorsEnRound } from './colorsEnLogic';
 
 export class ColorsEnglishScene extends Phaser.Scene {
@@ -19,21 +20,12 @@ export class ColorsEnglishScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.cameras.main.setBackgroundColor('#fff1ea');
-    this.buildChrome();
+    addSceneBackground(this, 'english');
+    addChrome(this, {
+      onHome: () => this.host.goHome(),
+      onReplay: () => this.sayTarget(),
+    });
     this.nextRound();
-  }
-
-  private buildChrome(): void {
-    const { width } = this.scale;
-    this.add
-      .text(24, 18, '🏠', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.host.goHome());
-    this.add
-      .text(width - 64, 18, '🔊', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.sayTarget());
   }
 
   /** Re-read the prompt then the English colour name in its native voice. */
@@ -76,6 +68,8 @@ export class ColorsEnglishScene extends Phaser.Scene {
     const y = height / 2 + 60;
     opts.forEach((color, i) => {
       const x = startX + i * 170;
+      // Tile frames the colour swatch (slightly larger than the swatch itself).
+      this.layer!.add(addOptionTile(this, x, y, 152));
       const swatch = this.add
         .rectangle(x, y, 130, 130, color.hex)
         .setStrokeStyle(6, 0xffffff)
@@ -110,6 +104,7 @@ export class ColorsEnglishScene extends Phaser.Scene {
     const stars = starsFor(this.correctCount, QUESTIONS_PER_GAME);
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
+    celebrate(this);
     this.host.awardStars(stars);
     this.host.complete({ gameId: 'colors-english', level: this.level, score: this.correctCount, stars });
   }

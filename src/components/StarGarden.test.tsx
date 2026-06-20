@@ -15,7 +15,8 @@ describe('StarGarden', () => {
     const id = await createProfile({ name: 'Na', avatarKey: 'cat' });
     await addStars(id, 6); // crosses the 5-star "flower" milestone
     render(<StarGarden onBack={() => {}} />);
-    expect(await screen.findByText(/⭐ 6/)).toBeInTheDocument();
-    expect(await screen.findByText('🌸')).toBeInTheDocument();
+    // Wait for the async garden load (flower appears once 5 stars are crossed).
+    expect(await screen.findByAltText('Bông hoa')).toBeInTheDocument();
+    expect(screen.getByText(/Tổng cộng/)).toHaveTextContent('6');
   });
 });

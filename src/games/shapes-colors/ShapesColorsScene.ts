@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
+import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption } from '../../art/sceneArt';
 import {
   QUESTIONS_PER_GAME,
   generateRound,
@@ -26,21 +27,12 @@ export class ShapesColorsScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.cameras.main.setBackgroundColor('#e9fff7');
-    this.buildChrome();
+    addSceneBackground(this, 'shapes');
+    addChrome(this, {
+      onHome: () => this.host.goHome(),
+      onReplay: () => void this.host.speak('shapecolor.prompt'),
+    });
     this.nextRound();
-  }
-
-  private buildChrome(): void {
-    const { width } = this.scale;
-    this.add
-      .text(24, 18, '🏠', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.host.goHome());
-    this.add
-      .text(width - 64, 18, '🔊', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => void this.host.speak('shapecolor.prompt'));
   }
 
   private shapeLabel(shape: ShapeName): string {
@@ -54,8 +46,13 @@ export class ShapesColorsScene extends Phaser.Scene {
     return `Chạm ${this.shapeLabel(r.targetShape!)} màu ${r.targetColor!.name}`;
   }
 
-  /** Draws a filled shape of `opt` at (x, y) with half-size `s`, into the layer. */
-  private drawShape(opt: ShapeOption, x: number, y: number, s: number): void {
+  /**
+   * Draws a filled shape of `opt` at (x, y) with half-size `s`, into the layer,
+   * and returns the `Graphics` so callers can keep a handle (e.g. to shake it on
+   * a wrong pick — the primitives are drawn relative to the object's `x`, so
+   * tweening `g.x` moves the whole shape).
+   */
+  private drawShape(opt: ShapeOption, x: number, y: number, s: number): Phaser.GameObjects.Graphics {
     const g = this.add.graphics();
     g.fillStyle(opt.color.hex, 1);
     switch (opt.shape) {
@@ -73,6 +70,7 @@ export class ShapesColorsScene extends Phaser.Scene {
         break;
     }
     this.layer!.add(g);
+    return g;
   }
 
   private fillStar(g: Phaser.GameObjects.Graphics, cx: number, cy: number, s: number): void {
@@ -118,16 +116,23 @@ export class ShapesColorsScene extends Phaser.Scene {
     const y = height / 2 + 30;
     opts.forEach((opt, i) => {
       const x = startX + i * 150;
+      const tile = addOptionTile(this, x, y, 140);
+      this.layer!.add(tile);
       const hit = this.add
         .rectangle(x, y, 130, 130, 0xffffff, 0.001)
         .setInteractive({ useHandCursor: true });
-      this.drawShape(opt, x, y, 50);
-      hit.on('pointerdown', () => this.choose(i, hit));
+      const shape = this.drawShape(opt, x, y, 50);
+      hit.on('pointerdown', () => this.choose(i, hit, tile, shape));
       this.layer!.add(hit);
     });
   }
 
-  private choose(index: number, hit: Phaser.GameObjects.Rectangle): void {
+  private choose(
+    index: number,
+    hit: Phaser.GameObjects.Rectangle,
+    tile: Phaser.GameObjects.Image,
+    shape: Phaser.GameObjects.Graphics,
+  ): void {
     if (this.roundResolved) return;
     if (index === this.current.correctIndex) {
       this.roundResolved = true;
@@ -144,7 +149,7 @@ export class ShapesColorsScene extends Phaser.Scene {
       this.answeredThisRound = true;
       this.host.playSfx('wrong');
       void this.host.speak('feedback.tryagain');
-      this.tweens.add({ targets: hit, x: hit.x + 8, duration: 60, yoyo: true, repeat: 3 });
+      shakeOption(this, tile, shape, hit);
     }
   }
 
@@ -152,6 +157,7 @@ export class ShapesColorsScene extends Phaser.Scene {
     const stars = starsFor(this.correctCount, QUESTIONS_PER_GAME);
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
+    celebrate(this);
     this.host.awardStars(stars);
     this.host.complete({ gameId: 'shapes-colors', level: this.level, score: this.correctCount, stars });
   }

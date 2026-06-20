@@ -12,8 +12,9 @@
 
 **Giai đoạn 4 đang chạy — chia thành các phần độc lập A→F, mỗi phần có spec + sub-agent riêng:**
 - ✅ **Phần A — Giọng đọc + âm thanh** (Web Speech API live, local; trả 2 nợ kỹ thuật audio) — xong 2026-06-20.
-- 👉 **Phần B — Đồ hoạ bản cuối** (linh vật Cáo + style bible + art từng trò) — kế tiếp; **#10 Tìm Điểm Khác phụ thuộc phần này**.
-- ☐ Phần C #10 Tìm Điểm Khác · ☐ Phần D hoạt ảnh/hiệu ứng · ☐ Phần E tách bundle Phaser · ☐ Phần F (tuỳ chọn) PWA offline · ☐ kiểm thử với trẻ thật.
+- ✅ **Phần B — Đồ hoạ bản cuối** (SVG vector trong code thay emoji: linh vật Cáo + style bible as code + bộ nhận diện + đồ hoạ 15 scene) — xong 2026-06-20. **Lưu ý:** chọn **SVG vector** thay "ảnh AI" vì môi trường không có text-to-image trực tiếp + SVG nhất quán/local/làm #10 dễ (user đã duyệt look).
+- 👉 **Phần C — #10 Tìm Điểm Khác** (tận dụng hạ tầng SVG: vẽ 1 cảnh 2 lần, bật/tắt chi tiết) — kế tiếp.
+- ☐ Phần D hoạt ảnh/hiệu ứng · ☐ Phần E tách bundle Phaser · ☐ Phần F (tuỳ chọn) PWA offline · ☐ kiểm thử với trẻ thật.
 
 ### Cách bắt đầu Giai đoạn 3 (dành cho phiên/agent mới)
 
@@ -70,7 +71,7 @@ Thêm 1 trò mỗi nhóm còn lại để mỗi đảo có nội dung.
 ## Giai đoạn 4 — Đánh bóng  ☐
 
 - ☐ #10 Tìm Điểm Khác (dời từ GĐ3 — cần ảnh thật để có khác biệt tinh tế)
-- ☐ Thay toàn bộ đồ hoạ AI bản cuối (theo style bible + linh vật Cáo)
+- ✅ **(Phần B)** Thay toàn bộ đồ hoạ bản cuối — **SVG vector trong code** (không emoji ở khung/UI; giữ emoji nội dung trong trò). Style bible as code (`src/art/tokens.ts`) + linh vật **Cáo** 3 dáng + 8 avatar + 15 game icon + 6 đảo + nền map + UI chrome + nền pastel theo nhóm cho 15 scene + màn thưởng (Cáo cổ vũ + sao). Spec: `docs/superpowers/specs/2026-06-20-kiddyhub-phase-4b-final-art.md`
 - ✅ **(Phần A)** Thay giọng đọc Việt/Anh bản cuối — **Web Speech API live, 100% local** (vi-VN + en-US, đọc cả nội dung động số/chữ/từ); SFX bằng Web Audio API (không cần file). Spec: `docs/superpowers/specs/2026-06-20-kiddyhub-phase-4a-audio-voice.md`
 - ☐ Hoạt ảnh, hiệu ứng, chuyển cảnh mượt
 - ☐ Kiểm thử trải nghiệm với trẻ thật
@@ -92,4 +93,5 @@ Thêm 1 trò mỗi nhóm còn lại để mỗi đảo có nội dung.
 - **2026-06-19** — Merge vào `main` + đẩy lên GitHub (https://github.com/billphamhypertek/kiddy-hub). Thêm README. Thêm Docker (multi-stage Vite→nginx) + docker-compose, deploy local chạy ở http://localhost:8088. Sẵn sàng cho Giai đoạn 2.
 - **2026-06-19** — Giai đoạn 2 hoàn thành: thêm 5 trò (Bé Nhận Mặt Chữ, Tìm Quy Luật, Lật Hình Tìm Cặp, Ghép Hình, First Words) — mỗi đảo nay có nội dung; tách + test `applyCompletion`. 51→85 test pass; build thành công. Kế tiếp: Giai đoạn 3 (10 trò còn lại).
 - **2026-06-20** — Giai đoạn 3 hoàn thành: thêm 9 trò (Nhiều hơn – Ít hơn, Ghép Số với Lượng, Chữ Cái Đầu Tiên, Vật Lạ Trong Nhóm, Phân Loại, Nhận Diện Màu & Hình, ABC, Numbers 1–10, Colors) — 15/16 trò; #10 Tìm Điểm Khác dời sang GĐ4 (cần ảnh thật). 85→138 test pass; build thành công. Kế tiếp: Giai đoạn 4.
+- **2026-06-20** — **Giai đoạn 4 Phần B (Đồ hoạ bản cuối) hoàn thành.** Thay emoji khung/UI bằng **SVG vector trong code** (100% local, không ảnh raster/AI ngoài; user duyệt look qua bảng phong cách). Hạ tầng `src/art/` (tokens style-bible + adapter SVG→React `<SvgArt>` + SVG→Phaser texture + helper scene). 3 bước sub-agent: **B1** nền tảng + linh vật Cáo (3 dáng) → **B2** bộ nhận diện React (8 avatar, 15 game icon, 6 đảo phong phú, nền map, sao+vườn) → **B3** đồ hoạ 15 scene Phaser (UI chrome SVG, nền pastel theo nhóm, ô đáp án, màn thưởng Cáo cổ vũ + sao bay). Review 0 lỗi MUST-FIX; sửa 1 polish (lắc "thử lại" hiện rõ qua helper `shakeOption` ở 9 trò). Logic/guard/hit-area nguyên vẹn. 144→153 test pass; build + lint sạch. Kế tiếp: **Phần C — #10 Tìm Điểm Khác**.
 - **2026-06-20** — **Giai đoạn 4 Phần A (Giọng đọc + âm thanh) hoàn thành.** Thay engine câm → **Web Speech API** (live TTS, 100% local, không file): câu mời/feedback/cheer tiếng Việt, nhóm trò tiếng Anh đọc `en-US`, đọc nội dung động (số/chữ/từ); SFX qua **Web Audio API** (oscillator). Trả 2 nợ kỹ thuật âm thanh: `speak()` resolve mọi nhánh + gắn `speak()` cho menu. Xoá `howlerPlayer.ts`. 138→144 test pass; build + lint sạch. Quy trình: brainstorm → spec → sub-agent implement → sub-agent review (0 lỗi MUST-FIX). Kế tiếp: **Phần B — Đồ hoạ bản cuối** (linh vật Cáo + style bible; #10 phụ thuộc phần này).

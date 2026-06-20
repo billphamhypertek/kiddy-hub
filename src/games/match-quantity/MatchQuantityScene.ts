@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
+import { addSceneBackground, addChrome, addOptionTile, celebrate } from '../../art/sceneArt';
 import { generateRound, starsFor, type MatchQuantityRound } from './matchQuantityLogic';
 
 interface SlotInfo {
@@ -25,16 +26,12 @@ export class MatchQuantityScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.cameras.main.setBackgroundColor('#fff0f3');
+    addSceneBackground(this, 'numbers');
+    addChrome(this, {
+      onHome: () => this.host.goHome(),
+      onReplay: () => void this.host.speak('matchquantity.prompt'),
+    });
     const { width } = this.scale;
-    this.add
-      .text(24, 18, '🏠', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.host.goHome());
-    this.add
-      .text(width - 64, 18, '🔊', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => void this.host.speak('matchquantity.prompt'));
     this.add
       .text(width / 2, 80, 'Kéo số vào nhóm đúng', { fontSize: '34px', color: '#a01a3a', fontStyle: 'bold' })
       .setOrigin(0.5);
@@ -60,10 +57,11 @@ export class MatchQuantityScene extends Phaser.Scene {
         const row = Math.floor(k / 5);
         this.add.text(startX + col * 46, y - 20 + row * 40, pair.emoji, { fontSize: '36px' }).setOrigin(0.5);
       }
-      // Drop slot (target).
+      // Drop slot (target): a soft tile backing + the dashed-looking outline.
       const slotX = width * 0.7;
+      addOptionTile(this, slotX, y, 122);
       this.add
-        .rectangle(slotX, y, 110, 110, 0xffffff, 0.5)
+        .rectangle(slotX, y, 110, 110, 0xffffff, 0.001)
         .setStrokeStyle(5, 0xff8fab);
       this.slots.push({ pairIndex: i, x: slotX, y, filled: false });
     });
@@ -148,6 +146,7 @@ export class MatchQuantityScene extends Phaser.Scene {
     const stars = starsFor(this.placedFirstTry, total);
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
+    celebrate(this);
     this.host.awardStars(stars);
     this.host.complete({ gameId: 'match-quantity', level: this.level, score: total, stars });
   }

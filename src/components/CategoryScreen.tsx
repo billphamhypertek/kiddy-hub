@@ -1,6 +1,10 @@
 import { getGamesByCategory } from '../games/registry';
 import { CATEGORIES } from '../content/categories';
+import { SvgArt } from '../art/Art';
+import { gameIcon } from '../art/gameIcons';
+import { islandArt } from '../art/islands';
 import type { CategoryId } from '../data/types';
+import type { IslandKey } from '../art/tokens';
 import type { MenuAudio } from './menuAudio';
 
 interface Props {
@@ -25,15 +29,28 @@ export function CategoryScreen({ categoryId, onPlay, onBack, audio }: Props) {
         ⬅️
       </button>
       <h2>
-        {category?.icon} {category?.title}
+        {category && (
+          <SvgArt
+            svg={islandArt(category.id as IslandKey, category.title)}
+            alt=""
+            size={40}
+            className="category-icon"
+          />
+        )}{' '}
+        {category?.title}
       </h2>
       {games.length === 0 ? (
-        <p className="hint">Sắp có trò chơi mới ở đây! 🦊</p>
+        <p className="hint">Sắp có trò chơi mới ở đây!</p>
       ) : (
         <div className="game-list">
           {games.map((g) => (
             <button key={g.id} className="game-card" onClick={() => handlePlay(g.id, g.title)}>
-              <span className="game-icon">{g.iconKey}</span>
+              <SvgArt
+                svg={gameIcon(g.id, g.title)}
+                alt={g.title}
+                size={72}
+                className="game-icon"
+              />
               <span className="game-title">{g.title}</span>
             </button>
           ))}

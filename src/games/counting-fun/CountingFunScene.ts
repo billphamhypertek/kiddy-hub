@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
+import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption } from '../../art/sceneArt';
 import {
   QUESTIONS_PER_GAME,
   generateRound,
@@ -24,22 +25,12 @@ export class CountingFunScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.cameras.main.setBackgroundColor('#dff3ff');
-    this.buildChrome();
+    addSceneBackground(this, 'numbers');
+    addChrome(this, {
+      onHome: () => this.host.goHome(),
+      onReplay: () => void this.host.speak('counting.prompt'),
+    });
     this.nextRound();
-  }
-
-  private buildChrome(): void {
-    const { width } = this.scale;
-    const home = this.add
-      .text(24, 18, '🏠', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true });
-    home.on('pointerdown', () => this.host.goHome());
-
-    const listen = this.add
-      .text(width - 64, 18, '🔊', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true });
-    listen.on('pointerdown', () => void this.host.speak('counting.prompt'));
   }
 
   private nextRound(): void {
@@ -77,20 +68,26 @@ export class CountingFunScene extends Phaser.Scene {
     const optStartX = width / 2 - ((this.current.options.length - 1) * 140) / 2;
     this.current.options.forEach((opt, i) => {
       const x = optStartX + i * 140;
+      const tile = addOptionTile(this, x, optY, 116);
+      this.layer!.add(tile);
       const btn = this.add
-        .rectangle(x, optY, 104, 104, 0xffffff)
-        .setStrokeStyle(6, 0xffd36e)
+        .rectangle(x, optY, 104, 104, 0xffffff, 0.001)
         .setInteractive({ useHandCursor: true });
       const label = this.add
-        .text(x, optY, String(opt), { fontSize: '52px', color: '#444', fontStyle: 'bold' })
+        .text(x, optY, String(opt), { fontSize: '52px', color: '#5b4636', fontStyle: 'bold' })
         .setOrigin(0.5);
-      btn.on('pointerdown', () => this.choose(opt, btn));
+      btn.on('pointerdown', () => this.choose(opt, btn, tile, label));
       this.layer!.add(btn);
       this.layer!.add(label);
     });
   }
 
-  private choose(opt: number, btn: Phaser.GameObjects.Rectangle): void {
+  private choose(
+    opt: number,
+    btn: Phaser.GameObjects.Rectangle,
+    tile: Phaser.GameObjects.Image,
+    label: Phaser.GameObjects.Text,
+  ): void {
     if (this.roundResolved) return;
     if (opt === this.current.count) {
       this.host.playSfx('correct');
@@ -109,7 +106,7 @@ export class CountingFunScene extends Phaser.Scene {
       this.answeredThisRound = true; // first try was wrong -> round not counted
       this.host.playSfx('wrong');
       void this.host.speak('feedback.tryagain');
-      this.tweens.add({ targets: btn, x: btn.x + 8, duration: 60, yoyo: true, repeat: 3 });
+      shakeOption(this, tile, label, btn);
     }
   }
 
@@ -117,6 +114,7 @@ export class CountingFunScene extends Phaser.Scene {
     const stars = starsFor(this.correctCount, QUESTIONS_PER_GAME);
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
+    celebrate(this);
     this.host.awardStars(stars);
     this.host.complete({
       gameId: 'counting-fun',

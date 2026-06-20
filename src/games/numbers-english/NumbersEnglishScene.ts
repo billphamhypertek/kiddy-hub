@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
+import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption } from '../../art/sceneArt';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, type NumbersEnRound } from './numbersEnLogic';
 
 export class NumbersEnglishScene extends Phaser.Scene {
@@ -19,21 +20,12 @@ export class NumbersEnglishScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.cameras.main.setBackgroundColor('#fff1ea');
-    this.buildChrome();
+    addSceneBackground(this, 'english');
+    addChrome(this, {
+      onHome: () => this.host.goHome(),
+      onReplay: () => this.sayTarget(),
+    });
     this.nextRound();
-  }
-
-  private buildChrome(): void {
-    const { width } = this.scale;
-    this.add
-      .text(24, 18, '🏠', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.host.goHome());
-    this.add
-      .text(width - 64, 18, '🔊', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.sayTarget());
   }
 
   /** Re-read the prompt then the English number word in its native voice. */
@@ -76,20 +68,26 @@ export class NumbersEnglishScene extends Phaser.Scene {
     const y = height - 120;
     opts.forEach((num, i) => {
       const x = optStartX + i * 150;
+      const tile = addOptionTile(this, x, y, 122);
+      this.layer!.add(tile);
       const btn = this.add
-        .rectangle(x, y, 110, 110, 0xffffff)
-        .setStrokeStyle(6, 0xff7043)
+        .rectangle(x, y, 110, 110, 0xffffff, 0.001)
         .setInteractive({ useHandCursor: true });
       const label = this.add
-        .text(x, y, String(num), { fontSize: '60px', color: '#444', fontStyle: 'bold' })
+        .text(x, y, String(num), { fontSize: '60px', color: '#5b4636', fontStyle: 'bold' })
         .setOrigin(0.5);
-      btn.on('pointerdown', () => this.choose(num, btn));
+      btn.on('pointerdown', () => this.choose(num, btn, tile, label));
       this.layer!.add(btn);
       this.layer!.add(label);
     });
   }
 
-  private choose(num: number, btn: Phaser.GameObjects.Rectangle): void {
+  private choose(
+    num: number,
+    btn: Phaser.GameObjects.Rectangle,
+    tile: Phaser.GameObjects.Image,
+    label: Phaser.GameObjects.Text,
+  ): void {
     if (this.roundResolved) return;
     if (num === this.current.target) {
       this.roundResolved = true;
@@ -106,7 +104,7 @@ export class NumbersEnglishScene extends Phaser.Scene {
       this.answeredThisRound = true;
       this.host.playSfx('wrong');
       void this.host.speak('feedback.tryagain');
-      this.tweens.add({ targets: btn, x: btn.x + 8, duration: 60, yoyo: true, repeat: 3 });
+      shakeOption(this, tile, label, btn);
     }
   }
 
@@ -114,6 +112,7 @@ export class NumbersEnglishScene extends Phaser.Scene {
     const stars = starsFor(this.correctCount, QUESTIONS_PER_GAME);
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
+    celebrate(this);
     this.host.awardStars(stars);
     this.host.complete({ gameId: 'numbers-english', level: this.level, score: this.correctCount, stars });
   }

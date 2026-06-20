@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
+import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption } from '../../art/sceneArt';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, type OddRound } from './oddOneOutLogic';
 
 export class OddOneOutScene extends Phaser.Scene {
@@ -19,21 +20,12 @@ export class OddOneOutScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.cameras.main.setBackgroundColor('#fff7da');
-    this.buildChrome();
+    addSceneBackground(this, 'logic');
+    addChrome(this, {
+      onHome: () => this.host.goHome(),
+      onReplay: () => void this.host.speak('oddoneout.prompt'),
+    });
     this.nextRound();
-  }
-
-  private buildChrome(): void {
-    const { width } = this.scale;
-    this.add
-      .text(24, 18, '🏠', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.host.goHome());
-    this.add
-      .text(width - 64, 18, '🔊', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => void this.host.speak('oddoneout.prompt'));
   }
 
   private nextRound(): void {
@@ -63,18 +55,24 @@ export class OddOneOutScene extends Phaser.Scene {
     const y = height / 2 + 30;
     items.forEach((emoji, i) => {
       const x = startX + i * 150;
+      const tile = addOptionTile(this, x, y, 132);
+      this.layer!.add(tile);
       const btn = this.add
-        .rectangle(x, y, 120, 120, 0xffffff)
-        .setStrokeStyle(6, 0xffd36e)
+        .rectangle(x, y, 120, 120, 0xffffff, 0.001)
         .setInteractive({ useHandCursor: true });
       const label = this.add.text(x, y, emoji, { fontSize: '64px' }).setOrigin(0.5);
-      btn.on('pointerdown', () => this.choose(i, btn));
+      btn.on('pointerdown', () => this.choose(i, btn, tile, label));
       this.layer!.add(btn);
       this.layer!.add(label);
     });
   }
 
-  private choose(index: number, btn: Phaser.GameObjects.Rectangle): void {
+  private choose(
+    index: number,
+    btn: Phaser.GameObjects.Rectangle,
+    tile: Phaser.GameObjects.Image,
+    label: Phaser.GameObjects.Text,
+  ): void {
     if (this.roundResolved) return;
     if (index === this.current.oddIndex) {
       this.roundResolved = true;
@@ -91,7 +89,7 @@ export class OddOneOutScene extends Phaser.Scene {
       this.answeredThisRound = true;
       this.host.playSfx('wrong');
       void this.host.speak('feedback.tryagain');
-      this.tweens.add({ targets: btn, x: btn.x + 8, duration: 60, yoyo: true, repeat: 3 });
+      shakeOption(this, tile, label, btn);
     }
   }
 
@@ -99,6 +97,7 @@ export class OddOneOutScene extends Phaser.Scene {
     const stars = starsFor(this.correctCount, QUESTIONS_PER_GAME);
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
+    celebrate(this);
     this.host.awardStars(stars);
     this.host.complete({ gameId: 'odd-one-out', level: this.level, score: this.correctCount, stars });
   }

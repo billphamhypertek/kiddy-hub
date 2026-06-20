@@ -2,7 +2,9 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules'] },
+  // `scripts/` holds build-time Node tooling (e.g. the style-board generator),
+  // not app code — lint the app under `src/` only.
+  { ignores: ['dist', 'node_modules', 'scripts'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
+import { addSceneBackground, addChrome, addOptionTile, celebrate } from '../../art/sceneArt';
 import { generateRound, starsFor, type SortingRound } from './sortingLogic';
 
 interface BasketInfo {
@@ -24,16 +25,12 @@ export class SortingScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.cameras.main.setBackgroundColor('#fff7da');
+    addSceneBackground(this, 'logic');
+    addChrome(this, {
+      onHome: () => this.host.goHome(),
+      onReplay: () => void this.host.speak('sorting.prompt'),
+    });
     const { width } = this.scale;
-    this.add
-      .text(24, 18, '🏠', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.host.goHome());
-    this.add
-      .text(width - 64, 18, '🔊', { fontSize: '40px' })
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => void this.host.speak('sorting.prompt'));
     this.add
       .text(width / 2, 70, 'Kéo mỗi vật vào đúng giỏ', { fontSize: '34px', color: '#8a6d00', fontStyle: 'bold' })
       .setOrigin(0.5);
@@ -51,7 +48,9 @@ export class SortingScene extends Phaser.Scene {
     const basketY = 200;
     this.round.baskets.forEach((basket, i) => {
       const x = width / 2 - ((bN - 1) * 220) / 2 + i * 220;
-      this.add.rectangle(x, basketY, 170, 130, 0xffffff, 0.6).setStrokeStyle(6, 0xffd36e);
+      // Soft tile behind each basket, then the basket outline + its label emoji.
+      addOptionTile(this, x, basketY, 180).setDisplaySize(186, 146);
+      this.add.rectangle(x, basketY, 170, 130, 0xffffff, 0.001).setStrokeStyle(6, 0xffd36e);
       this.add.text(x, basketY, basket.label, { fontSize: '72px' }).setOrigin(0.5);
       this.baskets.push({ index: i, x, y: basketY });
     });
@@ -62,6 +61,9 @@ export class SortingScene extends Phaser.Scene {
     order.forEach((pileIdx, k) => {
       const item = this.round.pile[pileIdx];
       const x = width / 2 - ((order.length - 1) * 90) / 2 + k * 90;
+      // Static "home" tile under each pile item; the draggable emoji sits on top
+      // and the tile stays put as the item is dragged out and (maybe) bounced back.
+      addOptionTile(this, x, trayY, 84);
       const obj = this.add
         .text(x, trayY, item.emoji, { fontSize: '56px' })
         .setOrigin(0.5)
@@ -133,6 +135,7 @@ export class SortingScene extends Phaser.Scene {
     const stars = starsFor(this.correct, total);
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
+    celebrate(this);
     this.host.awardStars(stars);
     this.host.complete({ gameId: 'sorting', level: this.level, score: total, stars });
   }
