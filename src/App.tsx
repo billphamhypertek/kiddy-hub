@@ -18,9 +18,12 @@ import { StarGarden } from './components/StarGarden';
 import { GameContainer } from './components/GameContainer';
 import { ParentGate } from './components/parent/ParentGate';
 import { ParentArea } from './components/parent/ParentArea';
+import { ScreenTransition, injectMotionTokens } from './motion';
 import './App.css';
 
 registerAllGames();
+// Expose the shared motion tokens to CSS (var(--motion-*)). Idempotent.
+injectMotionTokens();
 
 function Root({ audio }: { audio: AudioManager }) {
   const { profile, setProfile } = useSession();
@@ -68,20 +71,22 @@ function Root({ audio }: { audio: AudioManager }) {
     [refreshStars],
   );
 
-  if (screen.name === 'who') {
-    return (
-      <WhoIsPlaying
-        audio={audio}
-        onSelect={selectProfile}
-        onParent={() => setScreen({ name: 'parentGate' })}
-      />
-    );
-  }
+  // Each branch produces the active view; we wrap it once in <ScreenTransition>
+  // so navigating between screens plays a short, reduced-motion-aware entrance.
+  // `screenKey` identifies the active screen so the transition replays on change.
+  let view: JSX.Element;
+  let screenKey: string;
+
+  // NOTE: parentGate/parent MUST be checked before the `who || !profile` fallback.
+  // `profile` is null while on the parent gate (it's only set by selectProfile,
+  // which also navigates away), so putting `!profile` first would swallow these
+  // two screens and make the Parent Area unreachable.
   if (screen.name === 'parentGate') {
-    return <ParentGate onPass={() => setScreen({ name: 'parent' })} />;
-  }
-  if (screen.name === 'parent') {
-    return (
+    screenKey = 'parentGate';
+    view = <ParentGate onPass={() => setScreen({ name: 'parent' })} />;
+  } else if (screen.name === 'parent') {
+    screenKey = 'parent';
+    view = (
       <ParentArea
         audio={audio}
         onExit={() => {
@@ -90,18 +95,18 @@ function Root({ audio }: { audio: AudioManager }) {
         }}
       />
     );
-  }
-  if (!profile) {
-    return (
+  } else if (screen.name === 'who' || !profile) {
+    screenKey = 'who';
+    view = (
       <WhoIsPlaying
         audio={audio}
         onSelect={selectProfile}
         onParent={() => setScreen({ name: 'parentGate' })}
       />
     );
-  }
-  if (screen.name === 'map') {
-    return (
+  } else if (screen.name === 'map') {
+    screenKey = 'map';
+    view = (
       <AdventureMap
         profile={profile}
         totalStars={totalStars}
@@ -110,9 +115,9 @@ function Root({ audio }: { audio: AudioManager }) {
         audio={audio}
       />
     );
-  }
-  if (screen.name === 'category') {
-    return (
+  } else if (screen.name === 'category') {
+    screenKey = `category:${screen.categoryId}`;
+    view = (
       <CategoryScreen
         categoryId={screen.categoryId}
         onPlay={onPlay}
@@ -120,22 +125,26 @@ function Root({ audio }: { audio: AudioManager }) {
         audio={audio}
       />
     );
+  } else if (screen.name === 'garden') {
+    screenKey = 'garden';
+    view = <StarGarden onBack={() => setScreen({ name: 'map' })} />;
+  } else {
+    // screen.name === 'game'
+    screenKey = `game:${screen.gameId}`;
+    view = (
+      <div className="game-screen">
+        <GameContainer
+          gameId={screen.gameId}
+          level={screen.level}
+          profileId={profile.id!}
+          audio={audio}
+          onExit={onGameExit}
+        />
+      </div>
+    );
   }
-  if (screen.name === 'garden') {
-    return <StarGarden onBack={() => setScreen({ name: 'map' })} />;
-  }
-  // screen.name === 'game'
-  return (
-    <div className="game-screen">
-      <GameContainer
-        gameId={screen.gameId}
-        level={screen.level}
-        profileId={profile.id!}
-        audio={audio}
-        onExit={onGameExit}
-      />
-    </div>
-  );
+
+  return <ScreenTransition screenKey={screenKey}>{view}</ScreenTransition>;
 }
 
 export default function App() {

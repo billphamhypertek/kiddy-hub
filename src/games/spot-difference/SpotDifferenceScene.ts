@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, celebrate } from '../../art/sceneArt';
+import { animateIn, popCorrect, flyStars } from '../../art/sceneMotion';
 import { addArt, type ArtScene } from '../../art/svg';
 import {
   ROUNDS_PER_GAME,
@@ -103,8 +104,10 @@ export class SpotDifferenceScene extends Phaser.Scene {
     this.layer.add(rightImg);
 
     // Soft frames around both pictures.
-    this.layer.add(this.frame(leftX, topY));
-    this.layer.add(this.frame(this.rightX, this.rightY));
+    const leftFrame = this.frame(leftX, topY);
+    const rightFrame = this.frame(this.rightX, this.rightY);
+    this.layer.add(leftFrame);
+    this.layer.add(rightFrame);
 
     // Progress "X / N".
     this.progressText = this.add
@@ -115,6 +118,11 @@ export class SpotDifferenceScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
     this.layer.add(this.progressText);
+
+    // Entrance for the two pictures + frames + prompt + progress (visual-only).
+    // Added BEFORE the hotspots/miss-rect below, and it creates no interactive
+    // objects, so the load-bearing creation order of the hit areas is untouched.
+    animateIn(this, [prompt, leftImg, rightImg, leftFrame, rightFrame, this.progressText]);
 
     // Invisible tap hotspots over each chosen difference on the RIGHT image.
     // IMPORTANT: hotspots are created BEFORE the catch-all miss-rect below. Both are
@@ -165,7 +173,10 @@ export class SpotDifferenceScene extends Phaser.Scene {
       .setStrokeStyle(4, 0x06d6a0);
     ring.setDepth(2);
     this.layer!.add(ring);
-    this.tweens.add({ targets: ring, scale: { from: 0.6, to: 1 }, duration: 220, ease: 'Back.easeOut' });
+    // Juicy "found it" feedback: a quick scale bounce on the ring + sparkle stars.
+    // (Replaces the old plain reveal tween; popCorrect owns the ring's scale so
+    // there's no competing scale tween, and it touches no round/finish guard.)
+    popCorrect(this, ring);
     hit.disableInteractive();
 
     this.progressText?.setText(this.progressLabel());
@@ -205,6 +216,7 @@ export class SpotDifferenceScene extends Phaser.Scene {
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
     celebrate(this);
+    flyStars(this, this.scale.width / 2, this.scale.height / 2);
     this.host.awardStars(stars);
     this.host.complete({
       gameId: 'spot-difference',

@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { getGamesByCategory } from '../games/registry';
 import { CATEGORIES } from '../content/categories';
 import { SvgArt } from '../art/Art';
@@ -43,8 +44,13 @@ export function CategoryScreen({ categoryId, onPlay, onBack, audio }: Props) {
         <p className="hint">Sắp có trò chơi mới ở đây!</p>
       ) : (
         <div className="game-list">
-          {games.map((g) => (
-            <button key={g.id} className="game-card" onClick={() => handlePlay(g.id, g.title)}>
+          {games.map((g, i) => (
+            <button
+              key={g.id}
+              className="game-card stagger-item"
+              style={{ '--stagger-index': i } as CSSProperties}
+              onClick={() => handlePlay(g.id, g.title)}
+            >
               <SvgArt
                 svg={gameIcon(g.id, g.title)}
                 alt={g.title}

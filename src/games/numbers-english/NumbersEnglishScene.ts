@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption } from '../../art/sceneArt';
+import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, type NumbersEnRound } from './numbersEnLogic';
 
 export class NumbersEnglishScene extends Phaser.Scene {
@@ -66,6 +67,7 @@ export class NumbersEnglishScene extends Phaser.Scene {
     const opts = this.current.options;
     const optStartX = width / 2 - ((opts.length - 1) * 150) / 2;
     const y = height - 120;
+    const entrance: MotionObject[] = [prompt];
     opts.forEach((num, i) => {
       const x = optStartX + i * 150;
       const tile = addOptionTile(this, x, y, 122);
@@ -79,7 +81,10 @@ export class NumbersEnglishScene extends Phaser.Scene {
       btn.on('pointerdown', () => this.choose(num, btn, tile, label));
       this.layer!.add(btn);
       this.layer!.add(label);
+      entrance.push(tile, label);
     });
+    // Visual-only entrance; hit areas are already live so taps work immediately.
+    animateIn(this, entrance);
   }
 
   private choose(
@@ -94,6 +99,7 @@ export class NumbersEnglishScene extends Phaser.Scene {
       this.host.playSfx('correct');
       void this.host.speak('feedback.correct');
       btn.setFillStyle(0x9be08a);
+      popCorrect(this, label);
       if (!this.answeredThisRound) this.correctCount++;
       this.answeredThisRound = true;
       this.time.delayedCall(700, () => {
@@ -113,6 +119,7 @@ export class NumbersEnglishScene extends Phaser.Scene {
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
     celebrate(this);
+    flyStars(this, this.scale.width / 2, this.scale.height / 2);
     this.host.awardStars(stars);
     this.host.complete({ gameId: 'numbers-english', level: this.level, score: this.correctCount, stars });
   }

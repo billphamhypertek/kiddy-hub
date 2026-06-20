@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption } from '../../art/sceneArt';
+import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
 import {
   QUESTIONS_PER_GAME,
   generateRound,
@@ -47,26 +48,28 @@ export class ShapesColorsScene extends Phaser.Scene {
   }
 
   /**
-   * Draws a filled shape of `opt` at (x, y) with half-size `s`, into the layer,
-   * and returns the `Graphics` so callers can keep a handle (e.g. to shake it on
-   * a wrong pick — the primitives are drawn relative to the object's `x`, so
-   * tweening `g.x` moves the whole shape).
+   * Draws a filled shape of `opt` with half-size `s`, positioned at (x, y) via the
+   * object's own transform and drawn around its LOCAL origin (0,0). Returns the
+   * `Graphics` handle. Because the primitives are local-origin, tweening `g.x`
+   * (shake) and `g.scale` (entrance/pop) animate around the shape's CENTRE, not
+   * the world origin.
    */
   private drawShape(opt: ShapeOption, x: number, y: number, s: number): Phaser.GameObjects.Graphics {
     const g = this.add.graphics();
+    g.setPosition(x, y);
     g.fillStyle(opt.color.hex, 1);
     switch (opt.shape) {
       case 'circle':
-        g.fillCircle(x, y, s);
+        g.fillCircle(0, 0, s);
         break;
       case 'square':
-        g.fillRect(x - s, y - s, s * 2, s * 2);
+        g.fillRect(-s, -s, s * 2, s * 2);
         break;
       case 'triangle':
-        g.fillTriangle(x, y - s, x - s, y + s, x + s, y + s);
+        g.fillTriangle(0, -s, -s, s, s, s);
         break;
       case 'star':
-        this.fillStar(g, x, y, s);
+        this.fillStar(g, 0, 0, s);
         break;
     }
     this.layer!.add(g);
@@ -114,6 +117,7 @@ export class ShapesColorsScene extends Phaser.Scene {
     const opts = this.current.options;
     const startX = width / 2 - ((opts.length - 1) * 150) / 2;
     const y = height / 2 + 30;
+    const entrance: MotionObject[] = [prompt];
     opts.forEach((opt, i) => {
       const x = startX + i * 150;
       const tile = addOptionTile(this, x, y, 140);
@@ -124,7 +128,10 @@ export class ShapesColorsScene extends Phaser.Scene {
       const shape = this.drawShape(opt, x, y, 50);
       hit.on('pointerdown', () => this.choose(i, hit, tile, shape));
       this.layer!.add(hit);
+      entrance.push(tile, shape);
     });
+    // Visual-only entrance; hit areas are already live so taps work immediately.
+    animateIn(this, entrance);
   }
 
   private choose(
@@ -139,6 +146,7 @@ export class ShapesColorsScene extends Phaser.Scene {
       this.host.playSfx('correct');
       void this.host.speak('feedback.correct');
       hit.setStrokeStyle(8, 0x2ecc71).setFillStyle(0x9be08a, 0.3);
+      popCorrect(this, shape);
       if (!this.answeredThisRound) this.correctCount++;
       this.answeredThisRound = true;
       this.time.delayedCall(700, () => {
@@ -158,6 +166,7 @@ export class ShapesColorsScene extends Phaser.Scene {
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
     celebrate(this);
+    flyStars(this, this.scale.width / 2, this.scale.height / 2);
     this.host.awardStars(stars);
     this.host.complete({ gameId: 'shapes-colors', level: this.level, score: this.correctCount, stars });
   }

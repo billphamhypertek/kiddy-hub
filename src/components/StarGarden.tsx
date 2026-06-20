@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { getGarden, getWeeklyTally } from '../data/stars';
 import { SvgArt } from '../art/Art';
 import { starArt, gardenItemArt } from '../art/stars';
@@ -45,13 +45,14 @@ export function StarGarden({ onBack }: Props) {
         {garden?.totalStars ?? 0}
       </p>
       <div className="garden-field" aria-label="Khu vườn">
-        {items.map((item) => (
+        {items.map((item, i) => (
           <SvgArt
             key={item}
             svg={gardenItemArt(item, ITEM_LABEL[item] ?? 'Vật trang trí')}
             alt={ITEM_LABEL[item] ?? 'Vật trang trí'}
             size={64}
-            className="garden-item"
+            className="garden-item stagger-item"
+            style={{ '--stagger-index': i } as CSSProperties}
           />
         ))}
         {items.length === 0 && <p className="hint">Hãy chơi để vườn lớn lên nhé!</p>}

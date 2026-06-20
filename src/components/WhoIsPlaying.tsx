@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { listProfiles } from '../data/profiles';
 import { avatarLabel } from '../content/avatars';
 import { SvgArt } from '../art/Art';
@@ -41,8 +41,13 @@ export function WhoIsPlaying({ onSelect, onParent, audio }: Props) {
         <p className="hint">Chưa có bé nào. Bố mẹ hãy tạo hồ sơ nhé!</p>
       ) : (
         <div className="avatar-grid">
-          {profiles.map((p) => (
-            <button key={p.id} className="avatar-card" onClick={() => handleSelect(p)}>
+          {profiles.map((p, i) => (
+            <button
+              key={p.id}
+              className="avatar-card stagger-item"
+              style={{ '--stagger-index': i } as CSSProperties}
+              onClick={() => handleSelect(p)}
+            >
               <SvgArt
                 svg={avatarArt(p.avatarKey, avatarLabel(p.avatarKey))}
                 alt={avatarLabel(p.avatarKey)}

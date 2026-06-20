@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, addOptionTile, celebrate } from '../../art/sceneArt';
+import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, type ColorsEnRound } from './colorsEnLogic';
 
 export class ColorsEnglishScene extends Phaser.Scene {
@@ -66,17 +67,22 @@ export class ColorsEnglishScene extends Phaser.Scene {
     const opts = this.current.options;
     const startX = width / 2 - ((opts.length - 1) * 170) / 2;
     const y = height / 2 + 60;
+    const entrance: MotionObject[] = [prompt];
     opts.forEach((color, i) => {
       const x = startX + i * 170;
       // Tile frames the colour swatch (slightly larger than the swatch itself).
-      this.layer!.add(addOptionTile(this, x, y, 152));
+      const tile = addOptionTile(this, x, y, 152);
+      this.layer!.add(tile);
       const swatch = this.add
         .rectangle(x, y, 130, 130, color.hex)
         .setStrokeStyle(6, 0xffffff)
         .setInteractive({ useHandCursor: true });
       swatch.on('pointerdown', () => this.choose(color.name, swatch));
       this.layer!.add(swatch);
+      entrance.push(tile, swatch);
     });
+    // Visual-only entrance; hit areas are already live so taps work immediately.
+    animateIn(this, entrance);
   }
 
   private choose(name: string, swatch: Phaser.GameObjects.Rectangle): void {
@@ -86,6 +92,7 @@ export class ColorsEnglishScene extends Phaser.Scene {
       this.host.playSfx('correct');
       void this.host.speak('feedback.correct');
       swatch.setStrokeStyle(10, 0x2ecc71);
+      popCorrect(this, swatch);
       if (!this.answeredThisRound) this.correctCount++;
       this.answeredThisRound = true;
       this.time.delayedCall(700, () => {
@@ -105,6 +112,7 @@ export class ColorsEnglishScene extends Phaser.Scene {
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
     celebrate(this);
+    flyStars(this, this.scale.width / 2, this.scale.height / 2);
     this.host.awardStars(stars);
     this.host.complete({ gameId: 'colors-english', level: this.level, score: this.correctCount, stars });
   }

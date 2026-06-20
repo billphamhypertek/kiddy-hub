@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, addOptionTile, celebrate } from '../../art/sceneArt';
+import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
 import { generateRound, starsFor, type MatchQuantityRound } from './matchQuantityLogic';
 
 interface SlotInfo {
@@ -32,19 +33,26 @@ export class MatchQuantityScene extends Phaser.Scene {
       onReplay: () => void this.host.speak('matchquantity.prompt'),
     });
     const { width } = this.scale;
-    this.add
+    const prompt = this.add
       .text(width / 2, 80, 'Kéo số vào nhóm đúng', { fontSize: '34px', color: '#a01a3a', fontStyle: 'bold' })
       .setOrigin(0.5);
     void this.host.speak('matchquantity.prompt');
 
     this.round = generateRound(this.level, Math.random);
-    this.buildGroupsAndTiles();
+    this.buildGroupsAndTiles(prompt);
   }
 
-  private buildGroupsAndTiles(): void {
+  /**
+   * @param prompt the page title, animated in alongside the static furniture.
+   *   Only STATIC furniture (prompt, emoji groups, slot backings/outlines) is
+   *   passed to `animateIn` — the draggable number tiles are NEVER animated, so
+   *   the entrance can't fight the drag handlers.
+   */
+  private buildGroupsAndTiles(prompt: Phaser.GameObjects.Text): void {
     const { width, height } = this.scale;
     const rowGapY = 150;
     const topY = 170;
+    const furniture: MotionObject[] = [prompt];
 
     // Each pair = a row: emoji group on the left, an empty drop slot on the right.
     this.round.pairs.forEach((pair, i) => {
@@ -55,16 +63,22 @@ export class MatchQuantityScene extends Phaser.Scene {
       for (let k = 0; k < pair.value; k++) {
         const col = k % 5;
         const row = Math.floor(k / 5);
-        this.add.text(startX + col * 46, y - 20 + row * 40, pair.emoji, { fontSize: '36px' }).setOrigin(0.5);
+        furniture.push(
+          this.add.text(startX + col * 46, y - 20 + row * 40, pair.emoji, { fontSize: '36px' }).setOrigin(0.5),
+        );
       }
       // Drop slot (target): a soft tile backing + the dashed-looking outline.
       const slotX = width * 0.7;
-      addOptionTile(this, slotX, y, 122);
-      this.add
-        .rectangle(slotX, y, 110, 110, 0xffffff, 0.001)
-        .setStrokeStyle(5, 0xff8fab);
+      furniture.push(addOptionTile(this, slotX, y, 122));
+      furniture.push(
+        this.add
+          .rectangle(slotX, y, 110, 110, 0xffffff, 0.001)
+          .setStrokeStyle(5, 0xff8fab),
+      );
       this.slots.push({ pairIndex: i, x: slotX, y, filled: false });
     });
+    // Entrance for static furniture only; draggable tiles below are untouched.
+    animateIn(this, furniture);
 
     // Number tiles along the bottom, in shuffled tileOrder.
     const trayY = height - 90;
@@ -121,6 +135,9 @@ export class MatchQuantityScene extends Phaser.Scene {
       this.input.setDraggable(tile, false);
       tile.disableInteractive();
       this.host.playSfx('correct');
+      // The tile is now locked (no longer draggable), so a pop on its label can't
+      // fight a drag; this is the correct-placement reward, not an entrance tween.
+      popCorrect(this, label);
       this.placed++;
       if (!tile.getData('missed')) this.placedFirstTry++; // counts only if this tile had no prior wrong drop
       if (this.placed === this.round.pairs.length) this.finish();
@@ -147,6 +164,7 @@ export class MatchQuantityScene extends Phaser.Scene {
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
     celebrate(this);
+    flyStars(this, this.scale.width / 2, this.scale.height / 2);
     this.host.awardStars(stars);
     this.host.complete({ gameId: 'match-quantity', level: this.level, score: total, stars });
   }

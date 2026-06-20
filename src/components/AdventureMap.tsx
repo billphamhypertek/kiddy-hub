@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { CATEGORIES } from '../content/categories';
 import { avatarLabel } from '../content/avatars';
 import { SvgArt } from '../art/Art';
@@ -37,11 +38,17 @@ export function AdventureMap({ profile, totalStars, onCategory, onGarden, audio 
       </header>
       <div className="island-field">
         <SvgArt svg={mapBackdrop()} alt="" size={100} className="map-backdrop" />
-        {CATEGORIES.map((c) => (
+        {CATEGORIES.map((c, i) => (
           <button
             key={c.id}
-            className="island"
-            style={{ left: `${c.islandPos.x}%`, top: `${c.islandPos.y}%` }}
+            className="island stagger-item"
+            style={
+              {
+                left: `${c.islandPos.x}%`,
+                top: `${c.islandPos.y}%`,
+                '--stagger-index': i,
+              } as CSSProperties
+            }
             aria-label={c.title}
             onClick={() => handleCategory(c)}
           >

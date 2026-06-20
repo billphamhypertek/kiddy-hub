@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, addOptionTile, celebrate } from '../../art/sceneArt';
+import { animateIn, popCorrect, flyStars } from '../../art/sceneMotion';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, type MoreLessRound } from './moreLessLogic';
 
 export class MoreLessScene extends Phaser.Scene {
@@ -74,8 +75,10 @@ export class MoreLessScene extends Phaser.Scene {
     const frameW = width * 0.34;
     const frameH = 320;
     // Soft rounded tile behind each tap group (decorative backing only).
-    this.layer.add(addOptionTile(this, leftX, frameY, Math.max(frameW, frameH)).setDisplaySize(frameW, frameH));
-    this.layer.add(addOptionTile(this, rightX, frameY, Math.max(frameW, frameH)).setDisplaySize(frameW, frameH));
+    const leftTile = addOptionTile(this, leftX, frameY, Math.max(frameW, frameH)).setDisplaySize(frameW, frameH);
+    const rightTile = addOptionTile(this, rightX, frameY, Math.max(frameW, frameH)).setDisplaySize(frameW, frameH);
+    this.layer.add(leftTile);
+    this.layer.add(rightTile);
     // Tap frames (transparent hit areas; the tile shows through). The pink stroke
     // outlines the group and flashes green on a correct pick.
     const leftFrame = this.add
@@ -88,6 +91,8 @@ export class MoreLessScene extends Phaser.Scene {
       .setInteractive({ useHandCursor: true });
     this.layer.add(leftFrame);
     this.layer.add(rightFrame);
+    // Visual-only entrance; tap frames are already interactive so taps work immediately.
+    animateIn(this, [prompt, leftTile, rightTile, leftFrame, rightFrame]);
     this.drawGroup(leftX, this.current.leftCount, this.current.emoji);
     this.drawGroup(rightX, this.current.rightCount, this.current.emoji);
 
@@ -108,6 +113,7 @@ export class MoreLessScene extends Phaser.Scene {
       this.host.playSfx('correct');
       void this.host.speak('feedback.correct');
       frame.setFillStyle(0x9be08a);
+      popCorrect(this, frame);
       if (!this.answeredThisRound) this.correctCount++;
       this.answeredThisRound = true;
       this.time.delayedCall(700, () => {
@@ -127,6 +133,7 @@ export class MoreLessScene extends Phaser.Scene {
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
     celebrate(this);
+    flyStars(this, this.scale.width / 2, this.scale.height / 2);
     this.host.awardStars(stars);
     this.host.complete({ gameId: 'more-less', level: this.level, score: this.correctCount, stars });
   }

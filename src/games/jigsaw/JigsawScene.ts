@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, celebrate } from '../../art/sceneArt';
+import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
 import {
   gridForLevel,
   isCorrectDrop,
@@ -70,21 +71,27 @@ export class JigsawScene extends Phaser.Scene {
     this.boardX = width / 2 - PIC / 2;
     this.boardY = 110;
 
-    // Target board: faint outlined slots.
+    // Target board: faint outlined slots. These are STATIC furniture — collected
+    // for the entrance. The draggable tray pieces below are NEVER animated, so
+    // the entrance can't fight the drag handlers.
+    const furniture: MotionObject[] = [];
     for (let r = 0; r < this.rows; r++) {
       for (let c = 0; c < this.cols; c++) {
-        this.add
-          .rectangle(
-            this.boardX + c * this.slotW + this.slotW / 2,
-            this.boardY + r * this.slotH + this.slotH / 2,
-            this.slotW - 4,
-            this.slotH - 4,
-            0xffffff,
-            0.25,
-          )
-          .setStrokeStyle(3, 0x06a37a);
+        furniture.push(
+          this.add
+            .rectangle(
+              this.boardX + c * this.slotW + this.slotW / 2,
+              this.boardY + r * this.slotH + this.slotH / 2,
+              this.slotW - 4,
+              this.slotH - 4,
+              0xffffff,
+              0.25,
+            )
+            .setStrokeStyle(3, 0x06a37a),
+        );
       }
     }
+    animateIn(this, furniture);
 
     // Tray pieces (shuffled). Each piece crops its own region from the baked texture.
     const pieces = sliceGrid(this.level, Math.random);
@@ -149,6 +156,8 @@ export class JigsawScene extends Phaser.Scene {
       this.input.setDraggable(obj, false);
       obj.disableInteractive();
       this.host.playSfx('correct');
+      // Piece locked into its slot (no longer draggable) → a reward pop.
+      popCorrect(this, obj);
       this.placed++;
       if (this.placed === this.rows * this.cols) this.finish();
     } else {
@@ -165,6 +174,7 @@ export class JigsawScene extends Phaser.Scene {
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
     celebrate(this);
+    flyStars(this, this.scale.width / 2, this.scale.height / 2);
     this.host.awardStars(stars);
     this.host.complete({
       gameId: 'jigsaw',

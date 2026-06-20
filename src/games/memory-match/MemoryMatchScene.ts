@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, celebrate } from '../../art/sceneArt';
+import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
 import { buildBoard, gridForLevel, starsForFlips, type Card } from './memoryLogic';
 
 interface CardView {
@@ -48,6 +49,7 @@ export class MemoryMatchScene extends Phaser.Scene {
     const x0 = (width - boardW) / 2 + cell / 2;
     const y0 = (height - boardH) / 2 + cell / 2 + 30;
 
+    const entrance: MotionObject[] = [];
     cards.forEach((card, i) => {
       const r = Math.floor(i / cols);
       const c = i % cols;
@@ -64,7 +66,11 @@ export class MemoryMatchScene extends Phaser.Scene {
       const view: CardView = { card, rect, label, matched: false, faceUp: false };
       rect.on('pointerdown', () => this.flip(view));
       this.views.push(view);
+      // Animate the face-down card backs only (labels stay hidden until flipped).
+      entrance.push(rect);
     });
+    // Visual-only entrance; cards are already interactive so taps work immediately.
+    animateIn(this, entrance);
   }
 
   private flip(view: CardView): void {
@@ -90,6 +96,7 @@ export class MemoryMatchScene extends Phaser.Scene {
       this.matchedPairs++;
       first.rect.setFillStyle(0x9be08a);
       view.rect.setFillStyle(0x9be08a);
+      popCorrect(this, view.label);
       if (this.matchedPairs === gridForLevel(this.level).pairs) this.finish();
     } else {
       this.busy = true;
@@ -112,6 +119,7 @@ export class MemoryMatchScene extends Phaser.Scene {
     this.host.playSfx('star');
     void this.host.speak('reward.cheer');
     celebrate(this);
+    flyStars(this, this.scale.width / 2, this.scale.height / 2);
     this.host.awardStars(stars);
     this.host.complete({
       gameId: 'memory-match',

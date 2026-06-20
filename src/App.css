@@ -228,3 +228,72 @@ button {
   width: 100vw;
   height: 100vh;
 }
+
+/* ── Motion (Giai đoạn 4 · Phần D1) ───────────────────────────────────────────
+ * Timing comes from the shared motion tokens (var(--motion-*)), injected onto
+ * :root by injectMotionTokens(). Animations are transform/opacity only (GPU
+ * friendly) and are fully disabled under prefers-reduced-motion.
+ */
+
+/* Screen cross-fade + subtle slide-up, replayed on every screen change.
+ * The .screen-enter--off variant (reduced motion) renders instantly. */
+@keyframes screen-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.screen-enter {
+  animation: screen-enter var(--motion-duration-base, 250ms)
+    var(--motion-ease-enter, ease-out) both;
+}
+.screen-enter--off {
+  /* No animation — present for clarity/parity with the animated wrapper. */
+  animation: none;
+}
+
+/* Staggered entrance for grid/list items: fade + gentle pop, offset per index.
+ * --stagger-index is set inline by the component; the step comes from tokens. */
+@keyframes stagger-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.stagger-item {
+  animation: stagger-pop var(--motion-duration-base, 250ms)
+    var(--motion-ease-pop, ease-out) both;
+  animation-delay: calc(var(--stagger-index, 0) * var(--motion-stagger-step, 50ms));
+}
+
+/* Islands carry a positioning transform (translate(-50%, -50%)) plus a hover
+ * scale, so a transform-based entrance would fight the layout. Animate opacity
+ * only and let the existing transform/hover rules own `transform`. */
+@keyframes stagger-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.island.stagger-item {
+  animation-name: stagger-fade;
+}
+
+/* Reduced motion: turn every non-essential animation off. */
+@media (prefers-reduced-motion: reduce) {
+  .screen-enter,
+  .stagger-item,
+  .island.stagger-item {
+    animation: none;
+  }
+}
