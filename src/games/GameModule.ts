@@ -1,5 +1,5 @@
 import type Phaser from 'phaser';
-import type { CategoryId } from '../data/types';
+import type { CategoryId, SkillId } from '../data/types';
 
 export interface GameResult {
   gameId: string;
@@ -16,6 +16,17 @@ export interface GameHost {
   awardStars(n: number): void;
   complete(result: GameResult): void;
   goHome(): void;
+
+  // --- Spaced-repetition / scaffolding (GĐ5B, OPTIONAL) ---
+  // All optional so existing hosts (and non-SR games) stay valid; discrete
+  // games call them via optional-chaining (`host.pickItem?.(…)`).
+
+  /** SR: pick the next itemKey to seed this round (sync, from the loaded session). */
+  pickItem?(skillId: SkillId, pool: string[]): string | undefined;
+  /** SR: record the round's first-try result into mastery (async flush is internal). */
+  recordItemResult?(skillId: SkillId, itemKey: string, correct: boolean): void;
+  /** Scaffolding: how many option tiles should remain for this item (Infinity = no reduction). */
+  hint?(skillId: SkillId, itemKey: string): number;
 }
 
 /** Builds a fresh scene for a given host + level. Lives in the game's Scene

@@ -60,3 +60,17 @@ describe('starsFor', () => {
     expect(QUESTIONS_PER_GAME).toBe(5);
   });
 });
+
+describe('generateRound seeded (SR)', () => {
+  it('uses the seeded letter as the target when in the level pool', () => {
+    const round = generateRound(2, () => 0, 'M'); // M is in A..N
+    expect(round.target).toBe('M');
+    expect(round.options).toContain('M');
+    expect(round.options).toHaveLength(optionCountForLevel(2));
+  });
+
+  it('ignores a seed outside the level pool', () => {
+    const round = generateRound(1, () => 0, 'Z'); // L1 pool is A..G
+    expect(letterPoolForLevel(1)).toContain(round.target);
+  });
+});

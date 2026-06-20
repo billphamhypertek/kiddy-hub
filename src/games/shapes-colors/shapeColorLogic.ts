@@ -47,11 +47,31 @@ function modeForLevel(level: number, rng: Rng): RoundMode {
   return rng() < 0.5 ? 'shape' : 'color';
 }
 
-export function generateRound(level: number, rng: Rng): ShapeColorRound {
+/** SR seed for shapes-colors (§5.5): nudge the shape and/or colour axis. */
+export interface ShapeColorSeed {
+  shape?: ShapeName;
+  color?: string; // Vietnamese colour name (color-vi itemKey)
+}
+
+export function generateRound(
+  level: number,
+  rng: Rng,
+  seedTarget?: ShapeColorSeed,
+): ShapeColorRound {
   const size = optionCountForLevel(level);
   const mode = modeForLevel(level, rng);
-  const targetShape = pick(SHAPES, rng);
-  const targetColor = pick(COLORS, rng);
+  // rng is consumed identically to before (mode, then shape, then colour) so the
+  // undefined-seed path is byte-identical; a seed only OVERRIDES the picked axis
+  // value AFTER the fact, when it is a valid SHAPES / COLORS member.
+  let targetShape = pick(SHAPES, rng);
+  let targetColor = pick(COLORS, rng);
+  if (seedTarget?.shape !== undefined && SHAPES.includes(seedTarget.shape)) {
+    targetShape = seedTarget.shape;
+  }
+  if (seedTarget?.color !== undefined) {
+    const c = COLORS.find((col) => col.name === seedTarget.color);
+    if (c) targetColor = c;
+  }
 
   // Build the correct option first.
   const correct: ShapeOption = { shape: targetShape, color: targetColor };

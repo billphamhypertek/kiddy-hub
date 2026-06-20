@@ -28,9 +28,14 @@ export function maxNumberForLevel(level: number): number {
   return 10;
 }
 
-export function generateRound(level: number, rng: Rng): NumbersEnRound {
+export function generateRound(level: number, rng: Rng, seedTarget?: number): NumbersEnRound {
   const max = maxNumberForLevel(level);
-  const target = 1 + Math.floor(rng() * max); // 1..max
+  // SR seed (§5.5): build the round around the requested number when in range;
+  // otherwise pick as before (undefined seed ⇒ byte-identical behaviour).
+  const target =
+    seedTarget !== undefined && seedTarget >= 1 && seedTarget <= max
+      ? seedTarget
+      : 1 + Math.floor(rng() * max); // 1..max
   const options = new Set<number>([target]);
 
   let guard = 0;

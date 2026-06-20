@@ -54,3 +54,19 @@ describe('starsFor', () => {
     expect(QUESTIONS_PER_GAME).toBe(5);
   });
 });
+
+describe('generateRound seeded (SR)', () => {
+  it('picks a word whose first letter matches the seeded letter', () => {
+    // 'M' has exactly one word (MÈO) in the bank.
+    const round = generateRound(2, () => 0, 'M');
+    expect(round.entry.letter).toBe('M');
+    expect(round.options).toContain('M');
+    expect(round.options).toHaveLength(optionCountForLevel(2));
+  });
+
+  it('falls back to a normal pick when no word has the seeded letter', () => {
+    const round = generateRound(1, () => 0, 'Z'); // no word starts with Z
+    expect(WORD_BANK.map((w) => w.word)).toContain(round.entry.word);
+    expect(round.options).toContain(round.entry.letter);
+  });
+});

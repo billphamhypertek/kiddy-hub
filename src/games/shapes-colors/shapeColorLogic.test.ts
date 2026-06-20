@@ -63,3 +63,27 @@ describe('starsFor', () => {
     expect(QUESTIONS_PER_GAME).toBe(5);
   });
 });
+
+describe('generateRound seeded (SR)', () => {
+  it('forces both axes to the seed at L3 (mode "both")', () => {
+    const round = generateRound(3, () => 0, { shape: 'star', color: 'tím' });
+    expect(round.targetShape).toBe('star');
+    expect(round.targetColor!.name).toBe('tím');
+    // The correct option still matches the (now seeded) target.
+    expect(round.options[round.correctIndex].shape).toBe('star');
+    expect(round.options[round.correctIndex].color.name).toBe('tím');
+  });
+
+  it('keeps a valid round when only the shape axis is seeded', () => {
+    const round = generateRound(3, () => 0.3, { shape: 'triangle' });
+    expect(round.targetShape).toBe('triangle');
+    expect(round.options).toHaveLength(optionCountForLevel(3));
+    expect(SHAPES).toContain(round.options[round.correctIndex].shape);
+  });
+
+  it('ignores an unknown shape/colour seed', () => {
+    const round = generateRound(3, () => 0, { shape: 'hexagon' as never, color: 'mauve' });
+    expect(SHAPES).toContain(round.targetShape!);
+    expect(COLORS.map((c) => c.name)).toContain(round.targetColor!.name);
+  });
+});

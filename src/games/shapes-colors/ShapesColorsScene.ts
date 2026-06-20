@@ -1,15 +1,22 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
-import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption } from '../../art/sceneArt';
+import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption, dimDistractor } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import { distractorsToDim } from '../scaffold';
+import { hintKeyForSkill, HINT_FEWER_KEY } from '../masteryMap';
 import {
   QUESTIONS_PER_GAME,
   generateRound,
   starsFor,
+  SHAPES,
+  COLORS,
   type ShapeColorRound,
   type ShapeOption,
   type ShapeName,
 } from './shapeColorLogic';
+
+const SHAPE_SKILL = 'shape';
+const COLOR_SKILL = 'color-vi';
 
 export class ShapesColorsScene extends Phaser.Scene {
   private host: GameHost;
@@ -20,6 +27,12 @@ export class ShapesColorsScene extends Phaser.Scene {
   private roundResolved = false;
   private current!: ShapeColorRound;
   private layer?: Phaser.GameObjects.Container;
+  // Per-round option objects (indexed like current.options) for scaffolding.
+  private optionObjs: Array<{
+    tile: Phaser.GameObjects.Image;
+    shape: Phaser.GameObjects.Graphics;
+    hit: Phaser.GameObjects.Rectangle;
+  }> = [];
 
   constructor(host: GameHost, level: number) {
     super({ key: 'shapes-colors' });
@@ -99,7 +112,15 @@ export class ShapesColorsScene extends Phaser.Scene {
     }
     this.answeredThisRound = false;
     this.roundResolved = false;
-    this.current = generateRound(this.level, Math.random);
+    // SR seeds BOTH axes; the logic applies whichever the chosen mode needs and
+    // leaves the other random. No session ⇒ seeds undefined ⇒ legacy round.
+    const shapeSeed = this.host.pickItem?.(SHAPE_SKILL, [...SHAPES]) as ShapeName | undefined;
+    const colorSeed = this.host.pickItem?.(
+      COLOR_SKILL,
+      COLORS.map((c) => c.name),
+    );
+    this.current = generateRound(this.level, Math.random, { shape: shapeSeed, color: colorSeed });
+    this.optionObjs = [];
     this.layer?.destroy();
     this.layer = this.add.container(0, 0);
 
@@ -128,6 +149,7 @@ export class ShapesColorsScene extends Phaser.Scene {
       const shape = this.drawShape(opt, x, y, 50);
       hit.on('pointerdown', () => this.choose(i, hit, tile, shape));
       this.layer!.add(hit);
+      this.optionObjs.push({ tile, shape, hit });
       entrance.push(tile, shape);
     });
     // Visual-only entrance; hit areas are already live so taps work immediately.
@@ -147,17 +169,66 @@ export class ShapesColorsScene extends Phaser.Scene {
       void this.host.speak('feedback.correct');
       hit.setStrokeStyle(8, 0x2ecc71).setFillStyle(0x9be08a, 0.3);
       popCorrect(this, shape);
-      if (!this.answeredThisRound) this.correctCount++;
+      if (!this.answeredThisRound) {
+        this.correctCount++;
+        this.recordRound(true);
+      }
       this.answeredThisRound = true;
       this.time.delayedCall(700, () => {
         this.roundIndex++;
         this.nextRound();
       });
     } else {
+      const firstTry = !this.answeredThisRound;
       this.answeredThisRound = true;
       this.host.playSfx('wrong');
-      void this.host.speak('feedback.tryagain');
+      if (firstTry) this.scaffold();
+      else void this.host.speak('feedback.tryagain');
       shakeOption(this, tile, shape, hit);
+    }
+  }
+
+  /**
+   * Record the round's first-try outcome into the skill(s) the mode exercises:
+   * 'shape' → shape only, 'color' → color-vi only, 'both' → both (§4.2/§8.4).
+   */
+  private recordRound(correct: boolean): void {
+    const r = this.current;
+    if (r.mode === 'shape' || r.mode === 'both') {
+      this.host.recordItemResult?.(SHAPE_SKILL, r.targetShape!, correct);
+    }
+    if (r.mode === 'color' || r.mode === 'both') {
+      this.host.recordItemResult?.(COLOR_SKILL, r.targetColor!.name, correct);
+    }
+  }
+
+  /**
+   * Wrong FIRST try: record the miss for the active skill(s), dim distractors
+   * down to the weakest axis's keep-count, then speak a teaching hint. The
+   * scaffold reduction uses the SHAPE axis when shape is exercised, else colour.
+   */
+  private scaffold(): void {
+    this.recordRound(false);
+    const r = this.current;
+    // Choose how many options to keep from the axis being tested (use the more
+    // aggressive reduction if both axes ask to reduce).
+    const keeps: number[] = [];
+    if (r.mode === 'shape' || r.mode === 'both') {
+      keeps.push(this.host.hint?.(SHAPE_SKILL, r.targetShape!) ?? Infinity);
+    }
+    if (r.mode === 'color' || r.mode === 'both') {
+      keeps.push(this.host.hint?.(COLOR_SKILL, r.targetColor!.name) ?? Infinity);
+    }
+    const keepN = keeps.length > 0 ? Math.min(...keeps) : Infinity;
+    const dim = distractorsToDim(this.optionObjs.length, r.correctIndex, keepN);
+    for (const i of dim) {
+      const o = this.optionObjs[i];
+      dimDistractor(this, o.tile, o.shape, o.hit);
+    }
+    if (dim.length > 0) {
+      void this.host.speak(HINT_FEWER_KEY).then(() => this.host.speak(hintKeyForSkill(SHAPE_SKILL)));
+    } else {
+      void this.host.speak(hintKeyForSkill(SHAPE_SKILL));
     }
   }
 

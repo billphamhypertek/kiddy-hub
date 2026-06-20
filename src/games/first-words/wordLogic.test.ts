@@ -53,3 +53,17 @@ describe('starsFor', () => {
     expect(QUESTIONS_PER_GAME).toBe(5);
   });
 });
+
+describe('generateRound seeded (SR)', () => {
+  it('uses the seeded word as the target when in the level bank', () => {
+    const round = generateRound(1, () => 0, 'frog');
+    expect(round.target.word).toBe('frog');
+    expect(round.options.map((o) => o.word)).toContain('frog');
+    expect(round.options).toHaveLength(optionCountForLevel(1));
+  });
+
+  it('falls back when the seeded word is not in the level bank', () => {
+    const round = generateRound(1, () => 0, 'apple'); // apple lives in L3
+    expect(WORD_BANK[1].map((w) => w.word)).toContain(round.target.word);
+  });
+});

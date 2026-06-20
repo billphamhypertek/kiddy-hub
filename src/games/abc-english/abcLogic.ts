@@ -25,9 +25,12 @@ function pick<T>(arr: T[], rng: Rng): T {
   return arr[Math.min(arr.length - 1, Math.floor(rng() * arr.length))];
 }
 
-export function generateRound(level: number, rng: Rng): AbcRound {
+export function generateRound(level: number, rng: Rng, seedTarget?: string): AbcRound {
   const pool = letterPoolForLevel(level);
-  const target = pick(pool, rng);
+  // SR seed (§5.5): use the requested letter when it is in this level's pool;
+  // otherwise pick as before (undefined seed ⇒ byte-identical behaviour).
+  const target =
+    seedTarget !== undefined && pool.includes(seedTarget) ? seedTarget : pick(pool, rng);
   const size = optionCountForLevel(level);
   const options = new Set<string>([target]);
 

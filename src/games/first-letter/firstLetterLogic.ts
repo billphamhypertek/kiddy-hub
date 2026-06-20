@@ -45,8 +45,17 @@ function pick<T>(arr: T[], rng: Rng): T {
   return arr[Math.min(arr.length - 1, Math.floor(rng() * arr.length))];
 }
 
-export function generateRound(level: number, rng: Rng): FirstLetterRound {
-  const entry = pick(WORD_BANK, rng);
+export function generateRound(level: number, rng: Rng, seedTarget?: string): FirstLetterRound {
+  // SR seed (§5.5): the seed is a LETTER; pick a random word whose first letter
+  // matches it. If no word has that letter, fall back to the plain pick — and an
+  // undefined seed is byte-identical to before.
+  let entry: WordEntry;
+  if (seedTarget !== undefined) {
+    const matching = WORD_BANK.filter((e) => e.letter === seedTarget);
+    entry = matching.length > 0 ? pick(matching, rng) : pick(WORD_BANK, rng);
+  } else {
+    entry = pick(WORD_BANK, rng);
+  }
   const size = optionCountForLevel(level);
   const options = new Set<string>([entry.letter]);
 

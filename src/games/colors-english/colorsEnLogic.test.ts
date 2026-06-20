@@ -51,3 +51,17 @@ describe('starsFor', () => {
     expect(QUESTIONS_PER_GAME).toBe(5);
   });
 });
+
+describe('generateRound seeded (SR)', () => {
+  it('uses the seeded colour as the target when in the level pool', () => {
+    const round = generateRound(2, () => 0, 'green'); // green is in the L2 pool
+    expect(round.target.name).toBe('green');
+    expect(round.options.map((o) => o.name)).toContain('green');
+    expect(round.options).toHaveLength(OPTION_COUNT);
+  });
+
+  it('ignores a colour outside the level pool', () => {
+    const round = generateRound(1, () => 0, 'purple'); // L1 pool is red/blue/yellow
+    expect(colorPoolForLevel(1).map((c) => c.name)).toContain(round.target.name);
+  });
+});

@@ -7,6 +7,9 @@ import type { GameResult } from '../games/GameModule';
 import { recordPlay } from '../data/progress';
 import { addStars } from '../data/stars';
 import { applyCompletion } from '../games/applyCompletion';
+import { createMasterySession } from '../games/masterySession';
+import { loadMasteryMap, upsertMastery } from '../data/mastery';
+import { SKILLS_FOR_GAME } from '../games/masteryMap';
 
 interface GameContainerProps {
   gameId: string;
@@ -34,20 +37,42 @@ export function GameContainer({ gameId, level, profileId, audio, onExit }: GameC
 
     setLoading(true);
 
-    const host = createGameHost({
-      audio,
-      onAward: (n) => {
-        void addStars(profileId, n); // awardStars persists immediately
-      },
-      onComplete: async (result: GameResult) => {
-        await applyCompletion({ profileId, maxLevels: moduleDef.levels, recordPlay }, result);
-        onExit(result); // stars already persisted via onAward
-      },
-      onHome: () => onExit(),
-    });
+    // Load this game's spaced-repetition mastery rows ONCE (await BEFORE boot)
+    // so the in-memory MasterySession exists when the scene first calls
+    // pickItem/recordItemResult/hint. The scheduler/Leitner stay pure & sync.
+    const skillIds = SKILLS_FOR_GAME[gameId] ?? [];
 
-    void moduleDef.loadScene().then((createScene) => {
+    void Promise.all([
+      moduleDef.loadScene(),
+      skillIds.length > 0 ? loadMasteryMap(profileId, skillIds) : Promise.resolve(undefined),
+    ]).then(([createScene, rows]) => {
       if (cancelled) return;
+
+      // No mastery skills (non-SR game) → no session; the host omits the SR
+      // methods and the scene degrades to legacy behaviour gracefully.
+      const session = rows
+        ? createMasterySession({
+            rows,
+            now: Date.now,
+            rng: Math.random,
+            persist: (skillId, row) =>
+              void upsertMastery(profileId, skillId, row).catch(() => {}),
+          })
+        : undefined;
+
+      const host = createGameHost({
+        audio,
+        onAward: (n) => {
+          void addStars(profileId, n); // awardStars persists immediately
+        },
+        onComplete: async (result: GameResult) => {
+          await applyCompletion({ profileId, maxLevels: moduleDef.levels, recordPlay }, result);
+          onExit(result); // stars already persisted via onAward
+        },
+        onHome: () => onExit(),
+        session,
+      });
+
       const scene = createScene(host, level);
       game = new Phaser.Game({
         type: Phaser.AUTO,

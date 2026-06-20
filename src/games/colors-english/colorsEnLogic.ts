@@ -35,9 +35,12 @@ function pick<T>(arr: T[], rng: Rng): T {
   return arr[Math.min(arr.length - 1, Math.floor(rng() * arr.length))];
 }
 
-export function generateRound(level: number, rng: Rng): ColorsEnRound {
+export function generateRound(level: number, rng: Rng, seedTarget?: string): ColorsEnRound {
   const pool = colorPoolForLevel(level);
-  const target = pick(pool, rng);
+  // SR seed (§5.5): use the requested colour when it is in this level's pool;
+  // otherwise pick as before (undefined seed ⇒ byte-identical behaviour).
+  const seeded = seedTarget !== undefined ? pool.find((c) => c.name === seedTarget) : undefined;
+  const target = seeded ?? pick(pool, rng);
   const chosen: ColorDef[] = [target];
 
   let guard = 0;

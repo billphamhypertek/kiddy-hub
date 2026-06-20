@@ -1,8 +1,12 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
-import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption } from '../../art/sceneArt';
+import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption, dimDistractor } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
-import { QUESTIONS_PER_GAME, generateRound, starsFor, type LetterRound } from './letterLogic';
+import { distractorsToDim } from '../scaffold';
+import { hintKeyForSkill, HINT_FEWER_KEY } from '../masteryMap';
+import { QUESTIONS_PER_GAME, generateRound, starsFor, LETTERS, type LetterRound } from './letterLogic';
+
+const SKILL = 'letter-vi';
 
 export class LetterSpottingScene extends Phaser.Scene {
   private host: GameHost;
@@ -13,6 +17,12 @@ export class LetterSpottingScene extends Phaser.Scene {
   private roundResolved = false;
   private current!: LetterRound;
   private layer?: Phaser.GameObjects.Container;
+  private optionObjs: Array<{
+    value: string;
+    tile: Phaser.GameObjects.Image;
+    label: Phaser.GameObjects.Text;
+    btn: Phaser.GameObjects.Rectangle;
+  }> = [];
 
   constructor(host: GameHost, level: number) {
     super({ key: 'letter-spotting' });
@@ -43,7 +53,9 @@ export class LetterSpottingScene extends Phaser.Scene {
     }
     this.answeredThisRound = false;
     this.roundResolved = false;
-    this.current = generateRound(this.level, Math.random);
+    const seed = this.host.pickItem?.(SKILL, LETTERS);
+    this.current = generateRound(this.level, Math.random, seed);
+    this.optionObjs = [];
     this.layer?.destroy();
     this.layer = this.add.container(0, 0);
 
@@ -75,6 +87,7 @@ export class LetterSpottingScene extends Phaser.Scene {
       btn.on('pointerdown', () => this.choose(letter, btn, tile, label));
       this.layer!.add(btn);
       this.layer!.add(label);
+      this.optionObjs.push({ value: letter, tile, label, btn });
       entrance.push(tile, label);
     });
     // Visual-only entrance; hit areas are already live so taps work immediately.
@@ -94,18 +107,39 @@ export class LetterSpottingScene extends Phaser.Scene {
       void this.host.speak('feedback.correct');
       btn.setFillStyle(0x9be08a);
       popCorrect(this, label);
-      if (!this.answeredThisRound) this.correctCount++;
+      if (!this.answeredThisRound) {
+        this.correctCount++;
+        this.host.recordItemResult?.(SKILL, this.current.target, true);
+      }
       this.answeredThisRound = true;
       this.time.delayedCall(700, () => {
         this.roundIndex++;
         this.nextRound();
       });
     } else {
+      const firstTry = !this.answeredThisRound;
       this.answeredThisRound = true; // first try wrong -> round not counted
       this.host.playSfx('wrong');
-      void this.host.speak('feedback.tryagain');
+      if (firstTry) this.scaffold();
+      else void this.host.speak('feedback.tryagain');
       shakeOption(this, tile, label, btn);
     }
+  }
+
+  /** Wrong FIRST try: record the miss, dim distractors, speak a teaching hint. */
+  private scaffold(): void {
+    const itemKey = this.current.target;
+    this.host.recordItemResult?.(SKILL, itemKey, false);
+    const keepN = this.host.hint?.(SKILL, itemKey) ?? Infinity;
+    const correctIndex = this.optionObjs.findIndex((o) => o.value === this.current.target);
+    const dim = distractorsToDim(this.optionObjs.length, correctIndex, keepN);
+    for (const i of dim) {
+      const o = this.optionObjs[i];
+      dimDistractor(this, o.tile, o.label, o.btn);
+    }
+    const hintKey = hintKeyForSkill(SKILL);
+    if (dim.length > 0) void this.host.speak(HINT_FEWER_KEY).then(() => this.host.speak(hintKey));
+    else void this.host.speak(hintKey);
   }
 
   private finish(): void {

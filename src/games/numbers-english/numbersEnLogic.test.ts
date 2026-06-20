@@ -56,3 +56,18 @@ describe('starsFor', () => {
     expect(QUESTIONS_PER_GAME).toBe(5);
   });
 });
+
+describe('generateRound seeded (SR)', () => {
+  it('builds the round around the seeded number and its word', () => {
+    const round = generateRound(3, () => 0, 7);
+    expect(round.target).toBe(7);
+    expect(round.word).toBe(NUMBER_WORDS[7]);
+    expect(round.options).toContain(7);
+    expect(round.options).toHaveLength(OPTION_COUNT);
+  });
+
+  it('ignores an out-of-range seed for the level', () => {
+    const round = generateRound(1, () => 0, 9); // L1 max is 5
+    expect(round.target).toBeLessThanOrEqual(maxNumberForLevel(1));
+  });
+});

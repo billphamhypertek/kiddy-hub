@@ -27,6 +27,14 @@ export const AUDIO_MANIFEST: AudioManifest = {
     'feedback.tryagain': { text: 'Thử lại nhé!', lang: 'vi-VN' },
     'reward.cheer': { text: 'Tuyệt vời, con được thưởng sao!', lang: 'vi-VN' },
     'who.title': { text: 'Ai đang chơi nào?', lang: 'vi-VN' },
+    // GĐ5B scaffolding hints (warm, no-lose, "explain why"). Spoken by the fox
+    // on a wrong FIRST try; the skill→key mapping lives in masteryMap.ts.
+    'hint.tryagain.warm': { text: 'Gần đúng rồi, mình thử lại nhé!', lang: 'vi-VN' },
+    'hint.fewer': { text: 'Cáo bớt bớt đi cho dễ chọn nha!', lang: 'vi-VN' },
+    'hint.letter': { text: 'Nghe kĩ chữ cái rồi tìm chữ giống nhé!', lang: 'vi-VN' },
+    'hint.number': { text: 'Mình cùng đếm lại từ một xem nào!', lang: 'vi-VN' },
+    'hint.word': { text: 'Nhìn hình rồi chọn từ đúng nha bé!', lang: 'vi-VN' },
+    'hint.colorshape': { text: 'Nhìn kĩ màu và hình rồi chọn lại nhé!', lang: 'vi-VN' },
   },
   sfx: ['tap', 'correct', 'wrong', 'star'],
 };

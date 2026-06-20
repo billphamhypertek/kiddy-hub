@@ -52,3 +52,18 @@ describe('starsFor', () => {
     expect(QUESTIONS_PER_GAME).toBe(5);
   });
 });
+
+describe('generateRound seeded (SR)', () => {
+  it('uses the seeded letter as the target', () => {
+    const round = generateRound(2, () => 0, 'Đ');
+    expect(round.target).toBe('Đ');
+    expect(round.options).toContain('Đ');
+    expect(new Set(round.options).size).toBe(round.options.length);
+    expect(round.options).toHaveLength(optionCountForLevel(2));
+  });
+
+  it('falls back to a real pool letter for an unknown seed', () => {
+    const round = generateRound(1, () => 0, '@');
+    expect(LETTERS).toContain(round.target);
+  });
+});

@@ -1,8 +1,12 @@
 import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
-import { addSceneBackground, addChrome, addOptionTile, celebrate } from '../../art/sceneArt';
+import { addSceneBackground, addChrome, addOptionTile, celebrate, dimDistractor } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
-import { QUESTIONS_PER_GAME, generateRound, starsFor, type ColorsEnRound } from './colorsEnLogic';
+import { distractorsToDim } from '../scaffold';
+import { hintKeyForSkill, HINT_FEWER_KEY } from '../masteryMap';
+import { QUESTIONS_PER_GAME, generateRound, starsFor, colorPoolForLevel, type ColorsEnRound } from './colorsEnLogic';
+
+const SKILL = 'color-en';
 
 export class ColorsEnglishScene extends Phaser.Scene {
   private host: GameHost;
@@ -13,6 +17,11 @@ export class ColorsEnglishScene extends Phaser.Scene {
   private roundResolved = false;
   private current!: ColorsEnRound;
   private layer?: Phaser.GameObjects.Container;
+  private optionObjs: Array<{
+    value: string;
+    tile: Phaser.GameObjects.Image;
+    swatch: Phaser.GameObjects.Rectangle;
+  }> = [];
 
   constructor(host: GameHost, level: number) {
     super({ key: 'colors-english' });
@@ -43,7 +52,10 @@ export class ColorsEnglishScene extends Phaser.Scene {
     }
     this.answeredThisRound = false;
     this.roundResolved = false;
-    this.current = generateRound(this.level, Math.random);
+    const pool = colorPoolForLevel(this.level).map((c) => c.name);
+    const seed = this.host.pickItem?.(SKILL, pool);
+    this.current = generateRound(this.level, Math.random, seed);
+    this.optionObjs = [];
     this.layer?.destroy();
     this.layer = this.add.container(0, 0);
 
@@ -79,6 +91,7 @@ export class ColorsEnglishScene extends Phaser.Scene {
         .setInteractive({ useHandCursor: true });
       swatch.on('pointerdown', () => this.choose(color.name, swatch));
       this.layer!.add(swatch);
+      this.optionObjs.push({ value: color.name, tile, swatch });
       entrance.push(tile, swatch);
     });
     // Visual-only entrance; hit areas are already live so taps work immediately.
@@ -93,18 +106,39 @@ export class ColorsEnglishScene extends Phaser.Scene {
       void this.host.speak('feedback.correct');
       swatch.setStrokeStyle(10, 0x2ecc71);
       popCorrect(this, swatch);
-      if (!this.answeredThisRound) this.correctCount++;
+      if (!this.answeredThisRound) {
+        this.correctCount++;
+        this.host.recordItemResult?.(SKILL, this.current.target.name, true);
+      }
       this.answeredThisRound = true;
       this.time.delayedCall(700, () => {
         this.roundIndex++;
         this.nextRound();
       });
     } else {
+      const firstTry = !this.answeredThisRound;
       this.answeredThisRound = true;
       this.host.playSfx('wrong');
-      void this.host.speak('feedback.tryagain');
+      if (firstTry) this.scaffold();
+      else void this.host.speak('feedback.tryagain');
       this.tweens.add({ targets: swatch, x: swatch.x + 8, duration: 60, yoyo: true, repeat: 3 });
     }
+  }
+
+  /** Wrong FIRST try: record the miss, dim distractors, speak a teaching hint. */
+  private scaffold(): void {
+    const itemKey = this.current.target.name;
+    this.host.recordItemResult?.(SKILL, itemKey, false);
+    const keepN = this.host.hint?.(SKILL, itemKey) ?? Infinity;
+    const correctIndex = this.optionObjs.findIndex((o) => o.value === itemKey);
+    const dim = distractorsToDim(this.optionObjs.length, correctIndex, keepN);
+    for (const i of dim) {
+      const o = this.optionObjs[i];
+      dimDistractor(this, o.tile, o.swatch);
+    }
+    const hintKey = hintKeyForSkill(SKILL);
+    if (dim.length > 0) void this.host.speak(HINT_FEWER_KEY).then(() => this.host.speak(hintKey));
+    else void this.host.speak(hintKey);
   }
 
   private finish(): void {

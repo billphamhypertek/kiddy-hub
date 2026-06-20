@@ -48,3 +48,19 @@ describe('starsFor', () => {
     expect(QUESTIONS_PER_GAME).toBe(5);
   });
 });
+
+describe('generateRound seeded (SR)', () => {
+  it('builds the round around the seeded count', () => {
+    const round = generateRound(3, () => 0, 7);
+    expect(round.count).toBe(7);
+    expect(round.options).toContain(7);
+    expect(round.options).toHaveLength(3);
+    expect(new Set(round.options).size).toBe(3);
+  });
+
+  it('ignores an out-of-range seed and falls back to a valid count', () => {
+    const round = generateRound(1, () => 0, 9); // max at L1 is 3
+    expect(round.count).toBeGreaterThanOrEqual(1);
+    expect(round.count).toBeLessThanOrEqual(maxCountForLevel(1));
+  });
+});

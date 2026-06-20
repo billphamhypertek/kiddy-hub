@@ -54,9 +54,12 @@ function pick<T>(arr: T[], rng: Rng): T {
   return arr[Math.min(arr.length - 1, Math.floor(rng() * arr.length))];
 }
 
-export function generateRound(level: number, rng: Rng): WordRound {
+export function generateRound(level: number, rng: Rng, seedTarget?: string): WordRound {
   const bank = bankFor(level);
-  const target = pick(bank, rng);
+  // SR seed (§5.5): use the requested word when it is in this level's bank;
+  // otherwise pick as before (undefined seed ⇒ byte-identical behaviour).
+  const seeded = seedTarget !== undefined ? bank.find((w) => w.word === seedTarget) : undefined;
+  const target = seeded ?? pick(bank, rng);
   const size = optionCountForLevel(level);
 
   const chosen: WordItem[] = [target];

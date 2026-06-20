@@ -39,4 +39,37 @@ describe('createGameHost', () => {
     expect(onComplete).toHaveBeenCalledWith({ gameId: 'counting-fun', level: 1, score: 5, stars: 3 });
     expect(onHome).toHaveBeenCalledTimes(1);
   });
+
+  it('leaves SR methods undefined when no session is supplied (legacy host)', () => {
+    const host = createGameHost({
+      audio: { speak: vi.fn(), speakText: vi.fn(), playSfx: vi.fn() } as never,
+      onAward: vi.fn(),
+      onComplete: vi.fn(),
+      onHome: vi.fn(),
+    });
+    expect(host.pickItem).toBeUndefined();
+    expect(host.recordItemResult).toBeUndefined();
+    expect(host.hint).toBeUndefined();
+  });
+
+  it('binds pickItem/recordItemResult/hint to the session when supplied', () => {
+    const session = {
+      pick: vi.fn().mockReturnValue('5'),
+      record: vi.fn(),
+      hintFor: vi.fn().mockReturnValue(2),
+    };
+    const host = createGameHost({
+      audio: { speak: vi.fn(), speakText: vi.fn(), playSfx: vi.fn() } as never,
+      onAward: vi.fn(),
+      onComplete: vi.fn(),
+      onHome: vi.fn(),
+      session,
+    });
+    expect(host.pickItem?.('number-vi', ['1', '5'])).toBe('5');
+    expect(session.pick).toHaveBeenCalledWith('number-vi', ['1', '5']);
+    host.recordItemResult?.('number-vi', '5', true);
+    expect(session.record).toHaveBeenCalledWith('number-vi', '5', true);
+    expect(host.hint?.('number-vi', '5')).toBe(2);
+    expect(session.hintFor).toHaveBeenCalledWith('number-vi', '5');
+  });
 });

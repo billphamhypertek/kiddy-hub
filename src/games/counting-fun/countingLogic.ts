@@ -20,9 +20,14 @@ function pick<T>(arr: T[], rng: Rng): T {
   return arr[Math.min(arr.length - 1, Math.floor(rng() * arr.length))];
 }
 
-export function generateRound(level: number, rng: Rng): CountingRound {
+export function generateRound(level: number, rng: Rng, seedTarget?: number): CountingRound {
   const max = maxCountForLevel(level);
-  const count = 1 + Math.floor(rng() * max); // 1..max
+  // SR seed (§5.5): when a target is supplied (and in range) the round is built
+  // around it; otherwise behaviour is byte-identical to before (rng picks count).
+  const count =
+    seedTarget !== undefined && seedTarget >= 1 && seedTarget <= max
+      ? seedTarget
+      : 1 + Math.floor(rng() * max); // 1..max
   const animal = pick(COUNTING_ANIMALS, rng);
 
   const options = new Set<number>([count]);

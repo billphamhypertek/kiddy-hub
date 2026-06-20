@@ -188,6 +188,38 @@ export function shakeOption(scene: Phaser.Scene, ...objects: Shakeable[]): void 
   });
 }
 
+/** Anything we can fade + (optionally) make non-interactive for scaffolding. */
+type Dimmable = {
+  setAlpha?: (a: number) => unknown;
+  disableInteractive?: () => unknown;
+};
+
+/**
+ * Scaffolding fade (GĐ5B §9.2): visually dim ONE distractor option and take it
+ * out of play WITHOUT destroying or removing it. Pass the visible pieces (tile +
+ * glyph/swatch/shape) and the hit rect of a single distractor option.
+ *
+ * It only fades alpha (to 0.22) and calls `disableInteractive()` on the hit
+ * object — it NEVER moves, resizes, or removes a game object, so layout, the
+ * round/finish guards, and every remaining hit area stay exactly intact. The
+ * next round rebuilds the option layer from scratch, so no undo is needed.
+ *
+ * Tween via the scene so the dim is smooth and interruption-safe (its final
+ * state is a plain alpha, harmless if the round advances mid-tween).
+ */
+export function dimDistractor(scene: Phaser.Scene, ...objects: Dimmable[]): void {
+  objects.forEach((obj) => {
+    // Remove interactivity immediately so a tap during the fade can't pick it.
+    obj.disableInteractive?.();
+    // Smoothly fade, falling back to an instant set if tweens aren't available.
+    if (typeof scene.tweens?.add === 'function') {
+      scene.tweens.add({ targets: obj, alpha: 0.22, duration: 200 });
+    } else {
+      obj.setAlpha?.(0.22);
+    }
+  });
+}
+
 /**
  * A short, non-blocking reward flourish for the success / completion moment:
  * the Cáo mascot pops up cheering in the centre, a burst of gold stars flies
