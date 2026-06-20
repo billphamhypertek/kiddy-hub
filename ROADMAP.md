@@ -8,16 +8,16 @@
 
 **Giai đoạn 1 ✅, Giai đoạn 2 ✅ & Giai đoạn 3 ✅ hoàn thành.** Đã có Docker chạy local: `docker compose up -d --build` → http://localhost:8088.
 
-**Giai đoạn 3 đã xong: 15/16 trò chơi được** (#10 Tìm Điểm Khác dời sang Giai đoạn 4 vì cần ảnh thật để tạo khác biệt tinh tế).
+**Đủ 16/16 trò chơi** (#10 Tìm Điểm Khác hoàn thành ở GĐ4 Phần C).
 
-**Giai đoạn 4 đang chạy — chia thành các phần độc lập A→F, mỗi phần có spec + sub-agent riêng:**
+**Giai đoạn 4 — phần code A→F đã XONG (chia thành các phần độc lập, mỗi phần spec + sub-agent riêng). Chỉ còn "kiểm thử với trẻ thật" (việc con người):**
 - ✅ **Phần A — Giọng đọc + âm thanh** (Web Speech API live, local; trả 2 nợ kỹ thuật audio) — xong 2026-06-20.
 - ✅ **Phần B — Đồ hoạ bản cuối** (SVG vector trong code thay emoji: linh vật Cáo + style bible as code + bộ nhận diện + đồ hoạ 15 scene) — xong 2026-06-20. **Lưu ý:** chọn **SVG vector** thay "ảnh AI" vì môi trường không có text-to-image trực tiếp + SVG nhất quán/local/làm #10 dễ (user đã duyệt look).
 - ✅ **Phần C — #10 Tìm Điểm Khác** (đủ **16/16 trò**) — xong 2026-06-20. Cảnh vườn SVG render 2 bản, random N điểm khác/vòng (logic thuần seeded), 3 mức (3/4/5 điểm) × 3 vòng. Nhóm `memory` (Trí nhớ & Quan sát). Spec: `docs/superpowers/specs/2026-06-20-kiddyhub-phase-4c-spot-difference.md`
 - ✅ **Phần D — Hoạt ảnh / hiệu ứng / chuyển cảnh** — xong 2026-06-20. D1: chuyển cảnh React (fade+slide) + entrance so-le + nền tảng `src/motion/` (reduced-motion, jsdom-safe). D2: entrance + feedback juicy trong Phaser (pop-in, đúng nảy+lấp lánh, sao bay) cho 16 scene. Tôn trọng `prefers-reduced-motion`; tương tác tức thời, không chặn.
 - ✅ **Phần E — Tách bundle Phaser** — xong 2026-06-20. Nạp scene động (`loadScene()` thay `createScene`) + `React.lazy(GameContainer)` → Phaser thành chunk async tải-khi-mở-trò. **Bundle khởi động 1.824kB → 288kB (−84%)**. Kèm tách `selectScreen` thuần + test (bịt lỗ routing đã làm lọt bug D1).
-- 👉 **Phần F (tuỳ chọn) — PWA offline** — kế tiếp (cuối cùng).
-- ☐ kiểm thử với trẻ thật.
+- ✅ **Phần F — PWA offline** — xong 2026-06-20. `vite-plugin-pwa` (manifest + service worker precache 33 mục/1929KiB gồm cả Phaser → chạy offline, cài được); icon cài đặt từ linh vật Cáo; nginx chỉnh để phục vụ `sw.js`/manifest không bị cache cũ.
+- ☐ **Kiểm thử với trẻ thật** (việc của con người — không tự động hoá được). **→ Toàn bộ mục code của GĐ4 đã xong.**
 
 ### Cách bắt đầu Giai đoạn 3 (dành cho phiên/agent mới)
 
@@ -71,14 +71,14 @@ Thêm 1 trò mỗi nhóm còn lại để mỗi đảo có nội dung.
 - ✅ #15 Numbers 1–10
 - ✅ #16 Colors
 
-## Giai đoạn 4 — Đánh bóng  ☐
+## Giai đoạn 4 — Đánh bóng  ✅ (phần code A–F xong; còn kiểm thử với trẻ thật)
 
 - ✅ **(Phần C)** #10 Tìm Điểm Khác — đủ **16/16 trò**. Cảnh vườn SVG render 2 bản; mỗi vòng random N điểm khác (xoá/đổi màu/dời/co) từ catalog 8, logic thuần seeded có test; chạm đúng → đánh dấu, đủ N → qua vòng, 3 vòng → màn thưởng. Nhóm `memory`.
 - ✅ **(Phần B)** Thay toàn bộ đồ hoạ bản cuối — **SVG vector trong code** (không emoji ở khung/UI; giữ emoji nội dung trong trò). Style bible as code (`src/art/tokens.ts`) + linh vật **Cáo** 3 dáng + 8 avatar + 15 game icon + 6 đảo + nền map + UI chrome + nền pastel theo nhóm cho 15 scene + màn thưởng (Cáo cổ vũ + sao). Spec: `docs/superpowers/specs/2026-06-20-kiddyhub-phase-4b-final-art.md`
 - ✅ **(Phần A)** Thay giọng đọc Việt/Anh bản cuối — **Web Speech API live, 100% local** (vi-VN + en-US, đọc cả nội dung động số/chữ/từ); SFX bằng Web Audio API (không cần file). Spec: `docs/superpowers/specs/2026-06-20-kiddyhub-phase-4a-audio-voice.md`
 - ✅ **(Phần D)** Hoạt ảnh, hiệu ứng, chuyển cảnh mượt — chuyển cảnh React (fade+slide) + entrance so-le; trong Phaser: pop-in prompt/ô/Cáo, đúng = nảy + lấp lánh, sao bay lên HUD. Nền tảng `src/motion/` (tokens + `prefers-reduced-motion` cho cả React hook & helper thuần). Visual-only, giữ logic/guard/hit-area.
 - ☐ Kiểm thử trải nghiệm với trẻ thật
-- ☐ (Tuỳ chọn) Bật PWA offline
+- ✅ **(Phần F)** Bật PWA offline — `vite-plugin-pwa`: web manifest (tên KiddyHub, icon Cáo, standalone, màu thương hiệu) + service worker precache app shell + 16 scene + Phaser → **cài được & chạy offline**; nginx phục vụ `sw.js`/manifest no-cache.
 
 ---
 
@@ -96,6 +96,7 @@ Thêm 1 trò mỗi nhóm còn lại để mỗi đảo có nội dung.
 - **2026-06-19** — Merge vào `main` + đẩy lên GitHub (https://github.com/billphamhypertek/kiddy-hub). Thêm README. Thêm Docker (multi-stage Vite→nginx) + docker-compose, deploy local chạy ở http://localhost:8088. Sẵn sàng cho Giai đoạn 2.
 - **2026-06-19** — Giai đoạn 2 hoàn thành: thêm 5 trò (Bé Nhận Mặt Chữ, Tìm Quy Luật, Lật Hình Tìm Cặp, Ghép Hình, First Words) — mỗi đảo nay có nội dung; tách + test `applyCompletion`. 51→85 test pass; build thành công. Kế tiếp: Giai đoạn 3 (10 trò còn lại).
 - **2026-06-20** — Giai đoạn 3 hoàn thành: thêm 9 trò (Nhiều hơn – Ít hơn, Ghép Số với Lượng, Chữ Cái Đầu Tiên, Vật Lạ Trong Nhóm, Phân Loại, Nhận Diện Màu & Hình, ABC, Numbers 1–10, Colors) — 15/16 trò; #10 Tìm Điểm Khác dời sang GĐ4 (cần ảnh thật). 85→138 test pass; build thành công. Kế tiếp: Giai đoạn 4.
+- **2026-06-20** — **Giai đoạn 4 Phần F (PWA offline) hoàn thành — TRỌN BỘ MỤC CODE GĐ4 XONG.** Thêm `vite-plugin-pwa` (`registerType:autoUpdate`, `injectRegister:auto` → không đụng app code, không ảnh hưởng test): web manifest (KiddyHub, mô tả Việt, standalone, landscape, màu Cáo `#ff8c42`/kem `#fef6ec`, `categories` education/kids/games) + service worker precache **33 mục/1929KiB** (app shell + 16 scene + Phaser → chạy offline). Icon cài đặt sinh từ linh vật Cáo (`scripts/build-pwa-icons.mjs`, headless Chrome): 192/512/maskable-512/apple-touch-180 vào `public/icons/`. Sửa `nginx.conf` để `sw.js`/`registerSW.js`/`manifest.webmanifest` phục vụ no-cache (tránh kẹt SW cũ), `/assets/*` vẫn immutable. 213 test giữ nguyên; build emit `sw.js`+manifest+icons; lint sạch. Còn lại GĐ4: chỉ "kiểm thử với trẻ thật" (việc con người).
 - **2026-06-20** — **Giai đoạn 4 Phần E (Tách bundle Phaser) hoàn thành.** Đổi contract `GameModule`: `createScene` → `loadScene(): Promise<SceneFactory>` (mỗi trò `import()` Scene động, module không còn import Phaser tĩnh) + `React.lazy(GameContainer)` + Suspense ("Đang tải trò chơi…"). Phaser thành chunk async, **bundle khởi động 1.824kB → 288kB (−84%; gzip 447→94kB)**; menu không tải Phaser. Kèm tách `src/state/selectScreen.ts` (hàm thuần chọn màn) + test phủ ca regression D1 (parentGate khi chưa có profile). Review 0 lỗi; xác nhận StrictMode boot đúng 1 Phaser instance. 188→213 test pass; build + lint sạch. Kế tiếp: **Phần F (tuỳ chọn) — PWA offline**.
 - **2026-06-20** — **Giai đoạn 4 Phần D (Hoạt ảnh / hiệu ứng / chuyển cảnh) hoàn thành.** D1 (sub-agent): nền tảng `src/motion/` (tokens thời lượng/easing + `usePrefersReducedMotion` hook + `prefersReducedMotion` thuần, đều jsdom-safe) + `<ScreenTransition>` (fade+slide khi đổi màn) + entrance so-le cho lưới avatar/đảo/thẻ trò/vườn sao. D2 (sub-agent): `src/art/sceneMotion.ts` (`animateIn`/`popCorrect`/`flyStars`) áp 16 scene — entrance pop-in, đúng = nảy + lấp lánh, sao bay lên HUD. Tất cả tôn trọng reduced-motion, tương tác tức thời, end-state an toàn. Review tìm 1 MUST-FIX (refactor App.tsx ở D1 vô tình che Khu phụ huynh — sửa thứ tự nhánh) + 1 polish (shapes-colors scale quanh tâm). 174→188 test pass; build + lint sạch. Kế tiếp: **Phần E — tách bundle Phaser**.
 - **2026-06-20** — **Giai đoạn 4 Phần C (#10 Tìm Điểm Khác) hoàn thành — đủ 16/16 trò.** Trò cuối từng bị hoãn vì cần ảnh thật; nay tận dụng hạ tầng SVG (B): một cảnh vườn-Cáo SVG render 2 bản, mỗi vòng random N điểm khác (logic thuần seeded, test riêng), 3 mức (3/4/5 điểm) × 3 vòng, chạm hotspot vô hình trên ảnh đổi → đánh dấu; nhóm `memory` (theo spec §9). Review 0 lỗi MUST-FIX; sửa 2 polish (comment định tuyến tap chính xác + `topOnly` tường minh; bush rõ hơn ở L3). 153→164 test pass; build + lint sạch. Kế tiếp: **Phần D — hoạt ảnh/hiệu ứng**.

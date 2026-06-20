@@ -1,3 +1,6 @@
+# NOTE: public/ (PWA icons), scripts/, index.html, src/ and vite.config.ts are
+# intentionally NOT excluded — the multi-stage build needs them to emit the SW,
+# manifest and icons into dist/.
 node_modules
 dist
 .git
