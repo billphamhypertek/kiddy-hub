@@ -2,12 +2,14 @@ import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, celebrate } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import { addArt, type ArtScene } from '../../art/svg';
+import { creature, emojiToCreatureId } from '../../art/creatures';
 import { buildBoard, gridForLevel, starsForFlips, type Card } from './memoryLogic';
 
 interface CardView {
   card: Card;
   rect: Phaser.GameObjects.Rectangle;
-  label: Phaser.GameObjects.Text;
+  label: Phaser.GameObjects.Image;
   matched: boolean;
   faceUp: boolean;
 }
@@ -59,10 +61,10 @@ export class MemoryMatchScene extends Phaser.Scene {
         .rectangle(x, y, cell, cell, 0xb89bff)
         .setStrokeStyle(6, 0x8a5cff)
         .setInteractive({ useHandCursor: true });
-      const label = this.add
-        .text(x, y, card.faceKey, { fontSize: '64px' })
-        .setOrigin(0.5)
-        .setVisible(false);
+      const id = emojiToCreatureId(card.faceKey);
+      const label = (
+        addArt(this as unknown as ArtScene, `creature-${id}`, creature(id), x, y, 96) as unknown as Phaser.GameObjects.Image
+      ).setVisible(false);
       const view: CardView = { card, rect, label, matched: false, faceUp: false };
       rect.on('pointerdown', () => this.flip(view));
       this.views.push(view);

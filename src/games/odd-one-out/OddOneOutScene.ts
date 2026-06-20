@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import { addArt, type ArtScene } from '../../art/svg';
+import { creature, emojiToCreatureId } from '../../art/creatures';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, type OddRound } from './oddOneOutLogic';
 
 export class OddOneOutScene extends Phaser.Scene {
@@ -62,7 +64,15 @@ export class OddOneOutScene extends Phaser.Scene {
       const btn = this.add
         .rectangle(x, y, 120, 120, 0xffffff, 0.001)
         .setInteractive({ useHandCursor: true });
-      const label = this.add.text(x, y, emoji, { fontSize: '64px' }).setOrigin(0.5);
+      const id = emojiToCreatureId(emoji);
+      const label = addArt(
+        this as unknown as ArtScene,
+        `creature-${id}`,
+        creature(id),
+        x,
+        y,
+        104,
+      ) as unknown as Phaser.GameObjects.Image;
       btn.on('pointerdown', () => this.choose(i, btn, tile, label));
       this.layer!.add(btn);
       this.layer!.add(label);
@@ -76,7 +86,7 @@ export class OddOneOutScene extends Phaser.Scene {
     index: number,
     btn: Phaser.GameObjects.Rectangle,
     tile: Phaser.GameObjects.Image,
-    label: Phaser.GameObjects.Text,
+    label: Phaser.GameObjects.Image,
   ): void {
     if (this.roundResolved) return;
     if (index === this.current.oddIndex) {

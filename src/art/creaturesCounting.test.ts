@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { creature, emojiToCreatureId, COUNTING_CREATURE_IDS } from './creaturesCounting';
+import { CREATURE_IDS } from './creatures';
 import { COUNTING_ANIMALS } from '../games/counting-fun/countingLogic';
 
 /**
@@ -35,7 +36,10 @@ describe('creature kit (counting subset)', () => {
   });
 
   it('gives an unknown emoji a stable fallback id', () => {
+    // 6.2 consolidation: the resolver now defaults unknown emoji to a real
+    // catalog id (a neutral 'star') rather than a counting animal. Still never
+    // blank / always a known id.
     const id = emojiToCreatureId('🐙');
-    expect(COUNTING_CREATURE_IDS).toContain(id);
+    expect(CREATURE_IDS).toContain(id);
   });
 });

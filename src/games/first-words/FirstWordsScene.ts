@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption, dimDistractor } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import { addArt, type ArtScene } from '../../art/svg';
+import { creature, emojiToCreatureId } from '../../art/creatures';
 import { distractorsToDim } from '../scaffold';
 import { hintKeyForSkill, HINT_FEWER_KEY } from '../masteryMap';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, WORD_BANK, type WordRound } from './wordLogic';
@@ -24,7 +26,7 @@ export class FirstWordsScene extends Phaser.Scene {
   private optionObjs: Array<{
     value: string;
     tile: Phaser.GameObjects.Image;
-    label: Phaser.GameObjects.Text;
+    label: Phaser.GameObjects.Image;
     btn: Phaser.GameObjects.Rectangle;
   }> = [];
 
@@ -86,7 +88,15 @@ export class FirstWordsScene extends Phaser.Scene {
       const btn = this.add
         .rectangle(x, y, 130, 130, 0xffffff, 0.001)
         .setInteractive({ useHandCursor: true });
-      const label = this.add.text(x, y, item.emoji, { fontSize: '66px' }).setOrigin(0.5);
+      const id = emojiToCreatureId(item.emoji);
+      const label = addArt(
+        this as unknown as ArtScene,
+        `creature-${id}`,
+        creature(id),
+        x,
+        y,
+        108,
+      ) as unknown as Phaser.GameObjects.Image;
       btn.on('pointerdown', () => this.choose(item.word, btn, tile, label));
       this.layer!.add(btn);
       this.layer!.add(label);
@@ -101,7 +111,7 @@ export class FirstWordsScene extends Phaser.Scene {
     word: string,
     btn: Phaser.GameObjects.Rectangle,
     tile: Phaser.GameObjects.Image,
-    label: Phaser.GameObjects.Text,
+    label: Phaser.GameObjects.Image,
   ): void {
     if (this.roundResolved) return;
     if (word === this.current.target.word) {

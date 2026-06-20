@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, addOptionTile, celebrate } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import { addArt, type ArtScene } from '../../art/svg';
+import { creature, emojiToCreatureId } from '../../art/creatures';
 import { generateRound, starsFor, type SortingRound } from './sortingLogic';
 
 interface BasketInfo {
@@ -59,7 +61,10 @@ export class SortingScene extends Phaser.Scene {
       // Soft tile behind each basket, then the basket outline + its label emoji.
       furniture.push(addOptionTile(this, x, basketY, 180).setDisplaySize(186, 146));
       furniture.push(this.add.rectangle(x, basketY, 170, 130, 0xffffff, 0.001).setStrokeStyle(6, 0xffd36e));
-      furniture.push(this.add.text(x, basketY, basket.label, { fontSize: '72px' }).setOrigin(0.5));
+      const labelId = emojiToCreatureId(basket.label);
+      furniture.push(
+        addArt(this as unknown as ArtScene, `creature-${labelId}`, creature(labelId), x, basketY, 100) as unknown as Phaser.GameObjects.Image,
+      );
       this.baskets.push({ index: i, x, y: basketY });
     });
 
@@ -72,10 +77,10 @@ export class SortingScene extends Phaser.Scene {
       // Static "home" tile under each pile item; the draggable emoji sits on top
       // and the tile stays put as the item is dragged out and (maybe) bounced back.
       furniture.push(addOptionTile(this, x, trayY, 84));
-      const obj = this.add
-        .text(x, trayY, item.emoji, { fontSize: '56px' })
-        .setOrigin(0.5)
-        .setInteractive({ useHandCursor: true, draggable: true });
+      const itemId = emojiToCreatureId(item.emoji);
+      const obj = (
+        addArt(this as unknown as ArtScene, `creature-${itemId}`, creature(itemId), x, trayY, 72) as unknown as Phaser.GameObjects.Image
+      ).setInteractive({ useHandCursor: true, draggable: true });
       obj.setData('basketIndex', item.basketIndex);
       obj.setData('homeX', x);
       obj.setData('homeY', trayY);
@@ -85,14 +90,14 @@ export class SortingScene extends Phaser.Scene {
     // Entrance for static furniture only; the draggable pile emoji are untouched.
     animateIn(this, furniture);
 
-    this.input.on('drag', (_p: Phaser.Input.Pointer, obj: Phaser.GameObjects.Text, dx: number, dy: number) => {
+    this.input.on('drag', (_p: Phaser.Input.Pointer, obj: Phaser.GameObjects.Image, dx: number, dy: number) => {
       obj.x = dx;
       obj.y = dy;
     });
-    this.input.on('dragend', (_p: Phaser.Input.Pointer, obj: Phaser.GameObjects.Text) => this.onDrop(obj));
+    this.input.on('dragend', (_p: Phaser.Input.Pointer, obj: Phaser.GameObjects.Image) => this.onDrop(obj));
   }
 
-  private onDrop(obj: Phaser.GameObjects.Text): void {
+  private onDrop(obj: Phaser.GameObjects.Image): void {
     if (this.finished) return;
     const wantBasket = obj.getData('basketIndex') as number;
 

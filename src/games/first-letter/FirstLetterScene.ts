@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption, dimDistractor } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import { addArt, type ArtScene } from '../../art/svg';
+import { creature, emojiToCreatureId } from '../../art/creatures';
 import { distractorsToDim } from '../scaffold';
 import { hintKeyForSkill, HINT_FEWER_KEY } from '../masteryMap';
 import {
@@ -71,8 +73,16 @@ export class FirstLetterScene extends Phaser.Scene {
     this.layer.add(prompt);
     void this.host.speak('firstletter.prompt');
 
+    const pictureId = emojiToCreatureId(this.current.entry.emoji);
     this.layer.add(
-      this.add.text(width / 2, height / 2 - 60, this.current.entry.emoji, { fontSize: '120px' }).setOrigin(0.5),
+      addArt(
+        this as unknown as ArtScene,
+        `creature-${pictureId}`,
+        creature(pictureId),
+        width / 2,
+        height / 2 - 60,
+        160,
+      ) as unknown as Phaser.GameObjects.Image,
     );
     this.layer.add(
       this.add

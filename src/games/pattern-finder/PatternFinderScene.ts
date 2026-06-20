@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import { addArt, type ArtScene } from '../../art/svg';
+import { creature, emojiToCreatureId } from '../../art/creatures';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, type PatternRound } from './patternLogic';
 
 export class PatternFinderScene extends Phaser.Scene {
@@ -55,10 +57,20 @@ export class PatternFinderScene extends Phaser.Scene {
     const cells = [...this.current.sequence, '?'];
     const startX = width / 2 - ((cells.length - 1) * 84) / 2;
     cells.forEach((tok, i) => {
-      const cell = this.add
-        .text(startX + i * 84, height / 2 - 40, tok, { fontSize: '56px' })
-        .setOrigin(0.5);
-      this.layer!.add(cell);
+      const cx = startX + i * 84;
+      const cy = height / 2 - 40;
+      if (tok === '?') {
+        this.layer!.add(
+          this.add
+            .text(cx, cy, '?', { fontSize: '56px', color: '#5b4636', fontStyle: 'bold' })
+            .setOrigin(0.5),
+        );
+      } else {
+        const id = emojiToCreatureId(tok);
+        this.layer!.add(
+          addArt(this as unknown as ArtScene, `creature-${id}`, creature(id), cx, cy, 66) as unknown as Phaser.GameObjects.Image,
+        );
+      }
     });
 
     // Option buttons.
@@ -73,7 +85,15 @@ export class PatternFinderScene extends Phaser.Scene {
       const btn = this.add
         .rectangle(x, y, 100, 100, 0xffffff, 0.001)
         .setInteractive({ useHandCursor: true });
-      const label = this.add.text(x, y, tok, { fontSize: '48px' }).setOrigin(0.5);
+      const id = emojiToCreatureId(tok);
+      const label = addArt(
+        this as unknown as ArtScene,
+        `creature-${id}`,
+        creature(id),
+        x,
+        y,
+        72,
+      ) as unknown as Phaser.GameObjects.Image;
       btn.on('pointerdown', () => this.choose(tok, btn, tile, label));
       this.layer!.add(btn);
       this.layer!.add(label);
@@ -87,7 +107,7 @@ export class PatternFinderScene extends Phaser.Scene {
     tok: string,
     btn: Phaser.GameObjects.Rectangle,
     tile: Phaser.GameObjects.Image,
-    label: Phaser.GameObjects.Text,
+    label: Phaser.GameObjects.Image,
   ): void {
     if (this.roundResolved) return;
     if (tok === this.current.answer) {

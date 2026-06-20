@@ -9,7 +9,7 @@ import { dirname, resolve } from 'node:path';
 
 import { palette, radius } from '../src/art/tokens.ts';
 import { foxGuide, foxCheer, foxIdle, foxThink, foxPoint, foxNod } from '../src/art/fox.ts';
-import { creature, COUNTING_CREATURE_IDS } from '../src/art/creaturesCounting.ts';
+import { creature, COUNTING_CREATURE_IDS, CREATURE_IDS } from '../src/art/creatures.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const artDir = resolve(__dirname, '../docs/art');
@@ -75,7 +75,7 @@ function island(cx, cy) {
 }
 
 const W = 1200;
-const H = 1180;
+const H = 1180 + 60 + Math.ceil(CREATURE_IDS.length / 10) * 116;
 const board =
   `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="'Baloo 2','Comic Sans MS',system-ui,sans-serif">` +
   `<rect width="${W}" height="${H}" fill="${palette.background}"/>` +
@@ -115,6 +115,13 @@ const board =
   cell(380, 1054, 110, 110, foxNod, 'nod') +
   cell(540, 1054, 110, 110, foxIdle, 'idle (repaint)') +
   cell(700, 1054, 110, 110, foxCheer, 'cheer (repaint)') +
+  // ── GĐ6.2 — full creature/object catalog (every id the kit can draw) ──
+  `<text x="40" y="1210" font-size="24" font-weight="700" fill="${palette.ink}">Storybook 6.2 — bộ kit đầy đủ (${CREATURE_IDS.length} vật thể thay emoji)</text>` +
+  CREATURE_IDS.map((id, i) => {
+    const col = i % 10;
+    const row = Math.floor(i / 10);
+    return cell(60 + col * 116, 1234 + row * 116, 96, 96, () => creature(id), id);
+  }).join('') +
   `</svg>`;
 
 mkdirSync(artDir, { recursive: true });

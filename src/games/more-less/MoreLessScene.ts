@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, addOptionTile, celebrate, shakeOption } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars } from '../../art/sceneMotion';
+import { addArt, type ArtScene } from '../../art/svg';
+import { creature, emojiToCreatureId } from '../../art/creatures';
 import { QUESTIONS_PER_GAME, generateRound, starsFor, type MoreLessRound } from './moreLessLogic';
 
 export class MoreLessScene extends Phaser.Scene {
@@ -36,12 +38,19 @@ export class MoreLessScene extends Phaser.Scene {
     const cellH = 56;
     const startX = cx - ((cols - 1) * cellW) / 2;
     const topY = 210;
+    const id = emojiToCreatureId(emoji);
+    const svg = creature(id);
     for (let i = 0; i < count; i++) {
       const col = i % cols;
       const row = Math.floor(i / cols);
-      const t = this.add
-        .text(startX + col * cellW, topY + row * cellH, emoji, { fontSize: '44px' })
-        .setOrigin(0.5);
+      const t = addArt(
+        this as unknown as ArtScene,
+        `creature-${id}`,
+        svg,
+        startX + col * cellW,
+        topY + row * cellH,
+        50,
+      ) as unknown as Phaser.GameObjects.Image;
       this.layer!.add(t);
     }
   }

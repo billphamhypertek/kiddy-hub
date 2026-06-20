@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import type { GameHost } from '../GameModule';
 import { addSceneBackground, addChrome, addOptionTile, celebrate } from '../../art/sceneArt';
 import { animateIn, popCorrect, flyStars, type MotionObject } from '../../art/sceneMotion';
+import { addArt, type ArtScene } from '../../art/svg';
+import { creature, emojiToCreatureId } from '../../art/creatures';
 import { generateRound, starsFor, type MatchQuantityRound } from './matchQuantityLogic';
 
 interface SlotInfo {
@@ -60,11 +62,20 @@ export class MatchQuantityScene extends Phaser.Scene {
       // Emoji group.
       const groupX = width * 0.32;
       const startX = groupX - ((Math.min(5, pair.value) - 1) * 46) / 2;
+      const id = emojiToCreatureId(pair.emoji);
+      const svg = creature(id);
       for (let k = 0; k < pair.value; k++) {
         const col = k % 5;
         const row = Math.floor(k / 5);
         furniture.push(
-          this.add.text(startX + col * 46, y - 20 + row * 40, pair.emoji, { fontSize: '36px' }).setOrigin(0.5),
+          addArt(
+            this as unknown as ArtScene,
+            `creature-${id}`,
+            svg,
+            startX + col * 46,
+            y - 20 + row * 40,
+            44,
+          ) as unknown as Phaser.GameObjects.Image,
         );
       }
       // Drop slot (target): a soft tile backing + the dashed-looking outline.
