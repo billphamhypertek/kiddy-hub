@@ -28,7 +28,7 @@ export default defineConfig({
         // Precache the full app shell AND the code-split chunks so every game
         // works offline. Phaser is a ~1.5 MB lazy chunk — precaching it is the
         // whole point, so raise the per-file cap above its size.
-        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest,ico,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest,ico,woff2,mp3}'],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MiB
         cleanupOutdatedCaches: true,
         navigateFallback: '/index.html',

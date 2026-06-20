@@ -4,6 +4,8 @@ import type { Screen } from './state/screens';
 import { selectScreen } from './state/selectScreen';
 import { createAudioManager, type AudioManager } from './audio/AudioManager';
 import { createWebSpeechEngine } from './audio/speechEngine';
+import { createPrerecordedEngine } from './audio/prerecordedEngine';
+import { VOICE_CLIPS } from './audio/voiceClips';
 import { createWebAudioSfxEngine } from './audio/sfxEngine';
 import { AUDIO_MANIFEST } from './audio/audioManifest';
 import { registerAllGames } from './games';
@@ -159,7 +161,14 @@ function Root({ audio }: { audio: AudioManager }) {
 
 export default function App() {
   const audio = useMemo(
-    () => createAudioManager(createWebSpeechEngine(), createWebAudioSfxEngine(), AUDIO_MANIFEST),
+    () =>
+      createAudioManager(
+        // Pre-recorded Piper clips first; Web Speech stays as the fallback for
+        // unbounded content (child names) and anything without a bundled clip.
+        createPrerecordedEngine(VOICE_CLIPS, createWebSpeechEngine()),
+        createWebAudioSfxEngine(),
+        AUDIO_MANIFEST,
+      ),
     [],
   );
   return (

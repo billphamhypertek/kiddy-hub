@@ -6,6 +6,11 @@ node_modules/
 dist/
 .vite/
 
+# Piper TTS voice models + venv (GĐ5A) — tải/sinh một lần, KHÔNG commit.
+# Clip MP3 đã sinh nằm ở public/voice/ (commit), không phải ở đây.
+scripts/.piper-cache/
+scripts/voice-samples/
+
 # Logs & OS
 *.log
 .DS_Store
